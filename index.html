@@ -158,48 +158,47 @@
   <!-- Load Supabase SDK FIRST -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const client = supabase.createClient(
+  const supabase = supabase.createClient(
     'https://rdomgvvjbjfrvkbhjxds.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkb21ndnZqYmpmcnZrYmhqeGRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2MjY5NTEsImV4cCI6MjA2OTIwMjk1MX0.3CMfwZ_HocNzkyvuYjvFL3lypZX2JL2kXvk3kL5AB54'
   );
 
   async function loginWithDiscord() {
-    const { data, error } = await client.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'discord',
       options: {
-        redirectTo: window.location.origin // comes back here after login
+        redirectTo: window.location.origin // after login, come back here
       }
     });
-
-    if (error) {
-      console.error('Login error:', error.message);
-    }
+    if (error) console.error('Login error:', error.message);
   }
 
-  // On page load, check if user is logged in
-  client.auth.getSession().then(async ({ data: { session } }) => {
-    if (!session) return; // not logged in
+  supabase.auth.getSession().then(async ({ data: { session } }) => {
+    if (!session) return;
 
     const user = session.user;
     const { id, user_metadata } = user;
-    const username = user_metadata?.name || "user" + id.slice(0, 6);
+    const username = user_metadata?.name || user_metadata?.full_name || "user" + id.slice(0, 5);
     const avatar_url = user_metadata?.avatar_url;
 
-    // Save to database
-    const { error } = await client.from('users').upsert({
+    // Insert into users table
+    const { error } = await supabase.from('users').upsert({
       id,
       username,
       avatar_url
     });
 
     if (error) {
-      console.error('Upsert failed:', error.message);
-    } else {
-      // Redirect to /username
-      window.location.href = '/' + encodeURIComponent(username);
+      console.error("Database error:", error.message);
+      document.body.innerHTML = `<h1 style="color: red;">Database error: ${error.message}</h1>`;
+      return;
     }
+
+    // Redirect to /username
+    window.location.href = "/" + encodeURIComponent(username);
   });
 </script>
+
 
 </body>
 </html>
