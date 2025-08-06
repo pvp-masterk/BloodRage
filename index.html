@@ -160,14 +160,14 @@
 
 <script>
   // Initialize Supabase
-  const supabase = supabase.createClient(
+  const client = supabase.createClient(
     'https://rdomgvvjbjfrvkbhjxds.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkb21ndnZqYmpmcnZrYmhqeGRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2MjY5NTEsImV4cCI6MjA2OTIwMjk1MX0.3CMfwZ_HocNzkyvuYjvFL3lypZX2JL2kXvk3kL5AB54'
   );
 
   // Login with Discord
   async function loginWithDiscord() {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error } = await client.auth.signInWithOAuth({
       provider: 'discord',
       options: {
         redirectTo: window.location.origin + '/auth/callback.html'
