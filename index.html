@@ -159,62 +159,56 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const client = supabase.createClient(
-    "https://rdomgvvjbjfrvkbhjxds.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkb21ndnZqYmpmcnZrYmhqeGRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2MjY5NTEsImV4cCI6MjA2OTIwMjk1MX0.3CMfwZ_HocNzkyvuYjvFL3lypZX2JL2kXvk3kL5AB54"
+    'https://rdomgvvjbjfrvkbhjxds.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkb21ndnZqYmpmcnZrYmhqeGRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2MjY5NTEsImV4cCI6MjA2OTIwMjk1MX0.3CMfwZ_HocNzkyvuYjvFL3lypZX2JL2kXvk3kL5AB54'
   );
 
-  const DISCORD_CLIENT_ID = "1402561849194582056";
-  const DISCORD_REDIRECT_URI = window.location.origin;
-
-  // 1. Login button triggers manual redirect
-  function loginWithDiscordManual() {
-    const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT_URI)}&response_type=code&scope=identify`;
-    window.location.href = discordAuthUrl;
-  }
-
-  // 2. If redirected back with a ?code= from Discord, exchange it
-  async function handleDiscordCallback() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get("code");
-    if (!code) return;
-
-    const { data, error } = await client.auth.exchangeCodeForSession(code);
+  async function loginWithDiscord() {
+    const { data, error } = await client.auth.signInWithOAuth({
+      provider: 'discord',
+      options: {
+        redirectTo: window.location.origin // returns to same page
+      }
+    });
 
     if (error) {
-      console.error("Exchange failed:", error.message);
-      document.body.innerHTML = `<h1 style="color:red;">Login failed: ${error.message}</h1>`;
-      return;
+      console.error("Login error:", error.message);
     }
+  }
 
-    const session = data.session;
+  // Run on page load to check session
+  client.auth.getSession().then(async ({ data: { session } }) => {
+    if (!session) return;
+
     const user = session.user;
-
     const { id, user_metadata } = user;
-    const username = user_metadata.name || "user" + id.slice(0, 6);
+    const username = user_metadata.name || user_metadata.full_name || "user" + id.slice(0, 5);
     const avatar_url = user_metadata.avatar_url;
 
-    // Manual INSERT
-    const { error: insertError } = await client.from("users").insert({
+    // Insert user (or update if exists)
+    let { error } = await client.from('users').insert({
       id,
       username,
       avatar_url
     });
 
-    // If user exists, do update
-    if (insertError && insertError.code === "23505") {
-      await supabase.from("users").update({ username, avatar_url }).eq("id", id);
-    } else if (insertError) {
-      console.error("Insert failed:", insertError.message);
-      document.body.innerHTML = `<h1 style="color:red;">Database error: ${insertError.message}</h1>`;
-      return;
+    // If user already exists, update instead
+    if (error && error.code === "23505") {
+      const { error: updateError } = await client
+        .from('users')
+        .update({ username, avatar_url })
+        .eq('id', id);
+      error = updateError;
     }
 
-    // Redirect to /username
-    window.location.href = "/" + encodeURIComponent(username);
-  }
-
-  // Run on page load
-  handleDiscordCallback();
+    if (error) {
+      console.error("DB error:", error.message);
+      document.body.innerHTML = `<h1 style="color:red;">Database error: ${error.message}</h1>`;
+    } else {
+      // Go to profile
+      window.location.href = "/" + encodeURIComponent(username);
+    }
+  });
 </script>
 
 
