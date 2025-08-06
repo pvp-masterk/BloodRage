@@ -158,13 +158,13 @@
   <!-- Load Supabase SDK FIRST -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const supabase = supabase.createClient(
+  const client = supabase.createClient(
     'https://rdomgvvjbjfrvkbhjxds.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkb21ndnZqYmpmcnZrYmhqeGRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2MjY5NTEsImV4cCI6MjA2OTIwMjk1MX0.3CMfwZ_HocNzkyvuYjvFL3lypZX2JL2kXvk3kL5AB54'
   );
 
   async function loginWithDiscord() {
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await client.auth.signInWithOAuth({
       provider: 'discord',
       options: {
         redirectTo: window.location.origin // comes back here after login
@@ -177,7 +177,7 @@
   }
 
   // On page load, check if user is logged in
-  supabase.auth.getSession().then(async ({ data: { session } }) => {
+  client.auth.getSession().then(async ({ data: { session } }) => {
     if (!session) return; // not logged in
 
     const user = session.user;
@@ -186,7 +186,7 @@
     const avatar_url = user_metadata?.avatar_url;
 
     // Save to database
-    const { error } = await supabase.from('users').upsert({
+    const { error } = await client.from('users').upsert({
       id,
       username,
       avatar_url
