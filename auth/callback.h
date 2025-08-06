@@ -1,0 +1,31 @@
+<!-- auth/callback.html -->
+<!DOCTYPE html>
+<html>
+<head><title>Logging in...</title></head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const supabase = supabase.createClient(
+      'https://rdomgvvjbjfrvkbhjxds.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkb21ndnZqYmpmcnZrYmhqeGRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2MjY5NTEsImV4cCI6MjA2OTIwMjk1MX0.3CMfwZ_HocNzkyvuYjvFL3lypZX2JL2kXvk3kL5AB54'
+    );
+
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN') {
+        const user = session.user;
+        const { id, user_metadata } = user;
+        const { avatar_url, name } = user_metadata;
+
+        await supabase.from('users').upsert({
+          id,
+          username: name,
+          avatar_url
+        });
+
+        // Redirect to profile page
+        window.location.href = `/${encodeURIComponent(name)}`;
+      }
+    });
+  </script>
+</body>
+</html>
