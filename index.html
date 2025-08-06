@@ -1,218 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BloodRage</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+  <title>guns.lol clone</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Oswald', sans-serif;
-      color: #fff;
-      height: 100vh;
-      overflow: hidden;
-      background: url('https://images.unsplash.com/photo-1608002033984-65c70994b3c7?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
-      backdrop-filter: blur(10px);
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      text-align: center;
-    }
-
-    .logo {
-      margin-bottom: 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .logo-image {
-      width: 150px;
-      height: 150px;
-      background: radial-gradient(circle, #ff0000, #8b0000);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 30px rgba(139, 0, 0, 0.7);
-      animation: pulse 2s infinite alternate;
-      margin-bottom: 1rem;
-    }
-
-    .logo-image::before {
-      content: "BR";
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 4rem;
-      color: #fff;
-    }
-
-    .logo-text {
-      font-size: 4rem;
-      color: #ff0000;
-      text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
-      animation: glow 2s infinite alternate;
-      letter-spacing: 3px;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); box-shadow: 0 0 30px rgba(139, 0, 0, 0.7); }
-      100% { transform: scale(1.05); box-shadow: 0 0 50px rgba(255, 0, 0, 0.9); }
-    }
-
-    @keyframes glow {
-      from { text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #ff0000; }
-      to   { text-shadow: 0 0 20px #fff, 0 0 30px #ff4d4d, 0 0 40px #ff4d4d; }
-    }
-
-    .tagline {
-      font-size: 1.2rem;
-      margin-bottom: 3rem;
-      color: #ccc;
-      max-width: 600px;
-    }
-
-    .discord-login {
-      background-color: #5865F2;
-      color: white;
-      border: none;
-      padding: 1rem 2rem;
-      font-size: 1.2rem;
-      border-radius: 5px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 3rem;
-      transition: all 0.3s ease;
-    }
-
-    .discord-login:hover {
-      background-color: #4752c4;
-      transform: translateY(-3px);
-    }
-
-    .legal-links {
-      display: flex;
-      gap: 2rem;
-      margin-top: 2rem;
-    }
-
-    .legal-links a {
-      color: #aaa;
-      text-decoration: none;
-      font-size: 0.9rem;
-      position: relative;
-    }
-
-    .legal-links a::after {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 2px;
-      bottom: -5px;
-      left: 0;
-      background-color: #ff0000;
-      transform: scaleX(0);
-      transition: transform 0.3s;
-    }
-
-    .legal-links a:hover {
-      color: #fff;
-    }
-
-    .legal-links a:hover::after {
-      transform: scaleX(1);
-    }
-  </style>
 </head>
 <body>
-  <div class="container">
-    <div class="logo">
-      <div class="logo-image"></div>
-      <h1 class="logo-text">BLOODRAGE</h1>
-    </div>
+  <h1>guns.lol clone</h1>
 
-    <p class="tagline">trippin</p>
+  <button onclick="loginWithProvider('google')">Login with Google</button>
+  <button onclick="loginWithProvider('discord')">Login with Discord</button>
 
-   <button class="discord-login" onclick="loginWithDiscord()">
-  Login with Discord
-</button>
+  <div id="profile"></div>
 
+  <script>
+    const client = supabase.createClient("https://rdomgvvjbjfrvkbhjxds.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkb21ndnZqYmpmcnZrYmhqeGRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2MjY5NTEsImV4cCI6MjA2OTIwMjk1MX0.3CMfwZ_HocNzkyvuYjvFL3lypZX2JL2kXvk3kL5AB54");
 
-    <div class="legal-links">
-      <a href="/terms">Terms of Service</a>
-      <a href="/privacy">Privacy Policy</a>
-    </div>
-  </div>
+    async function loginWithProvider(provider) {
+      const { error } = await client.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: window.location.href
+        }
+      });
+      if (error) alert('Login error: ' + error.message);
+    }
 
-  <!-- Load Supabase SDK FIRST -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const client = supabase.createClient(
-    'https://rdomgvvjbjfrvkbhjxds.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkb21ndnZqYmpmcnZrYmhqeGRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2MjY5NTEsImV4cCI6MjA2OTIwMjk1MX0.3CMfwZ_HocNzkyvuYjvFL3lypZX2JL2kXvk3kL5AB54'
-  );
+    async function loadProfile() {
+      const { data: { session } } = await client.auth.getSession();
+      if (!session) return;
 
-  async function loginWithDiscord() {
-    const { data, error } = await client.auth.signInWithOAuth({
-      provider: 'discord',
-      options: {
-        redirectTo: window.location.origin // returns to same page
+      const user = session.user;
+      const { data, error } = await client
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (!data && !error) {
+        await client.from("profiles").insert({
+          id: user.id,
+          username: user.user_metadata?.user_name || user.email.split('@')[0],
+          avatar_url: user.user_metadata.avatar_url
+        });
+        return loadProfile();
       }
-    });
 
-    if (error) {
-      console.error("Login error:", error.message);
-    }
-  }
-
-  // Run on page load to check session
-  client.auth.getSession().then(async ({ data: { session } }) => {
-    if (!session) return;
-
-    const user = session.user;
-    const { id, user_metadata } = user;
-    const username = user_metadata.name || user_metadata.full_name || "user" + id.slice(0, 5);
-    const avatar_url = user_metadata.avatar_url;
-
-    // Insert user (or update if exists)
-    let { error } = await client.from('users').insert({
-      id,
-      username,
-      avatar_url
-    });
-
-    // If user already exists, update instead
-    if (error && error.code === "23505") {
-      const { error: updateError } = await client
-        .from('users')
-        .update({ username, avatar_url })
-        .eq('id', id);
-      error = updateError;
+      document.getElementById('profile').innerHTML = `
+        <p><strong>Username:</strong> ${data.username}</p>
+        <img src="${data.avatar_url}" width="100">
+        <p><a href="/${data.username}">Go to your profile</a></p>
+      `;
     }
 
-    if (error) {
-      console.error("DB error:", error.message);
-      document.body.innerHTML = `<h1 style="color:red;">Database error: ${error.message}</h1>`;
-    } else {
-      // Go to profile
-      window.location.href = "/" + encodeURIComponent(username);
-    }
-  });
-</script>
-
-
-
+    loadProfile();
+  </script>
 </body>
 </html>
