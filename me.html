@@ -30,28 +30,37 @@
     error: sessionError
   } = await client.auth.getSession();
 
-  if (sessionError) {
-    alert("Error fetching session: " + sessionError.message);
-    return;
-  }
-
-  if (!session) {
-    alert("No session found. Redirecting to login.");
+  if (sessionError || !session) {
+    alert("Not logged in. Redirecting...");
     window.location.href = '/index.html';
     return;
   }
 
   const userId = session.user.id;
+  const username = session.user.user_metadata?.name?.replace(/\s+/g, '').toLowerCase() || 'user';
+  const avatar_url = session.user.user_metadata?.avatar_url || '';
+  const bio = "This is my BloodRage profile.";
 
-  const { data: profile, error } = await client
+  let { data: profile, error } = await client
     .from('users')
     .select('*')
     .eq('id', userId)
-    .single();
+    .maybeSingle(); // allows 0 or 1 rows without error
 
-  if (error) {
-    alert("Profile fetch failed: " + error.message);
-    return;
+  if (!profile) {
+    // User row doesn't exist, insert it
+    const { data: newProfile, error: insertError } = await client
+      .from('users')
+      .insert([{ id: userId, username, avatar_url, bio }])
+      .select()
+      .single();
+
+    if (insertError) {
+      alert("Failed to create profile: " + insertError.message);
+      return;
+    }
+
+    profile = newProfile;
   }
 
   document.querySelector('h1').style.display = 'none';
