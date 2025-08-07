@@ -167,7 +167,16 @@
     button:hover {
       background: var(--primary-dark);
     }
-    
+
+    .not-available {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      text-align: center;
+      font-size: 1.2rem;
+      color: var(--muted);
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -177,6 +186,12 @@
     <nav>
       <a data-section="overview" class="active">Overview</a>
       <a data-section="settings">Settings</a>
+      <a data-section="badges">Badges</a>
+      <a data-section="customize">Customize</a>
+      <a data-section="links">Links</a>
+      <a data-section="premium">Premium</a>
+      <a data-section="image-host">Image Host</a>
+      <a data-section="templates">Templates</a>
     </nav>
   </aside>
   <main class="main">
@@ -230,6 +245,15 @@
         </form>
       </div>
     </div>
+
+    <div id="badges" class="section">
+      <div class="not-available">No badges available yet.</div>
+    </div>
+    <div id="customize" class="section"><div class="not-available">Customize section not available.</div></div>
+    <div id="links" class="section"><div class="not-available">Links section not available.</div></div>
+    <div id="premium" class="section"><div class="not-available">Premium section not available.</div></div>
+    <div id="image-host" class="section"><div class="not-available">Image host section not available.</div></div>
+    <div id="templates" class="section"><div class="not-available">Templates section not available.</div></div>
   </main>
 
   <script>
