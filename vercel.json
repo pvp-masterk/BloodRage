@@ -4,7 +4,7 @@
   "trailingSlash": false,
   "routes": [
     {
-      "src": "^/(?!(dashboard|profile|_next|static|api|favicon\\.ico|.*\\..*))[^/]+$",
+      "src": "^/((?!dashboard|profile|_next|static|api|favicon\\.ico|.*\\..*).+)$",
       "dest": "/profile.html?username=$1",
       "status": 200
     },
