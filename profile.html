@@ -708,8 +708,8 @@
         // Initialize the page
         async function init() {
             // Get username from URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const username = urlParams.get('username');
+            const pathParts = window.location.pathname.split('/');
+            const username = pathParts[1] || null;
             
             if (!username) {
                 showNotFound();
