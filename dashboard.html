@@ -184,15 +184,17 @@
     });
 
     async function linkDiscord() {
-    const { data, error } = await supabase.auth.linkIdentity({
-      provider: 'discord'
-    });
+   const { data, error } = await supabase.auth.linkIdentity({
+  provider: 'discord'
+});
 
-    if (error) {
-      alert('Error linking Discord: ' + error.message);
-    } else {
-      alert('Check popup to link your Discord!');
-    }
+if (error) {
+  console.error("Linking error:", error);
+  alert("Failed to link Discord.");
+} else {
+  // Optionally refresh or notify user
+  alert("Check the popup to finish linking Discord.");
+}
   }
 
     switchTab('account'); // default tab
