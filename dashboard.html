@@ -131,6 +131,46 @@
     .toggle {
       margin-top: 1rem;
     }
+
+  body.dark-theme {
+    background-color: #0f0f0f;
+    color: #f5f5f5;
+  }
+
+  body.light-theme {
+    background-color: #ffffff;
+    color: #222;
+  }
+
+  body.red-theme {
+    background-color: #1f0f0f;
+    color: #f88;
+  }
+
+  .theme-select {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #888;
+    background: transparent;
+    color: inherit;
+  }
+
+  .preview-btn, .save-theme-btn {
+    margin-top: 8px;
+    padding: 6px 10px;
+    border: none;
+    background-color: #444;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .preview-btn:hover, .save-theme-btn:hover {
+    background-color: #666;
+  }
+
+
   </style>
 </head>
 <body>
@@ -166,6 +206,14 @@
       <h2>Edit Profile</h2>
       <label>Username</label>
       <input id="new-username" type="text" />
+      <label for="theme-select">Select Theme:</label>
+  <select id="theme-select" class="theme-select">
+    <option value="dark-theme">Dark</option>
+    <option value="light-theme">Light</option>
+    <option value="red-theme">Red</option>
+  </select>
+  <button class="preview-btn" onclick="previewTheme()">Preview Theme</button>
+  <button class="save-theme-btn" onclick="saveTheme()">Save Theme</button>
       <label>Profile Picture URL</label>
       <input id="new-pfp" type="text" />
       <button class="login-btn" style="margin-top:1rem;" onclick="updateProfile()">Save Changes</button>
@@ -234,6 +282,50 @@
     document.body.style.backgroundColor = isDark ? '#f0f0f0' : '#0e0e0e';
     document.body.style.color = isDark ? '#000' : '#fff';
   }
+
+  async function loadUserTheme() {
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
+
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("users")
+      .select("theme")
+      .eq("id", user.id)
+      .single();
+
+    if (data?.theme) {
+      document.body.className = data.theme;
+      document.getElementById("theme-select").value = data.theme;
+    }
+  }
+
+  function previewTheme() {
+    const selectedTheme = document.getElementById("theme-select").value;
+    document.body.className = selectedTheme;
+  }
+
+  async function saveTheme() {
+    const selectedTheme = document.getElementById("theme-select").value;
+
+    const { data: { session } } = await client.auth.getSession();
+    const user = session?.user;
+
+    if (!user) return;
+
+    const { error } = await client
+      .from("users")
+      .update({ theme: selectedTheme })
+      .eq("id", user.id);
+
+    if (!error) {
+      alert("Theme saved!");
+    }
+  }
+
+  // Run theme loader on page load
+  document.addEventListener("DOMContentLoaded", loadUserTheme);
 
   checkSession();
 </script>
