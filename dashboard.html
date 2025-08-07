@@ -3,252 +3,239 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard</title>
+  <title>BloodRage Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #121212;
-      --fg: #fff;
-      --accent: #1e90ff;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--fg);
-      font-family: Arial, sans-serif;
-      margin: 0;
-      display: flex;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    .sidebar {
-      width: 200px;
-      background: #1c1c1c;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .sidebar button {
-      background: none;
-      color: var(--fg);
-      border: none;
-      padding: 10px;
-      text-align: left;
-      cursor: pointer;
-      border-left: 4px solid transparent;
+    * {
+      font-family: 'Outfit', sans-serif;
       transition: all 0.3s ease;
     }
 
-    .sidebar button.active,
-    .sidebar button:hover {
-      background: #2c2c2c;
-      border-left: 4px solid var(--accent);
+    body {
+      margin: 0;
+      background-color: #0e0e0e;
+      color: #fff;
     }
 
-    .content {
-      flex-grow: 1;
-      padding: 30px;
-      overflow-y: auto;
+    .centered-popup {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .popup {
+      background: #1e1e1e;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 400px;
+      box-shadow: 0 0 20px #000;
+    }
+
+    .popup h2 {
+      margin-bottom: 1rem;
+    }
+
+    .login-btn {
+      background: #222;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.2rem;
+      margin: 0.5rem;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .login-btn:hover {
+      background: #333;
+    }
+
+    .login-btn img {
+      height: 20px;
+      width: 20px;
+    }
+
+    .dashboard {
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: #161616;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-right: 1px solid #333;
+    }
+
+    .sidebar button {
+      background: #1f1f1f;
+      border: none;
+      color: white;
+      padding: 10px;
+      font-size: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .sidebar button.active {
+      background: #3b82f6;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 2rem;
     }
 
     .tab {
       display: none;
       opacity: 0;
-      transition: opacity 0.4s ease;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
     }
 
     .tab.active {
       display: block;
       opacity: 1;
+      transform: translateY(0);
     }
 
-    .login-popup {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-
-    .login-popup-inner {
-      background: #222;
-      padding: 30px;
-      border-radius: 12px;
-      text-align: center;
-      color: white;
-      width: 300px;
-    }
-
-    .login-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      background: #333;
-      color: white;
+    input, select {
       padding: 10px;
-      margin-top: 15px;
-      border: none;
       border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s;
+      border: none;
+      margin-top: 10px;
+      width: 100%;
+      background: #1e1e1e;
+      color: white;
     }
 
-    .login-btn:hover {
-      background: #444;
+    label {
+      display: block;
+      margin-top: 1rem;
     }
 
     .toggle {
-      appearance: none;
-      width: 60px;
-      height: 30px;
-      background: #555;
-      border-radius: 20px;
-      position: relative;
-      outline: none;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .toggle:checked {
-      background: var(--accent);
-    }
-
-    .toggle::before {
-      content: '';
-      position: absolute;
-      width: 24px;
-      height: 24px;
-      background: white;
-      border-radius: 50%;
-      top: 3px;
-      left: 3px;
-      transition: transform 0.3s;
-    }
-
-    .toggle:checked::before {
-      transform: translateX(30px);
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
-  <div class="login-popup" id="login-popup">
-    <div class="login-popup-inner">
-      <h2>Login to continue</h2>
-      <button class="login-btn" onclick="login('google')">
-        <img src="https://img.icons8.com/color/24/000000/google-logo.png"/>
-        Login with Google
-      </button>
-      <button class="login-btn" onclick="login('discord')">
-        <img src="https://img.icons8.com/ios-filled/24/ffffff/discord-logo.png"/>
-        Login with Discord
-      </button>
-    </div>
-  </div>
 
+<div class="centered-popup" id="auth-popup">
+  <div class="popup">
+    <h2>Login to BloodRage</h2>
+    <button class="login-btn" onclick="loginWithGoogle()">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" />
+      Login with Google
+    </button>
+    <button class="login-btn" onclick="loginWithDiscord()">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/Discord_logo.svg" alt="Discord" />
+      Login with Discord
+    </button>
+  </div>
+</div>
+
+<div class="dashboard" id="dashboard" style="display: none;">
   <div class="sidebar">
-    <button id="tab-btn-account" onclick="switchTab('account')">Account</button>
-    <button id="tab-btn-edit-profile" onclick="switchTab('edit-profile')">Edit Profile</button>
-    <button id="tab-btn-settings" onclick="switchTab('settings')">Settings</button>
+    <button onclick="switchTab('account')" id="tab-btn-account">Account</button>
+    <button onclick="switchTab('edit-profile')" id="tab-btn-edit-profile">Edit Profile</button>
+    <button onclick="switchTab('settings')" id="tab-btn-settings">Settings</button>
   </div>
-
-  <div class="content">
-    <div id="account-tab" class="tab active">
+  <div class="main-content">
+    <div id="account-tab" class="tab">
       <h2>Account</h2>
-      <p><strong>Email:</strong> <span id="email"></span></p>
-      <p><strong>Username:</strong> <span id="username"></span></p>
+      <p><strong>Email:</strong> <span id="user-email"></span></p>
+      <p><strong>Username:</strong> <span id="user-username"></span></p>
     </div>
 
     <div id="edit-profile-tab" class="tab">
       <h2>Edit Profile</h2>
-      <input type="text" id="new-username" placeholder="New username" />
-      <button onclick="changeUsername()">Change Username</button><br><br>
-      <button onclick="useDiscordAvatar()">Use Discord Profile Picture (if linked)</button>
+      <label>Username</label>
+      <input id="new-username" type="text" />
+      <label>Profile Picture URL</label>
+      <input id="new-pfp" type="text" />
+      <button class="login-btn" style="margin-top:1rem;" onclick="updateProfile()">Save Changes</button>
     </div>
 
     <div id="settings-tab" class="tab">
       <h2>Settings</h2>
-      <label>
-        Dark Mode
-        <input type="checkbox" class="toggle" id="theme-toggle" checked onchange="toggleTheme()" />
-      </label><br><br>
-      <button onclick="linkDiscord()">Link Discord</button>
+      <label class="toggle">
+        <input type="checkbox" id="theme-toggle" onchange="toggleTheme()" />
+        Toggle Dark/Light Mode
+      </label>
+      <button class="login-btn" onclick="linkDiscord()">Link Discord</button>
     </div>
   </div>
+</div>
 
-  <script>
-    const client = supabase.createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
+<script>
+  const client = supabase.createClient('https://smcteblolwhfxcpngmvd.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s');
 
-    async function login(provider) {
-      await client.auth.signInWithOAuth({ provider });
+  function switchTab(tab) {
+    const tabs = ['account', 'edit-profile', 'settings'];
+    tabs.forEach(t => {
+      const el = document.getElementById(`${t}-tab`);
+      const btn = document.getElementById(`tab-btn-${t}`);
+      el.classList.toggle('active', t === tab);
+      btn.classList.toggle('active', t === tab);
+    });
+  }
+
+  async function checkSession() {
+    const { data: { session } } = await client.auth.getSession();
+    if (session?.user) {
+      document.getElementById('auth-popup').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'flex';
+      const { data: userData } = await client.from('users').select('*').eq('id', session.user.id).single();
+      document.getElementById('user-email').textContent = session.user.email;
+      document.getElementById('user-username').textContent = userData.username || 'Unknown';
+      switchTab('account');
     }
+  }
 
-    async function checkSession() {
-      const { data: { session } } = await client.auth.getSession();
-      if (!session) {
-        document.getElementById("login-popup").style.display = "flex";
-        return;
-      }
-      document.getElementById("login-popup").style.display = "none";
-      loadUserData(session.user);
-    }
+  function loginWithGoogle() {
+    client.auth.signInWithOAuth({ provider: 'google' });
+  }
 
-    async function loadUserData(user) {
-      const { data, error } = await client.from("users").select("*").eq("id", user.id).single();
-      if (error) {
-        console.error(error);
-        return;
-      }
-      document.getElementById("email").textContent = user.email;
-      document.getElementById("username").textContent = data.username || "(no username)";
-    }
+  function loginWithDiscord() {
+    client.auth.signInWithOAuth({ provider: 'discord' });
+  }
 
-    function switchTab(tab) {
-      const tabs = ["account", "edit-profile", "settings"];
-      tabs.forEach(t => {
-        document.getElementById(`${t}-tab`).classList.remove("active");
-        document.getElementById(`tab-btn-${t}`).classList.remove("active");
-      });
-      document.getElementById(`${tab}-tab`).classList.add("active");
-      document.getElementById(`tab-btn-${tab}`).classList.add("active");
-    }
+  async function linkDiscord() {
+    client.auth.signInWithOAuth({ provider: 'discord' });
+  }
 
-    async function changeUsername() {
-      const newUsername = document.getElementById("new-username").value;
-      const { data: { user } } = await client.auth.getUser();
-      if (!newUsername || !user) return;
-      await client.from("users").update({ username: newUsername }).eq("id", user.id);
-      alert("Username updated!");
-      location.reload();
-    }
-
-    async function useDiscordAvatar() {
-      const { data: { user } } = await client.auth.getUser();
-      const { data } = await client.from("users").select("discord_avatar").eq("id", user.id).single();
-      if (data?.discord_avatar) {
-        await client.from("users").update({ avatar_url: data.discord_avatar }).eq("id", user.id);
-        alert("Discord avatar set!");
-      } else {
-        alert("No Discord avatar found.");
-      }
-    }
-
-    async function linkDiscord() {
-      await login("discord");
-    }
-
-    function toggleTheme() {
-      const isDark = document.getElementById("theme-toggle").checked;
-      document.body.style.background = isDark ? "#121212" : "#ffffff";
-      document.body.style.color = isDark ? "#fff" : "#000";
-    }
-
+  async function updateProfile() {
+    const username = document.getElementById('new-username').value;
+    const pfp = document.getElementById('new-pfp').value;
+    const { data: { user } } = await client.auth.getUser();
+    if (!user) return alert("Not logged in.");
+    await client.from('users').update({ username, pfp }).eq('id', user.id);
+    alert("Profile updated!");
     checkSession();
-  </script>
+  }
+
+  function toggleTheme() {
+    const isDark = document.body.style.backgroundColor === 'rgb(14, 14, 14)';
+    document.body.style.backgroundColor = isDark ? '#f0f0f0' : '#0e0e0e';
+    document.body.style.color = isDark ? '#000' : '#fff';
+  }
+
+  checkSession();
+</script>
 </body>
 </html>
