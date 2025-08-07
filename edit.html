@@ -1,319 +1,216 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Profile - BloodRage</title>
-    <style>
-        :root {
-            --primary: #ff2e2e;
-            --primary-dark: #d10000;
-            --primary-light: #ff5e5e;
-            --text: #ffffff;
-            --bg: #0a0a0a;
-            --card-bg: #1a1a1a;
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account - BloodRage</title>
+  <style>
+    :root {
+      --primary: #ff2e2e;
+      --primary-dark: #b30000;
+      --bg: #0a0a0a;
+      --card-bg: #1a1a1a;
+      --text: #ffffff;
+      --muted: #aaaaaa;
+      --border: rgba(255, 255, 255, 0.08);
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
 
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 25% 25%, rgba(255, 46, 46, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(255, 46, 46, 0.1) 0%, transparent 50%);
-        }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-            background-color: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(10px);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
+    aside {
+      width: 240px;
+      background-color: #111;
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      border-right: 1px solid var(--border);
+    }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary);
-        }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 2rem;
+    }
 
-        nav {
-            display: flex;
-            gap: 1.5rem;
-        }
+    nav a {
+      color: var(--text);
+      text-decoration: none;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      transition: 0.2s;
+      display: block;
+    }
 
-        nav a {
-            color: var(--text);
-            text-decoration: none;
-            opacity: 0.8;
-            transition: var(--transition);
-            font-weight: 500;
-        }
+    nav a:hover {
+      background-color: var(--primary);
+      color: #fff;
+    }
 
-        nav a:hover {
-            opacity: 1;
-            color: var(--primary-light);
-        }
+    .main {
+      flex: 1;
+      padding: 2rem;
+    }
 
-        .container {
-            max-width: 800px;
-            margin: 6rem auto 2rem;
-            padding: 2rem;
-        }
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
 
-        .profile-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
+    .card {
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 12px;
+      flex: 1;
+      min-width: 220px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border);
+    }
 
-        .avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 1.5rem;
-            border: 3px solid var(--primary);
-        }
+    .card-title {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
 
-        .username {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
+    .card-value {
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
 
-        .profile-url {
-            color: var(--primary-light);
-            opacity: 0.8;
-            font-size: 0.9rem;
-        }
+    .profile-section {
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
 
-        .edit-form {
-            background-color: var(--card-bg);
-            border-radius: 1rem;
-            padding: 2rem;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-        }
+    .progress-bar {
+      height: 10px;
+      width: 100%;
+      background: #333;
+      border-radius: 5px;
+      margin-top: 0.5rem;
+    }
 
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
+    .progress {
+      height: 100%;
+      background: var(--primary);
+      width: 40%;
+      border-radius: 5px;
+    }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
+    .form-group {
+      margin-top: 1.5rem;
+    }
 
-        .form-input {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border-radius: 0.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background-color: rgba(0, 0, 0, 0.3);
-            color: white;
-            font-size: 1rem;
-            transition: var(--transition);
-        }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
 
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(255, 46, 46, 0.3);
-        }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.75rem;
+      background: #111;
+      color: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
 
-        textarea.form-input {
-            min-height: 100px;
-            resize: vertical;
-        }
+    button {
+      margin-top: 1.5rem;
+      padding: 0.75rem 2rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-        .save-btn {
-            padding: 0.8rem 2rem;
-            border-radius: 0.5rem;
-            background-color: var(--primary);
-            color: white;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 1rem;
-        }
-
-        .save-btn:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        .loading {
-            display: inline-block;
-            width: 1rem;
-            height: 1rem;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 0.5rem;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 1.5rem;
-            }
-            
-            .profile-header {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .avatar {
-                margin-right: 0;
-                margin-bottom: 1rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            header {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem;
-            }
-            
-            .container {
-                margin-top: 5rem;
-                padding: 1rem;
-            }
-        }
-    </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    button:hover {
+      background: var(--primary-dark);
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <div class="logo">BloodRage</div>
-        <nav>
-            <a href="#">Help Center</a>
-            <a href="#">Discord</a>
-            <a href="#">Pricing</a>
-            <a href="index.html">Dashboard</a>
-        </nav>
-    </header>
-
-    <div class="container">
-        <div class="profile-header">
-            <img src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Avatar" class="avatar" id="avatarImg">
-            <div>
-                <h1 class="username" id="usernameDisplay"></h1>
-                <div class="profile-url" id="profileUrl"></div>
-            </div>
-        </div>
-
-        <form class="edit-form" id="editForm">
-            <div class="form-group">
-                <label for="avatar">Avatar URL</label>
-                <input type="text" id="avatar" class="form-input">
-            </div>
-            <div class="form-group">
-                <label for="bio">Bio</label>
-                <textarea id="bio" class="form-input"></textarea>
-            </div>
-            <div class="form-group">
-                <label for="theme">Theme</label>
-                <select id="theme" class="form-input">
-                    <option value="red">Red</option>
-                    <option value="blue">Blue</option>
-                    <option value="green">Green</option>
-                    <option value="purple">Purple</option>
-                    <option value="pink">Pink</option>
-                </select>
-            </div>
-            <button type="submit" class="save-btn" id="saveBtn">Save Changes</button>
-        </form>
+  <aside>
+    <div class="logo">BloodRage</div>
+    <nav>
+      <a href="#">Overview</a>
+      <a href="#">Analytics</a>
+      <a href="#">Badges</a>
+      <a href="#">Settings</a>
+      <a href="#">Customize</a>
+      <a href="#">Links</a>
+      <a href="#">Premium</a>
+      <a href="#">Image Host</a>
+      <a href="#">Templates</a>
+    </nav>
+  </aside>
+  <main class="main">
+    <div class="cards">
+      <div class="card">
+        <div class="card-title">Username</div>
+        <div class="card-value">ur.psx</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Alias</div>
+        <div class="card-value">Unavailable</div>
+      </div>
+      <div class="card">
+        <div class="card-title">UID</div>
+        <div class="card-value">897,734</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Profile Views</div>
+        <div class="card-value">2</div>
+      </div>
     </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const client = supabase.createClient(
-    'https://smcteblolwhfxcpngmvd.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s'
-  );
+    <div class="profile-section">
+      <h2>Account Statistics</h2>
+      <p>Profile Completion</p>
+      <div class="progress-bar"><div class="progress"></div></div>
 
-  document.addEventListener('DOMContentLoaded', async () => {
-    const { data: { user } } = await client.auth.getUser();
-    
-    if (!user) {
-      window.location.href = 'index.html';
-      return;
-    }
-
-    const { data: profile, error } = await client
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-
-    if (error || !profile?.username) {
-      window.location.href = 'index.html';
-      return;
-    }
-
-    // Display current profile data
-    document.getElementById('usernameDisplay').textContent = profile.username;
-    document.getElementById('profileUrl').textContent = `bloodrage.lol/${profile.username}`;
-    document.getElementById('avatar').value = profile.avatar_url || '';
-    document.getElementById('bio').value = profile.bio || '';
-    document.getElementById('theme').value = profile.theme || 'red';
-    document.getElementById('avatarImg').src = profile.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png';
-
-    // Update avatar preview when URL changes
-    document.getElementById('avatar').addEventListener('input', (e) => {
-      document.getElementById('avatarImg').src = e.target.value || 'https://cdn.discordapp.com/embed/avatars/0.png';
-    });
-
-    // Save form
-    document.getElementById('editForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const btn = document.getElementById('saveBtn');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="loading"></span> Saving...';
-
-      const { error: updateError } = await client.from('profiles').update({
-        avatar_url: document.getElementById('avatar').value,
-        bio: document.getElementById('bio').value,
-        theme: document.getElementById('theme').value,
-        updated_at: new Date().toISOString()
-      }).eq('id', user.id);
-
-      btn.disabled = false;
-      btn.textContent = 'Save Changes';
-
-      if (updateError) {
-        alert('Error saving profile');
-      } else {
-        alert('Profile updated successfully!');
-      }
-    });
-  });
-</script>
+      <form id="editForm">
+        <div class="form-group">
+          <label for="avatar">Avatar URL</label>
+          <input type="text" id="avatar" />
+        </div>
+        <div class="form-group">
+          <label for="bio">Bio</label>
+          <textarea id="bio"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="theme">Theme</label>
+          <select id="theme">
+            <option value="red" selected>Red</option>
+            <option value="blue">Blue</option>
+            <option value="green">Green</option>
+            <option value="purple">Purple</option>
+            <option value="pink">Pink</option>
+          </select>
+        </div>
+        <button type="submit">Save Changes</button>
+      </form>
+    </div>
+  </main>
 </body>
 </html>
