@@ -398,12 +398,12 @@
             
             // Check if username exists
             const { data: usernameCheck, error: checkError } = await client
-                .from('profiles')
-                .select('username')
-                .eq('username', username)
-                .single();
-            
-            if (usernameCheck) {
+  .from('profiles')
+  .select('username')
+  .eq('username', username)
+  .maybeSingle(); // ✅ Use maybeSingle() to avoid throwing on "not found"
+
+if (usernameCheck) {
   usernameSubmit.disabled = false;
   usernameSubmit.textContent = 'Claim Username';
   usernameError.textContent = 'Username is already taken';
