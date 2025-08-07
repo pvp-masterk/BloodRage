@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard | BloodRage</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+
+    body {
+      display: flex;
+      min-height: 100vh;
+      background: #111;
+      color: white;
+    }
+
+    .sidebar {
+      width: 220px;
+      background: #1a1a1a;
+      padding: 20px;
+    }
+
+    .sidebar h2 {
+      margin-bottom: 20px;
+      font-size: 1.4rem;
+    }
+
+    .sidebar a {
+      display: block;
+      color: #ddd;
+      text-decoration: none;
+      padding: 12px 10px;
+      margin: 5px 0;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background: #333;
+      color: white;
+    }
+
+    .content {
+      flex: 1;
+      padding: 30px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .logout-btn {
+      margin-top: 20px;
+      display: block;
+      padding: 10px;
+      background: crimson;
+      text-align: center;
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <h2>Dashboard</h2>
+    <a href="#account" id="link-account">Account</a>
+    <a href="#edit" id="link-edit">Edit Profile</a>
+    <a href="/" class="logout-btn">Logout</a>
+  </div>
+
+  <div class="content">
+    <div id="account" class="section">
+      <h2>Account</h2>
+      <p>Username: <span id="username"></span></p>
+      <p>Email: <span id="email"></span></p>
+    </div>
+
+    <div id="edit" class="section">
+      <h2>Edit Profile</h2>
+      <form id="editForm">
+        <label>Bio:<br>
+          <textarea id="bio" rows="4" cols="40" style="width:100%"></textarea>
+        </label>
+        <br><br>
+        <button type="submit">Save Changes</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
+
+    // Load session user
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      window.location.href = "/";
+    }
+
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    if (data) {
+      document.getElementById("username").innerText = data.username;
+      document.getElementById("email").innerText = user.email;
+      document.getElementById("bio").value = data.bio || "";
+    }
+
+    // Save profile changes
+    document.getElementById("editForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const newBio = document.getElementById("bio").value;
+
+      const { error } = await supabase
+        .from("users")
+        .update({ bio: newBio })
+        .eq("id", user.id);
+
+      if (!error) alert("Changes saved!");
+    });
+
+    // Handle sidebar section switching
+    const links = document.querySelectorAll(".sidebar a");
+    const sections = document.querySelectorAll(".section");
+
+    function setActiveSection() {
+      const hash = window.location.hash.substring(1) || "account";
+      sections.forEach(sec => sec.classList.remove("active"));
+      document.getElementById(hash)?.classList.add("active");
+
+      links.forEach(link => link.classList.remove("active"));
+      document.getElementById("link-" + hash)?.classList.add("active");
+    }
+
+    window.addEventListener("hashchange", setActiveSection);
+    setActiveSection();
+  </script>
+
+</body>
+</html>
