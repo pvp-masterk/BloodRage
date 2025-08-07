@@ -2,22 +2,26 @@
   "version": 2,
   "cleanUrls": true,
   "trailingSlash": false,
-  "rewrites": [
+  "routes": [
     {
-      "source": "/:username((?!dashboard|profile|_next|static|api|favicon\\.ico|.*\\..*).+)",
-      "destination": "/profile?username=:username"
-    }
-  ],
-  "redirects": [
-    {
-      "source": "/dashboard",
-      "destination": "/dashboard",
-      "permanent": true
+      "src": "^/(?!(dashboard|profile|_next|static|api|favicon\\.ico|.*\\..*))[^/]+$",
+      "dest": "/profile.html?username=$1",
+      "status": 200
     },
     {
-      "source": "/profile",
-      "destination": "/profile",
-      "permanent": true
+      "src": "^/$",
+      "dest": "/dashboard.html",
+      "status": 200
+    },
+    {
+      "src": "/dashboard",
+      "dest": "/dashboard.html",
+      "status": 301
+    },
+    {
+      "src": "/profile",
+      "dest": "/profile.html",
+      "status": 301
     }
   ]
 }
