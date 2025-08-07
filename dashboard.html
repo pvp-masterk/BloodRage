@@ -3,283 +3,199 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard</title>
+  <title>Dashboard - Bloodrage</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    };
+  </script>
   <style>
-    body {
-      font-family: sans-serif;
-      transition: background 0.4s, color 0.4s;
-      margin: 0;
-      padding: 0;
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out;
     }
-
-    body.dark {
-      background-color: #111;
-      color: white;
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-
-    .container {
-      display: flex;
-      height: 100vh;
-    }
-
-    .sidebar {
-      width: 200px;
-      background: #202020;
-      padding: 20px;
-      color: white;
-    }
-
-    .sidebar button {
-      display: block;
-      background: none;
-      border: none;
-      color: inherit;
-      margin-bottom: 10px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .sidebar button:hover {
-      text-decoration: underline;
-    }
-
-    .content {
-      flex: 1;
-      padding: 20px;
-      transition: opacity 0.3s ease-in-out;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .toggle-switch {
-      position: relative;
-      width: 50px;
-      height: 24px;
-      background: #888;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .toggle-switch::after {
-      content: "";
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 20px;
-      height: 20px;
-      background: white;
-      border-radius: 50%;
-      transition: transform 0.3s;
-    }
-
-    .toggle-switch.active {
-      background: #4ade80;
-    }
-
-    .toggle-switch.active::after {
-      transform: translateX(26px);
-    }
-
-    input, button {
-      margin: 8px 0;
-      padding: 8px;
-      font-size: 14px;
-    }
-
-    .btn {
-      background: #444;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .btn:hover {
-      background: #666;
-    }
-
-    img {
-      max-width: 100px;
-      border-radius: 8px;
-    }
-  .fade-in {
-    animation: fadeInUp 0.3s ease-in-out;
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
   </style>
 </head>
-<body>
-  <div class="container">
-    <div class="sidebar">
-      <button onclick="('account')">Account</button>
-      <button onclick="('edit')">Edit Profile</button>
-      <button onclick="('settings')">Settings</button>
+<body class="dark bg-black text-white transition-all duration-300">
+
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <div class="w-60 bg-zinc-900 p-5 space-y-3">
+      <h2 class="text-xl font-bold mb-4">Dashboard</h2>
+      <button class="tab-button w-full text-left bg-zinc-800 p-2 rounded" data-tab="account">Account</button>
+      <button class="tab-button w-full text-left bg-zinc-800 p-2 rounded" data-tab="edit-profile">Edit Profile</button>
+      <button class="tab-button w-full text-left bg-zinc-800 p-2 rounded" data-tab="settings">Settings</button>
     </div>
-    <div class="content">
-      <div id="account" class="tab">
-        <h2>Account</h2>
-        <p id="user-email">Loading...</p>
-        <img id="user-avatar" />
+
+    <!-- Main Content -->
+    <div class="flex-1 p-6 space-y-4 overflow-auto">
+      <!-- Account -->
+      <div id="account" class="tab-content fade-in">
+        <h1 class="text-2xl font-bold mb-2">Account</h1>
+        <p id="email">Loading...</p>
+        <p id="username">Loading...</p>
+        <img id="avatar" class="w-20 h-20 rounded-full mt-4" />
       </div>
 
-      <div id="edit" class="tab hidden">
-        <h2>Edit Profile</h2>
-        <input type="text" id="usernameInput" placeholder="New username" />
-        <input type="text" id="avatarUrlInput" placeholder="New profile picture URL" />
-        <button class="btn" onclick="updateProfile()">Save Changes</button>
-        <button class="btn" onclick="useDiscordAvatar()">Use Discord Profile Picture (if linked)</button>
+      <!-- Edit Profile -->
+      <div id="edit-profile" class="tab-content hidden fade-in">
+        <h1 class="text-2xl font-bold mb-2">Edit Profile</h1>
+        <input id="new-username" class="bg-zinc-800 p-2 rounded w-full mb-2" placeholder="New Username" />
+        <button onclick="changeUsername()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Change Username</button>
+        <br /><br />
+        <input id="new-avatar" class="bg-zinc-800 p-2 rounded w-full mb-2" placeholder="New Avatar URL" />
+        <button onclick="changeAvatar()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Change Avatar</button>
+        <br /><br />
+        <button onclick="useDiscordAvatar()" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded">Use Discord Profile Picture (If linked)</button>
       </div>
 
-      <div id="settings" class="tab hidden">
-        <h2>Settings</h2>
-        <p>Theme</p>
-        <div class="toggle-switch" id="themeToggle" onclick="toggleTheme()"></div>
+      <!-- Settings -->
+      <div id="settings" class="tab-content hidden fade-in">
+        <h1 class="text-2xl font-bold mb-2">Settings</h1>
+        <label class="flex items-center space-x-2">
+          <input type="checkbox" id="themeToggle" onchange="toggleTheme()" />
+          <span>Dark Theme</span>
+        </label>
         <br />
-        <button class="btn" onclick="linkDiscord()">Link Discord</button>
-        <p id="discord-status"></p>
+       <button onclick="linkDiscord()" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
+  Link Discord
+</button>
       </div>
     </div>
   </div>
 
   <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js";
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    const client = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
+    const supabase = createClient('https://YOUR_PROJECT_ID.supabase.co', 'YOUR_PUBLIC_ANON_KEY');
 
-    const user = await client.auth.getUser().then(res => res.data.user);
+    let user = null;
+
+    const { data: { session } } = await supabase.auth.getSession();
+    user = session?.user;
 
     if (!user) {
-      location.href = "/";
+      window.location.href = '/';
     }
 
-    const { data: profile } = await client
-      .from("users")
-      .select("*")
-      .eq("id", user.id)
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', user.id)
       .single();
 
-    
-
-    document.getElementById("user-email").textContent = user.email;
-    document.getElementById("user-avatar").src = profile.avatar_url || "";
-
-    const usernameInput = document.getElementById("usernameInput");
-    const avatarUrlInput = document.getElementById("avatarUrlInput");
-
-    usernameInput.value = profile.username || "";
-    avatarUrlInput.value = profile.avatar_url || "";
-
-
-    function toggleTheme() {
-      document.body.classList.toggle("dark");
-      document.getElementById("themeToggle").classList.toggle("active");
+    if (error) {
+      alert('Profile fetch failed.');
+      console.error(error);
+    } else {
+      document.getElementById('email').textContent = `Email: ${user.email}`;
+      document.getElementById('username').textContent = `Username: ${data.username || 'No username'}`;
+      document.getElementById('avatar').src = data.avatar_url || 'https://via.placeholder.com/100';
     }
 
-    async function updateProfile() {
-      const newUsername = usernameInput.value;
-      const newAvatar = avatarUrlInput.value;
+    window.changeUsername = async () => {
+      const newUsername = document.getElementById('new-username').value;
+      const { error } = await supabase
+        .from('users')
+        .update({ username: newUsername })
+        .eq('id', user.id);
+      if (!error) {
+        alert('Username updated!');
+        location.reload();
+      }
+    };
 
-      const { error } = await client
-        .from("users")
-        .update({
-          username: newUsername,
-          avatar_url: newAvatar,
-        })
-        .eq("id", user.id);
+    window.changeAvatar = async () => {
+      const newUrl = document.getElementById('new-avatar').value;
+      const { error } = await supabase
+        .from('users')
+        .update({ avatar_url: newUrl })
+        .eq('id', user.id);
+      if (!error) {
+        alert('Avatar updated!');
+        location.reload();
+      }
+    };
 
-      if (error) {
-        alert("Error updating profile.");
+    window.useDiscordAvatar = async () => {
+      const { data, error } = await supabase
+        .from('users')
+        .select('discord_avatar')
+        .eq('id', user.id)
+        .single();
+      if (!error && data.discord_avatar) {
+        await supabase
+          .from('users')
+          .update({ avatar_url: data.discord_avatar })
+          .eq('id', user.id);
+        alert('Discord avatar applied!');
+        location.reload();
       } else {
-        alert("Profile updated!");
-        document.getElementById("user-avatar").src = newAvatar;
+        alert('No Discord avatar linked.');
       }
-    }
+    };
 
-    function linkDiscord() {
-      const redirectTo = location.origin + "/dashboard.html";
-      client.auth.signInWithOAuth({
-        provider: "discord",
-        options: { redirectTo }
+
+    window.toggleTheme = () => {
+      document.body.classList.toggle('dark');
+    };
+
+    // Initial state
+    document.getElementById('themeToggle').checked = true;
+
+    // Tab switching logic
+    window.switchTab = (tabName) => {
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.add('hidden');
+        tab.classList.remove('fade-in');
       });
-    }
 
-    async function useDiscordAvatar() {
-      const session = await client.auth.getSession().then(res => res.data.session);
-      const provider = session?.user?.identities?.find(id => id.provider === "discord");
-      if (!provider) {
-        alert("Discord not linked.");
-        return;
+      const activeTab = document.getElementById(tabName);
+      if (activeTab) {
+        activeTab.classList.remove('hidden');
+        activeTab.classList.add('fade-in');
       }
 
-      // Get avatar from identity data
-      const avatar_url = `https://cdn.discordapp.com/avatars/${provider.id}/${provider.identity_data.avatar}.png`;
-      avatarUrlInput.value = avatar_url;
-      document.getElementById("user-avatar").src = avatar_url;
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('bg-zinc-700');
+        btn.classList.add('bg-zinc-800');
+      });
+      const selectedButton = document.querySelector(`[data-tab="${tabName}"]`);
+      if (selectedButton) {
+        selectedButton.classList.add('bg-zinc-700');
+      }
+    };
 
-      await client
-        .from("users")
-        .update({ avatar_url })
-        .eq("id", user.id);
-    }
-
-    // Check if Discord is linked
-    const session = await client.auth.getSession().then(res => res.data.session);
-    const discordLinked = session?.user?.identities?.some(id => id.provider === "discord");
-    document.getElementById("discord-status").textContent = discordLinked ? "Discord Linked" : "Not Linked";
-
-
-    
-</script>
-
-  <script>
-  function switchTab(tabName) {
-    document.querySelectorAll('.tab-content').forEach(tab => {
-      tab.classList.add('hidden');
-      tab.classList.remove('fade-in');
-    });
-
-    const activeTab = document.getElementById(tabName);
-    if (activeTab) {
-      activeTab.classList.remove('hidden');
-      activeTab.classList.add('fade-in');
-    }
-
-    // Highlight the selected tab button if you’re using that
     document.querySelectorAll('.tab-button').forEach(btn => {
-      btn.classList.remove('bg-gray-700');
-      btn.classList.add('bg-gray-800');
+      btn.addEventListener('click', () => {
+        const tab = btn.getAttribute('data-tab');
+        switchTab(tab);
+      });
     });
-    const selectedButton = document.querySelector(`[data-tab="${tabName}"]`);
-    if (selectedButton) {
-      selectedButton.classList.add('bg-gray-700');
+
+    async function linkDiscord() {
+    const { data, error } = await supabase.auth.linkIdentity({
+      provider: 'discord'
+    });
+
+    if (error) {
+      alert('Error linking Discord: ' + error.message);
+    } else {
+      alert('Check popup to link your Discord!');
     }
   }
 
-  document.querySelectorAll('.tab-button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tab = btn.getAttribute('data-tab');
-      switchTab(tab);
-    });
-  });
-</script>
-
-
-  
+    switchTab('account'); // default tab
+  </script>
 </body>
 </html>
