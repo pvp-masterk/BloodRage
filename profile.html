@@ -708,24 +708,16 @@
         
         // Initialize the page
         async function init() {
-            let username = null;
-    
-    // First try to get username from path (e.g., /username)
-    const pathParts = window.location.pathname.split('/').filter(Boolean);
-    if (pathParts.length === 1 && !pathParts[0].includes('.html')) {
-        username = pathParts[0];
-    }
-    
-    // If not found in path, try query parameter (e.g., account.html?username=xxx)
-    if (!username) {
-        const urlParams = new URLSearchParams(window.location.search);
-        username = urlParams.get('username');
-    }
-    
-    if (!username) {
-        showNotFound();
-        return;
-    }
+           let username = new URL(window.location.href).pathname.split('/')[1];
+  
+  if (!username || username.includes('.html')) {
+    username = new URLSearchParams(window.location.search).get('username');
+  }
+
+  if (!username) {
+    showNotFound();
+    return;
+  }
             
             // Check if user is logged in
             const { data: { user } } = await client.auth.getUser();
