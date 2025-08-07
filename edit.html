@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/themes.css">
+    <link rel="stylesheet" href="styles/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation -->
+        <nav class="navbar animate__animated animate__fadeIn">
+            <div class="navbar-brand">
+                <a href="/" class="logo-gradient">BloodRage</a>
+            </div>
+            <div class="navbar-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <div class="theme-toggle-container">
+                    <button id="themeToggle" class="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                        <i class="fas fa-sun"></i>
+                    </button>
+                </div>
+                <div class="user-menu">
+                    <div class="user-avatar" id="userMenuButton">
+                        <img id="userAvatar" src="https://i.pravatar.cc/150?img=5" alt="User Avatar">
+                    </div>
+                    <div id="userDropdown" class="user-dropdown">
+                        <a href="/edit" class="dropdown-item"><i class="fas fa-user-edit"></i> Edit Profile</a>
+                        <a href="#" class="dropdown-item"><i class="fas fa-cog"></i> Settings</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" id="logoutButton" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+            <button class="navbar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+
+        <!-- Edit Profile Content -->
+        <main class="edit-profile-container animate__animated animate__fadeIn">
+            <div class="edit-sidebar">
+                <div class="sidebar-header">
+                    <h3>Profile Settings</h3>
+                </div>
+                <nav class="edit-sidebar-nav">
+                    <a href="#basic" class="sidebar-link active"><i class="fas fa-user"></i> Basic Info</a>
+                    <a href="#appearance" class="sidebar-link"><i class="fas fa-palette"></i> Appearance</a>
+                    <a href="#links" class="sidebar-link"><i class="fas fa-link"></i> Links</a>
+                    <a href="#social" class="sidebar-link"><i class="fas fa-share-alt"></i> Social Media</a>
+                    <a href="#security" class="sidebar-link"><i class="fas fa-shield-alt"></i> Security</a>
+                </nav>
+            </div>
+            <div class="edit-content">
+                <div class="edit-header">
+                    <h2 class="edit-title">Edit Profile</h2>
+                    <div class="edit-actions">
+                        <button class="btn btn-outline">Discard Changes</button>
+                        <button id="saveProfile" class="btn btn-gradient">Save Changes</button>
+                    </div>
+                </div>
+                
+                <form id="profileForm" class="profile-form">
+                    <section id="basic" class="edit-section">
+                        <h3 class="section-title">Basic Information</h3>
+                        <div class="form-group">
+                            <label for="avatar">Profile Picture</label>
+                            <div class="avatar-upload">
+                                <div class="avatar-preview">
+                                    <img id="avatarPreview" src="https://i.pravatar.cc/150?img=5" alt="Avatar Preview">
+                                </div>
+                                <div class="avatar-upload-controls">
+                                    <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+                                    <button type="button" id="uploadAvatar" class="btn btn-outline">Upload New</button>
+                                    <button type="button" id="removeAvatar" class="btn btn-text">Remove</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="displayName">Display Name</label>
+                            <input type="text" id="displayName" name="displayName" placeholder="Your name">
+                        </div>
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <div class="input-with-prefix">
+                                <span class="input-prefix">profilehub.com/</span>
+                                <input type="text" id="username" name="username" placeholder="username">
+                            </div>
+                            <small class="input-hint">This will be your profile URL</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="bio">Bio</label>
+                            <textarea id="bio" name="bio" rows="4" placeholder="Tell people about yourself"></textarea>
+                            <small class="input-hint">Max 200 characters</small>
+                        </div>
+                    </section>
+                    
+                    <section id="appearance" class="edit-section">
+                        <h3 class="section-title">Appearance</h3>
+                        <div class="form-group">
+                            <label>Theme</label>
+                            <div class="theme-selector">
+                                <div class="theme-option" data-theme="default">
+                                    <div class="theme-preview default-theme"></div>
+                                    <span>Default</span>
+                                </div>
+                                <div class="theme-option" data-theme="dark">
+                                    <div class="theme-preview dark-theme"></div>
+                                    <span>Dark</span>
+                                </div>
+                                <div class="theme-option" data-theme="light">
+                                    <div class="theme-preview light-theme"></div>
+                                    <span>Light</span>
+                                </div>
+                                <div class="theme-option" data-theme="gradient">
+                                    <div class="theme-preview gradient-theme"></div>
+                                    <span>Gradient</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="accentColor">Accent Color</label>
+                            <input type="color" id="accentColor" name="accentColor" value="#6366f1">
+                        </div>
+                        <div class="form-group">
+                            <label>Badges</label>
+                            <div class="badges-selector">
+                                <label class="badge-option">
+                                    <input type="checkbox" name="badges" value="verified">
+                                    <span class="badge verified"><i class="fas fa-check"></i> Verified</span>
+                                </label>
+                                <label class="badge-option">
+                                    <input type="checkbox" name="badges" value="pro">
+                                    <span class="badge premium">PRO</span>
+                                </label>
+                                <label class="badge-option">
+                                    <input type="checkbox" name="badges" value="developer">
+                                    <span class="badge developer"><i class="fas fa-code"></i> Developer</span>
+                                </label>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <section id="links" class="edit-section">
+                        <h3 class="section-title">Links</h3>
+                        <div class="links-list">
+                            <div class="link-item">
+                                <div class="link-controls">
+                                    <select class="link-type">
+                                        <option value="website">Website</option>
+                                        <option value="portfolio">Portfolio</option>
+                                        <option value="blog">Blog</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                    <input type="text" placeholder="Link URL" class="link-url">
+                                    <button type="button" class="btn btn-text remove-link"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>
+                            <button type="button" id="addLink" class="btn btn-outline btn-small">+ Add Link</button>
+                        </div>
+                    </section>
+                    
+                    <section id="social" class="edit-section">
+                        <h3 class="section-title">Social Media</h3>
+                        <div class="form-group">
+                            <label for="twitter">Twitter</label>
+                            <div class="input-with-prefix">
+                                <span class="input-prefix">twitter.com/</span>
+                                <input type="text" id="twitter" name="twitter" placeholder="username">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="instagram">Instagram</label>
+                            <div class="input-with-prefix">
+                                <span class="input-prefix">instagram.com/</span>
+                                <input type="text" id="instagram" name="instagram" placeholder="username">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="github">GitHub</label>
+                            <div class="input-with-prefix">
+                                <span class="input-prefix">github.com/</span>
+                                <input type="text" id="github" name="github" placeholder="username">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="linkedin">LinkedIn</label>
+                            <div class="input-with-prefix">
+                                <span class="input-prefix">linkedin.com/in/</span>
+                                <input type="text" id="linkedin" name="linkedin" placeholder="username">
+                            </div>
+                        </div>
+                    </section>
+                </form>
+            </div>
+            
+            <div class="profile-preview">
+                <div class="preview-header">
+                    <h3>Live Preview</h3>
+                    <button id="togglePreview" class="btn btn-text"><i class="fas fa-expand"></i></button>
+                </div>
+                <div class="profile-card-preview">
+                    <div class="profile-card-header">
+                        <div class="profile-avatar">
+                            <img id="previewAvatar" src="https://i.pravatar.cc/150?img=5" alt="Avatar" class="avatar-image">
+                            <div class="online-status"></div>
+                        </div>
+                        <div class="profile-badges" id="previewBadges">
+                            <span class="badge premium">PRO</span>
+                        </div>
+                    </div>
+                    <div class="profile-card-body">
+                        <h3 id="previewName" class="profile-name">John Doe</h3>
+                        <p id="previewUsername" class="profile-username">@johndoe</p>
+                        <p id="previewBio" class="profile-bio">Digital creator & web enthusiast. Building the future of online identity.</p>
+                        <div class="profile-links" id="previewLinks">
+                            <a href="#" class="profile-link"><i class="fab fa-twitter"></i> Twitter</a>
+                            <a href="#" class="profile-link"><i class="fab fa-github"></i> GitHub</a>
+                        </div>
+                    </div>
+                    <div class="profile-card-footer">
+                        <button class="btn btn-gradient btn-small">Follow</button>
+                        <button class="btn btn-outline btn-small">Message</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="scripts/supabase.js"></script>
+    <script src="scripts/auth.js"></script>
+    <script src="scripts/profile.js"></script>
+    <script src="scripts/utils.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize theme
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            
+            // Theme toggle
+            const themeToggle = document.getElementById('themeToggle');
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+            
+            // User dropdown
+            const userMenuButton = document.getElementById('userMenuButton');
+            const userDropdown = document.getElementById('userDropdown');
+            
+            userMenuButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('show');
+            });
+            
+            window.addEventListener('click', () => {
+                userDropdown.classList.remove('show');
+            });
+            
+            // Load user data
+            loadUserProfile();
+            
+            // Setup form interactions
+            setupProfileForm();
+            
+            // Check auth state
+            checkAuthState();
+        });
+    </script>
+</body>
+</html>
