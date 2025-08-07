@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Profile - BloodRage</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Loading profile...</h1>
+    <div id="profile" style="display: none;">
+      <img id="avatar" src="" alt="avatar" class="avatar" />
+      <h2 id="username"></h2>
+      <p id="bio"></p>
+      <a id="publicLink" href="#" target="_blank">View Public Profile</a>
+    </div>
+  </div>
+
+  <script>
+    const supabase = supabase.createClient(
+      'https://smcteblolwhfxcpngmvd.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s'
+    );
+
+    async function loadProfile() {
+      const {
+        data: { session }
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        window.location.href = '/index.html';
+        return;
+      }
+
+      const userId = session.user.id;
+
+      const { data: profile, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Profile fetch error:', error);
+        return;
+      }
+
+      document.querySelector('h1').style.display = 'none';
+      document.getElementById('profile').style.display = 'block';
+      document.getElementById('avatar').src = profile.avatar_url;
+      document.getElementById('username').textContent = `@${profile.username}`;
+      document.getElementById('bio').textContent = profile.bio;
+      document.getElementById('publicLink').href = `/${profile.username}`;
+    }
+
+    loadProfile();
+  </script>
+
+  <style>
+    .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 100px;
+      margin-bottom: 10px;
+    }
+  </style>
+</body>
+</html>
