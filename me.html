@@ -63,6 +63,18 @@
     profile = newProfile;
   }
 
+      async function applyUserTheme(username) {
+    const { data, error } = await supabase
+      .from("users")
+      .select("theme")
+      .eq("username", username)
+      .single();
+
+    if (data?.theme) {
+      document.body.className = data.theme;
+    }
+  }
+
   document.querySelector('h1').style.display = 'none';
   document.getElementById('profile').style.display = 'block';
   document.getElementById('avatar').src = profile.avatar_url;
