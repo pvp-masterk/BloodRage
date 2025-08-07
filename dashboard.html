@@ -159,6 +159,33 @@
       .eq("id", user.id)
       .single();
 
+    if (typeof switchTab === "undefined") {
+    function switchTab(tab) {
+      const tabs = ['account', 'edit-profile', 'settings'];
+
+      tabs.forEach(t => {
+        const tabElement = document.getElementById(`${t}-tab`);
+        const button = document.getElementById(`tab-btn-${t}`);
+
+        if (tabElement && button) {
+          if (t === tab) {
+            tabElement.style.display = 'block';
+            tabElement.style.opacity = '1';
+            button.classList.add('active');
+          } else {
+            tabElement.style.display = 'none';
+            tabElement.style.opacity = '0';
+            button.classList.remove('active');
+          }
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      switchTab('account'); // Default tab
+    });
+  }
+
     document.getElementById("user-email").textContent = user.email;
     document.getElementById("user-avatar").src = profile.avatar_url || "";
 
@@ -228,33 +255,6 @@
 
 
     
-
-  if (typeof switchTab === "undefined") {
-    function switchTab(tab) {
-      const tabs = ['account', 'edit-profile', 'settings'];
-
-      tabs.forEach(t => {
-        const tabElement = document.getElementById(`${t}-tab`);
-        const button = document.getElementById(`tab-btn-${t}`);
-
-        if (tabElement && button) {
-          if (t === tab) {
-            tabElement.style.display = 'block';
-            tabElement.style.opacity = '1';
-            button.classList.add('active');
-          } else {
-            tabElement.style.display = 'none';
-            tabElement.style.opacity = '0';
-            button.classList.remove('active');
-          }
-        }
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      switchTab('account'); // Default tab
-    });
-  }
 </script>
 
   
