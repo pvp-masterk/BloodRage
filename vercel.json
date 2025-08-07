@@ -5,18 +5,7 @@
   "rewrites": [
     {
       "source": "/:username",
-      "destination": "/profile.html?username=:username",
-      "has": [
-        {
-          "type": "query",
-          "key": "username",
-          "value": "(?<username>.*)"
-        }
-      ]
-    },
-    {
-      "source": "/",
-      "destination": "/dashboard.html"
+      "destination": "/account.html?username=:username"
     }
   ],
   "redirects": [
