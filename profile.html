@@ -632,7 +632,7 @@
 </head>
 <body>
     <nav class="navbar">
-        <a href="dashboard.html" class="logo">guns.lol</a>
+        <a href="dashboard.html" class="logo">BloodRage</a>
         <div class="nav-links">
             <a href="dashboard.html" class="nav-link">Home</a>
             <a href="#" class="nav-link" id="editProfileBtn">Edit Profile</a>
@@ -644,53 +644,7 @@
         <!-- Profile content will be loaded here dynamically -->
     </div>
 
-    <div class="edit-modal" id="editModal">
-        <div class="edit-card">
-            <h2 class="edit-title">Edit Profile</h2>
-            <form class="edit-form" id="editForm">
-                <div class="form-group">
-                    <label for="editAvatar" class="form-label">Avatar URL</label>
-                    <input type="text" id="editAvatar" class="form-input" placeholder="https://example.com/avatar.jpg">
-                </div>
-                
-                <div class="form-group">
-                    <label for="editBio" class="form-label">Bio</label>
-                    <textarea id="editBio" class="form-input form-textarea" placeholder="Tell us about yourself..."></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Theme</label>
-                    <div class="theme-preview" id="themePreview">
-                        Current Theme Preview
-                    </div>
-                    <div class="theme-options" id="themeOptions">
-                        <div class="theme-option selected" style="background: linear-gradient(45deg, #ff2e2e, #d10000);" data-theme="red"></div>
-                        <div class="theme-option" style="background: linear-gradient(45deg, #3b82f6, #1d4ed8);" data-theme="blue"></div>
-                        <div class="theme-option" style="background: linear-gradient(45deg, #10b981, #059669);" data-theme="green"></div>
-                        <div class="theme-option" style="background: linear-gradient(45deg, #f59e0b, #d97706);" data-theme="orange"></div>
-                        <div class="theme-option" style="background: linear-gradient(45deg, #8b5cf6, #7c3aed);" data-theme="purple"></div>
-                        <div class="theme-option" style="background: linear-gradient(45deg, #ec4899, #db2777);" data-theme="pink"></div>
-                    </div>
-                    <input type="hidden" id="selectedTheme" value="red">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Links</label>
-                    <div id="linksContainer">
-                        <!-- Links will be added here -->
-                    </div>
-                    <button type="button" class="add-link-btn" id="addLinkBtn">
-                        <i class="fas fa-plus"></i> Add Link
-                    </button>
-                </div>
-                
-                <div class="edit-actions">
-                    <button type="button" class="edit-btn cancel-btn" id="cancelEdit">Cancel</button>
-                    <button type="submit" class="edit-btn save-btn" id="saveProfile">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
     <script>
@@ -812,104 +766,40 @@
         }
         
         // Render profile
-        function renderProfile(profile, links) {
-            // Determine if this is the current user's profile
-            const isCurrentUser = currentUser && currentUser.id === profile.id;
-            
-            // Set theme colors
-            const theme = profile.theme || 'red';
-            const colors = themeColors[theme] || themeColors.red;
-            
-            // Update CSS variables
-            document.documentElement.style.setProperty('--primary', colors.primary);
-            document.documentElement.style.setProperty('--primary-dark', colors.primaryDark);
-            document.documentElement.style.setProperty('--primary-light', colors.primaryLight);
-            
-            // Render profile HTML
-            profileContainer.innerHTML = `
-                <div class="profile-sidebar">
-                    <div class="profile-card">
-                        <img src="${profile.avatar_url || 'https://www.gravatar.com/avatar/?d=mp'}" alt="Profile Avatar" class="profile-avatar">
-                        <h2 class="profile-name">${profile.full_name || 'Anonymous'}</h2>
-                        <p class="profile-username">@${profile.username}</p>
-                        <p class="profile-bio">${profile.bio || 'No bio yet.'}</p>
-                        
-                        <div class="profile-stats">
-                            <div class="stat">
-                                <div class="stat-value">${profile.links_count || 0}</div>
-                                <div class="stat-label">Links</div>
+        function renderProfile(profile) {
+    const isCurrentUser = currentUser && currentUser.id === profile.id;
+
+    // Set theme
+    const theme = profile.theme || 'red';
+    const colors = themeColors[theme] || themeColors.red;
+
+    document.documentElement.style.setProperty('--primary', colors.primary);
+    document.documentElement.style.setProperty('--primary-dark', colors.primaryDark);
+    document.documentElement.style.setProperty('--primary-light', colors.primaryLight);
+
+    profileContainer.innerHTML = `
+        <div class="profile-sidebar" style="grid-column: 1 / -1; display: flex; justify-content: center;">
+            <div class="profile-card" style="width: 100%; max-width: 500px;">
+                <img src="${profile.avatar_url || 'https://www.gravatar.com/avatar/?d=mp'}" alt="Profile Avatar" class="profile-avatar">
+                <h2 class="profile-name">${profile.full_name || 'Anonymous'}</h2>
+                <p class="profile-username">@${profile.username}</p>
+                <p class="profile-bio">${profile.bio || 'No bio yet.'}</p>
+
+                ${profile.badges && profile.badges.length > 0 ? `
+                    <div class="profile-badges">
+                        ${profile.badges.map(badge => `
+                            <div class="badge">
+                                <i class="fas fa-${badge.icon || 'star'}"></i>
+                                ${badge.text}
                             </div>
-                            <div class="stat">
-                                <div class="stat-value">${profile.views_count || 0}</div>
-                                <div class="stat-label">Views</div>
-                            </div>
-                        </div>
-                        
-                        ${profile.badges && profile.badges.length > 0 ? `
-                            <div class="profile-badges">
-                                ${profile.badges.map(badge => `
-                                    <div class="badge">
-                                        <i class="fas fa-${badge.icon || 'star'}"></i>
-                                        ${badge.text}
-                                    </div>
-                                `).join('')}
-                            </div>
-                        ` : ''}
-                        
-                        ${isCurrentUser ? `
-                            <div class="profile-actions">
-                                <button class="action-btn primary-btn" id="editProfileBtnInner">
-                                    <i class="fas fa-edit"></i> Edit Profile
-                                </button>
-                                <button class="action-btn secondary-btn" id="shareProfileBtn">
-                                    <i class="fas fa-share"></i> Share Profile
-                                </button>
-                            </div>
-                        ` : ''}
+                        `).join('')}
                     </div>
-                </div>
-                
-                <div class="profile-content">
-                    <div class="content-section">
-                        <h3 class="section-title"><i class="fas fa-link"></i> Links</h3>
-                        ${links.length > 0 ? `
-                            <div class="links-grid">
-                                ${links.map(link => `
-                                    <a href="${link.url}" target="_blank" class="link-card">
-                                        <div class="link-title">
-                                            <i class="fas fa-${link.icon || 'link'}"></i>
-                                            ${link.title}
-                                        </div>
-                                        <div class="link-url">${link.url}</div>
-                                    </a>
-                                `).join('')}
-                            </div>
-                        ` : `
-                            <p>No links added yet.</p>
-                        `}
-                    </div>
-                    
-                    ${isCurrentUser ? `
-                        <div class="content-section">
-                            <h3 class="section-title"><i class="fas fa-chart-line"></i> Analytics</h3>
-                            <p>Profile views: ${profile.views_count || 0}</p>
-                            <p>Last viewed: ${profile.last_viewed_at ? new Date(profile.last_viewed_at).toLocaleString() : 'Never'}</p>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-            
-            // Set up event listeners for dynamically created elements
-            if (isCurrentUser) {
-                document.getElementById('editProfileBtnInner')?.addEventListener('click', showEditModal);
-                document.getElementById('shareProfileBtn')?.addEventListener('click', shareProfile);
-            }
-            
-            // Increment view count if this is not the current user's profile
-            if (!isCurrentUser && currentUser) {
-                incrementViewCount(profile.id);
-            }
-        }
+                ` : ''}
+            </div>
+        </div>
+    `;
+}
+
         
         // Increment view count
         async function incrementViewCount(profileId) {
@@ -1013,7 +903,7 @@
         // Setup event listeners
         function setupEventListeners() {
             // Edit profile button
-            editProfileBtn?.addEventListener('click', showEditModal);
+           
             
             // Cancel edit button
             cancelEdit?.addEventListener('click', () => {
