@@ -37,7 +37,8 @@
   }
 
   const userId = session.user.id;
-  const username = session.user.user_metadata?.name?.replace(/\s+/g, '').toLowerCase() || 'user';
+  const username = new URLSearchParams(location.search).get("u");
+  if (username) applyUserBackground(username);
   const avatar_url = session.user.user_metadata?.avatar_url || '';
   const bio = "This is my BloodRage profile.";
 
@@ -75,8 +76,7 @@
     }
   }
 
-  const username = new URLSearchParams(location.search).get("u");
-  if (username) applyUserBackground(username);
+  
 
   document.querySelector('h1').style.display = 'none';
   document.getElementById('profile').style.display = 'block';
