@@ -6,6 +6,7 @@
   <title>BloodRage | Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap');
@@ -15,6 +16,7 @@
       color: white; 
       transition: all 0.5s cubic-bezier(0.65, 0, 0.35, 1); 
       font-family: 'Roboto', sans-serif;
+      height: 100%;
     }
     .light { background: #f5f5f5; color: #111; }
     
@@ -51,11 +53,19 @@
       transform: translateY(1px) scale(0.98);
     }
     
-    /* Sidebar item animations */
+    /* Sidebar styling */
+    .sidebar {
+      width: 250px;
+      transition: all 0.3s ease;
+    }
+    .sidebar-collapsed {
+      width: 80px;
+    }
     .sidebar-item {
       position: relative;
       transition: all 0.3s ease;
       padding-left: 1rem;
+      border-radius: 0.5rem;
     }
     .sidebar-item::before {
       content: '';
@@ -75,6 +85,28 @@
     }
     .sidebar-item:hover::before {
       transform: scaleY(1);
+    }
+    .sidebar-item.active {
+      background: rgba(255, 0, 0, 0.1);
+      padding-left: 1.5rem;
+    }
+    .sidebar-item.active::before {
+      transform: scaleY(1);
+    }
+    .sidebar-item.active .sidebar-icon {
+      color: #ff0000;
+    }
+    .sidebar-text {
+      transition: opacity 0.3s ease;
+    }
+    .sidebar-collapsed .sidebar-text {
+      opacity: 0;
+      width: 0;
+      position: absolute;
+    }
+    .sidebar-collapsed .sidebar-item {
+      justify-content: center;
+      padding-left: 0;
     }
     
     /* Glow effect for active elements */
@@ -158,6 +190,51 @@
       opacity: 1;
       height: 15px;
     }
+    
+    /* Status indicators */
+    .status-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+    .status-online {
+      background: #10B981;
+      box-shadow: 0 0 8px #10B981;
+    }
+    .status-offline {
+      background: #6B7280;
+    }
+    .status-busy {
+      background: #EF4444;
+      box-shadow: 0 0 8px #EF4444;
+    }
+    
+    /* Card styling */
+    .card {
+      background: linear-gradient(145deg, #1a1a1a, #222);
+      border: 1px solid #2d2d2d;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Progress bar */
+    .progress-bar {
+      height: 6px;
+      border-radius: 3px;
+      background: #333;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff0000, #990000);
+      transition: width 0.5s ease;
+    }
   </style>
 </head>
 <body class="font-sans overflow-hidden">
@@ -168,18 +245,16 @@
     <h2 class="text-2xl font-bold mb-6 glow-text">Welcome to BloodRage</h2>
     <div class="mb-6">
       <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-900 to-black flex items-center justify-center border-2 border-red-800 float">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
-        </svg>
+        <i class="fas fa-skull text-red-500 text-3xl"></i>
       </div>
       <p class="text-gray-400 mb-6">Sign in to access your dashboard</p>
     </div>
     <button id="login-google" class="w-full mb-4 bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 rounded-lg px-4 py-3 flex items-center justify-center gap-3 btn-animate">
-      <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google" />
+      <i class="fab fa-google text-red-500"></i>
       <span>Login with Google</span>
     </button>
     <button id="login-discord" class="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-lg px-4 py-3 flex items-center justify-center gap-3 btn-animate">
-      <img src="https://www.svgrepo.com/show/353655/discord-icon.svg" class="w-5 h-5" alt="Discord" />
+      <i class="fab fa-discord"></i>
       <span>Login with Discord</span>
     </button>
   </div>
@@ -190,9 +265,7 @@
   <div class="bg-gray-800 border-l-4 border-red-500 text-white px-4 py-3 rounded shadow-lg max-w-xs animate__animated animate__fadeInRight">
     <div class="flex items-center">
       <div class="mr-3">
-        <svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
+        <i class="fas fa-check-circle text-red-500"></i>
       </div>
       <div>
         <p id="toast-message" class="text-sm"></p>
@@ -204,46 +277,57 @@
 <!-- Dashboard UI -->
 <div class="flex h-screen overflow-hidden">
   <!-- Sidebar -->
-  <aside class="w-64 bg-gray-900 p-4 space-y-2 border-r border-gray-800 flex flex-col">
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold mb-2 glow-text blood-drip">BloodRage</h1>
-      <p class="text-gray-400 text-sm">Dashboard v2.0</p>
+  <aside id="sidebar" class="sidebar bg-gray-900 p-4 space-y-2 border-r border-gray-800 flex flex-col">
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center">
+        <i class="fas fa-skull text-red-500 text-2xl mr-2"></i>
+        <h1 class="text-2xl font-bold glow-text blood-drip sidebar-text">BloodRage</h1>
+      </div>
+      <button id="sidebar-toggle" class="text-gray-400 hover:text-white">
+        <i class="fas fa-bars"></i>
+      </button>
     </div>
     
     <nav class="flex-1 space-y-1">
-      <button onclick="switchTab('account')" class="block w-full text-left py-3 px-4 rounded-lg sidebar-item bg-gray-800">
-        <div class="flex items-center">
-          <svg class="w-5 h-5 mr-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-          </svg>
-          <span>Account</span>
-        </div>
+      <button onclick="switchTab('dashboard')" class="w-full text-left py-3 px-4 flex items-center sidebar-item active">
+        <i class="fas fa-tachometer-alt sidebar-icon mr-3 text-gray-400"></i>
+        <span class="sidebar-text">Dashboard</span>
       </button>
-      <button onclick="switchTab('edit')" class="block w-full text-left py-3 px-4 rounded-lg sidebar-item">
-        <div class="flex items-center">
-          <svg class="w-5 h-5 mr-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-          </svg>
-          <span>Edit Profile</span>
-        </div>
+      
+      <button onclick="switchTab('account')" class="w-full text-left py-3 px-4 flex items-center sidebar-item">
+        <i class="fas fa-user sidebar-icon mr-3 text-gray-400"></i>
+        <span class="sidebar-text">Account</span>
       </button>
-      <button onclick="switchTab('settings')" class="block w-full text-left py-3 px-4 rounded-lg sidebar-item">
-        <div class="flex items-center">
-          <svg class="w-5 h-5 mr-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-          </svg>
-          <span>Settings</span>
-        </div>
+      
+      <button onclick="switchTab('edit')" class="w-full text-left py-3 px-4 flex items-center sidebar-item">
+        <i class="fas fa-edit sidebar-icon mr-3 text-gray-400"></i>
+        <span class="sidebar-text">Edit Profile</span>
+      </button>
+      
+      <button onclick="switchTab('settings')" class="w-full text-left py-3 px-4 flex items-center sidebar-item">
+        <i class="fas fa-cog sidebar-icon mr-3 text-gray-400"></i>
+        <span class="sidebar-text">Settings</span>
+      </button>
+      
+      <button onclick="switchTab('stats')" class="w-full text-left py-3 px-4 flex items-center sidebar-item">
+        <i class="fas fa-chart-line sidebar-icon mr-3 text-gray-400"></i>
+        <span class="sidebar-text">Statistics</span>
       </button>
     </nav>
     
     <div class="mt-auto pt-4 border-t border-gray-800">
       <div class="flex items-center justify-between text-gray-400 text-sm">
-        <span>Dark Mode</span>
+        <span class="sidebar-text">Dark Mode</span>
         <button onclick="toggleTheme()" class="relative inline-flex items-center h-6 rounded-full w-11 bg-gray-700 transition-colors focus:outline-none">
           <span class="sr-only">Toggle theme</span>
           <span class="inline-block w-4 h-4 transform transition-transform bg-red-500 rounded-full translate-x-1"></span>
+        </button>
+      </div>
+      
+      <div class="mt-4 pt-4 border-t border-gray-800">
+        <button onclick="logout()" class="w-full text-left py-2 px-4 flex items-center text-gray-400 hover:text-white rounded-lg">
+          <i class="fas fa-sign-out-alt mr-3"></i>
+          <span class="sidebar-text">Logout</span>
         </button>
       </div>
     </div>
@@ -251,22 +335,144 @@
 
   <!-- Main Content -->
   <main class="flex-1 p-6 overflow-y-auto">
+    <!-- Dashboard Tab -->
+    <div id="dashboard" class="tab-content active">
+      <div class="animate__animated animate__fadeIn">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold flex items-center">
+            <i class="fas fa-tachometer-alt text-red-500 mr-2"></i>
+            <span>Dashboard Overview</span>
+          </h2>
+          <div class="flex items-center">
+            <span class="status-indicator status-online"></span>
+            <span class="text-sm text-gray-400">Online</span>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div class="card p-6 rounded-xl">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold">Total Sessions</h3>
+              <i class="fas fa-clock text-red-500 text-xl"></i>
+            </div>
+            <p class="text-3xl font-bold mb-2">142</p>
+            <p class="text-green-500 text-sm flex items-center">
+              <i class="fas fa-arrow-up mr-1"></i> 12% from last week
+            </p>
+          </div>
+          
+          <div class="card p-6 rounded-xl">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold">Active Now</h3>
+              <i class="fas fa-users text-red-500 text-xl"></i>
+            </div>
+            <p class="text-3xl font-bold mb-2">24</p>
+            <p class="text-green-500 text-sm flex items-center">
+              <i class="fas fa-arrow-up mr-1"></i> 3 new today
+            </p>
+          </div>
+          
+          <div class="card p-6 rounded-xl">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold">XP Progress</h3>
+              <i class="fas fa-trophy text-red-500 text-xl"></i>
+            </div>
+            <p class="text-3xl font-bold mb-2">Level 5</p>
+            <div class="progress-bar mt-2">
+              <div class="progress-fill" style="width: 65%"></div>
+            </div>
+            <p class="text-gray-400 text-sm mt-1">65% to next level</p>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="card p-6 rounded-xl">
+            <h3 class="text-lg font-semibold mb-4 flex items-center">
+              <i class="fas fa-fire text-red-500 mr-2"></i>
+              Recent Activity
+            </h3>
+            <div class="space-y-4">
+              <div class="flex items-start">
+                <div class="bg-gray-800 p-2 rounded-full mr-3">
+                  <i class="fas fa-user-plus text-green-500"></i>
+                </div>
+                <div>
+                  <p class="font-medium">New member joined</p>
+                  <p class="text-gray-400 text-sm">2 hours ago</p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <div class="bg-gray-800 p-2 rounded-full mr-3">
+                  <i class="fas fa-award text-yellow-500"></i>
+                </div>
+                <div>
+                  <p class="font-medium">Achievement unlocked</p>
+                  <p class="text-gray-400 text-sm">5 hours ago</p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <div class="bg-gray-800 p-2 rounded-full mr-3">
+                  <i class="fas fa-bell text-red-500"></i>
+                </div>
+                <div>
+                  <p class="font-medium">System notification</p>
+                  <p class="text-gray-400 text-sm">1 day ago</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card p-6 rounded-xl">
+            <h3 class="text-lg font-semibold mb-4 flex items-center">
+              <i class="fas fa-calendar-alt text-red-500 mr-2"></i>
+              Upcoming Events
+            </h3>
+            <div class="space-y-4">
+              <div class="flex items-start">
+                <div class="bg-red-900/30 p-2 rounded-full mr-3">
+                  <i class="fas fa-skull text-red-500"></i>
+                </div>
+                <div>
+                  <p class="font-medium">Blood Moon Tournament</p>
+                  <p class="text-gray-400 text-sm">Starts in 3 days</p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <div class="bg-blue-900/30 p-2 rounded-full mr-3">
+                  <i class="fas fa-users text-blue-500"></i>
+                </div>
+                <div>
+                  <p class="font-medium">Community Meetup</p>
+                  <p class="text-gray-400 text-sm">Next week</p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <div class="bg-purple-900/30 p-2 rounded-full mr-3">
+                  <i class="fas fa-gift text-purple-500"></i>
+                </div>
+                <div>
+                  <p class="font-medium">Seasonal Rewards</p>
+                  <p class="text-gray-400 text-sm">End of month</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Account Tab -->
-    <div id="account" class="tab-content active">
+    <div id="account" class="tab-content">
       <div class="animate__animated animate__fadeIn">
         <h2 class="text-2xl font-bold mb-6 flex items-center">
-          <svg class="w-6 h-6 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-          </svg>
+          <i class="fas fa-user text-red-500 mr-2"></i>
           <span>Account Information</span>
         </h2>
         
-        <div id="user-info" class="bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg animate__animated animate__fadeInUp">
+        <div class="card p-6 rounded-xl animate__animated animate__fadeInUp">
           <div class="flex items-center mb-6">
             <div id="user-avatar" class="w-16 h-16 rounded-full bg-gray-800 border-2 border-red-500 flex items-center justify-center overflow-hidden mr-4">
-              <svg class="w-8 h-8 text-gray-400 spinner" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
-              </svg>
+              <i class="fas fa-user text-gray-400 spinner"></i>
             </div>
             <div>
               <h3 id="user-name" class="text-xl font-semibold">Loading...</h3>
@@ -278,7 +484,7 @@
             <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
               <h4 class="text-sm font-medium text-gray-400 mb-2">Account Status</h4>
               <div class="flex items-center">
-                <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                <div class="status-indicator status-online mr-2"></div>
                 <span class="font-medium">Active</span>
               </div>
             </div>
@@ -286,6 +492,19 @@
             <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
               <h4 class="text-sm font-medium text-gray-400 mb-2">Member Since</h4>
               <p id="member-since" class="font-medium">Loading...</p>
+            </div>
+            
+            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+              <h4 class="text-sm font-medium text-gray-400 mb-2">Account Tier</h4>
+              <div class="flex items-center">
+                <i class="fas fa-crown text-yellow-500 mr-2"></i>
+                <span class="font-medium">Premium</span>
+              </div>
+            </div>
+            
+            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+              <h4 class="text-sm font-medium text-gray-400 mb-2">Last Active</h4>
+              <p id="last-active" class="font-medium">Just now</p>
             </div>
           </div>
         </div>
@@ -296,19 +515,17 @@
     <div id="edit" class="tab-content">
       <div class="animate__animated animate__fadeIn">
         <h2 class="text-2xl font-bold mb-6 flex items-center">
-          <svg class="w-6 h-6 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-          </svg>
+          <i class="fas fa-edit text-red-500 mr-2"></i>
           <span>Edit Profile</span>
         </h2>
         
-        <div class="bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg animate__animated animate__fadeInUp">
+        <div class="card p-6 rounded-xl animate__animated animate__fadeInUp">
           <div class="mb-6">
             <h3 class="text-lg font-semibold mb-4">Change Username</h3>
             <div class="flex items-center">
               <input id="new-username" class="input-field flex-1 bg-gray-800 text-white p-3 rounded-lg focus:outline-none" placeholder="Enter new username">
               <button onclick="changeUsername()" class="ml-3 bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-lg btn-animate">
-                Update
+                <i class="fas fa-save mr-2"></i>Update
               </button>
             </div>
           </div>
@@ -317,16 +534,29 @@
             <h3 class="text-lg font-semibold mb-4">Profile Picture</h3>
             <div class="flex flex-wrap gap-4">
               <button onclick="useDiscordPfp()" class="bg-[#5865F2] hover:bg-[#4752C4] text-white px-5 py-3 rounded-lg flex items-center btn-animate">
-                <img src="https://www.svgrepo.com/show/353655/discord-icon.svg" class="w-5 h-5 mr-2" alt="Discord" />
+                <i class="fab fa-discord mr-2"></i>
                 <span>Use Discord Avatar</span>
               </button>
               
               <button onclick="uploadPfp()" class="bg-gray-800 hover:bg-gray-700 text-white px-5 py-3 rounded-lg flex items-center btn-animate">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
+                <i class="fas fa-upload mr-2"></i>
                 <span>Upload Image</span>
               </button>
+              
+              <button onclick="resetPfp()" class="bg-gray-800 hover:bg-gray-700 text-white px-5 py-3 rounded-lg flex items-center btn-animate">
+                <i class="fas fa-user-slash mr-2"></i>
+                <span>Reset to Default</span>
+              </button>
+            </div>
+          </div>
+          
+          <div class="pt-6 border-t border-gray-800 mt-6">
+            <h3 class="text-lg font-semibold mb-4">Profile Theme</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div class="theme-option bg-gradient-to-br from-red-900 to-black h-24 rounded-lg cursor-pointer border-2 border-transparent hover:border-red-500 transition-all" onclick="setTheme('blood')"></div>
+              <div class="theme-option bg-gradient-to-br from-blue-900 to-black h-24 rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-500 transition-all" onclick="setTheme('ocean')"></div>
+              <div class="theme-option bg-gradient-to-br from-purple-900 to-black h-24 rounded-lg cursor-pointer border-2 border-transparent hover:border-purple-500 transition-all" onclick="setTheme('royal')"></div>
+              <div class="theme-option bg-gradient-to-br from-green-900 to-black h-24 rounded-lg cursor-pointer border-2 border-transparent hover:border-green-500 transition-all" onclick="setTheme('forest')"></div>
             </div>
           </div>
         </div>
@@ -337,14 +567,11 @@
     <div id="settings" class="tab-content">
       <div class="animate__animated animate__fadeIn">
         <h2 class="text-2xl font-bold mb-6 flex items-center">
-          <svg class="w-6 h-6 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-          </svg>
+          <i class="fas fa-cog text-red-500 mr-2"></i>
           <span>Settings</span>
         </h2>
         
-        <div class="bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg animate__animated animate__fadeInUp">
+        <div class="card p-6 rounded-xl animate__animated animate__fadeInUp">
           <div class="mb-8">
             <h3 class="text-lg font-semibold mb-4">Appearance</h3>
             <div class="flex items-center justify-between bg-gray-800 p-4 rounded-lg border border-gray-700">
@@ -364,7 +591,7 @@
             <div class="space-y-4">
               <div class="flex items-center justify-between bg-gray-800 p-4 rounded-lg border border-gray-700">
                 <div class="flex items-center">
-                  <img src="https://www.svgrepo.com/show/353655/discord-icon.svg" class="w-6 h-6 mr-3" alt="Discord" />
+                  <i class="fab fa-discord text-[#5865F2] text-xl mr-3"></i>
                   <div>
                     <h4 class="font-medium">Discord</h4>
                     <p id="discord-status" class="text-gray-400 text-sm">Not connected</p>
@@ -377,13 +604,26 @@
               
               <div class="flex items-center justify-between bg-gray-800 p-4 rounded-lg border border-gray-700">
                 <div class="flex items-center">
-                  <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6 mr-3" alt="Google" />
+                  <i class="fab fa-google text-red-500 text-xl mr-3"></i>
                   <div>
                     <h4 class="font-medium">Google</h4>
                     <p id="google-status" class="text-gray-400 text-sm">Not connected</p>
                   </div>
                 </div>
                 <button onclick="linkGoogle()" id="google-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm btn-animate">
+                  Connect
+                </button>
+              </div>
+              
+              <div class="flex items-center justify-between bg-gray-800 p-4 rounded-lg border border-gray-700">
+                <div class="flex items-center">
+                  <i class="fab fa-twitter text-blue-400 text-xl mr-3"></i>
+                  <div>
+                    <h4 class="font-medium">Twitter</h4>
+                    <p id="twitter-status" class="text-gray-400 text-sm">Not connected</p>
+                  </div>
+                </div>
+                <button onclick="linkTwitter()" id="twitter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm btn-animate">
                   Connect
                 </button>
               </div>
@@ -396,8 +636,75 @@
               <h4 class="font-medium text-red-500 mb-2">Delete Account</h4>
               <p class="text-gray-400 text-sm mb-4">This will permanently delete your account and all associated data.</p>
               <button onclick="confirmDelete()" class="bg-red-900/30 hover:bg-red-900/40 text-red-500 px-4 py-2 rounded text-sm border border-red-900/50 btn-animate">
-                Delete Account
+                <i class="fas fa-trash-alt mr-2"></i>Delete Account
               </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Stats Tab -->
+    <div id="stats" class="tab-content">
+      <div class="animate__animated animate__fadeIn">
+        <h2 class="text-2xl font-bold mb-6 flex items-center">
+          <i class="fas fa-chart-line text-red-500 mr-2"></i>
+          <span>Statistics</span>
+        </h2>
+        
+        <div class="card p-6 rounded-xl animate__animated animate__fadeInUp">
+          <h3 class="text-lg font-semibold mb-4">Activity Overview</h3>
+          <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 h-64 mb-6">
+            <!-- Chart placeholder -->
+            <div class="flex items-center justify-center h-full text-gray-500">
+              <i class="fas fa-chart-bar text-4xl mr-3"></i>
+              <span>Activity chart will appear here</span>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+              <h4 class="font-medium mb-3">Session History</h4>
+              <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                  <span>Today</span>
+                  <span class="font-medium">3 sessions</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span>This Week</span>
+                  <span class="font-medium">18 sessions</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span>This Month</span>
+                  <span class="font-medium">64 sessions</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span>All Time</span>
+                  <span class="font-medium">142 sessions</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+              <h4 class="font-medium mb-3">Achievements</h4>
+              <div class="space-y-3">
+                <div class="flex items-center">
+                  <i class="fas fa-trophy text-yellow-500 mr-3"></i>
+                  <span>First Blood (Completed)</span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-trophy text-yellow-500 mr-3"></i>
+                  <span>Veteran (5/10)</span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-trophy text-yellow-500 mr-3"></i>
+                  <span>Legendary (2/5)</span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-trophy text-gray-500 mr-3"></i>
+                  <span>Immortal (Locked)</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -407,12 +714,55 @@
 </div>
 
 <script>
+  // Initialize Supabase
   const client = supabase.createClient('https://smcteblolwhfxcpngmvd.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s');
   let currentUser = null;
+  let sidebarCollapsed = false;
+
+  // DOM Elements
+  const sidebar = document.getElementById('sidebar');
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+
+  // Initialize the dashboard
+  document.addEventListener('DOMContentLoaded', () => {
+    // Check if user prefers dark mode
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.body.classList.remove('light');
+      updateThemeToggle(false);
+    } else {
+      document.body.classList.add('light');
+      updateThemeToggle(true);
+    }
+    
+    // Set up sidebar toggle
+    sidebarToggle.addEventListener('click', toggleSidebar);
+    
+    // Check auth status
+    showUser();
+  });
+
+  // Toggle sidebar collapse
+  function toggleSidebar() {
+    sidebarCollapsed = !sidebarCollapsed;
+    if (sidebarCollapsed) {
+      sidebar.classList.add('sidebar-collapsed');
+      sidebarToggle.innerHTML = '<i class="fas fa-chevron-right"></i>';
+    } else {
+      sidebar.classList.remove('sidebar-collapsed');
+      sidebarToggle.innerHTML = '<i class="fas fa-bars"></i>';
+    }
+  }
 
   // Tab switching with animation
   const tabs = document.querySelectorAll('.tab-content');
   function switchTab(id) {
+    // Update active state in sidebar
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+      item.classList.remove('active');
+    });
+    document.querySelector(`[onclick="switchTab('${id}')"]`).classList.add('active');
+    
+    // Animate tab transition
     tabs.forEach(t => {
       if (t.classList.contains('active')) {
         t.classList.remove('active');
@@ -434,11 +784,19 @@
 
   // Theme toggle with animation
   function toggleTheme() {
-    document.body.classList.toggle('light');
-    const toggleBtn = document.querySelectorAll('[onclick="toggleTheme()"]');
-    toggleBtn.forEach(btn => {
+    const isLight = document.body.classList.toggle('light');
+    updateThemeToggle(isLight);
+    showToast(`Switched to ${isLight ? 'light' : 'dark'} mode`);
+    
+    // Save preference to localStorage
+    localStorage.setItem('themePreference', isLight ? 'light' : 'dark');
+  }
+  
+  function updateThemeToggle(isLight) {
+    const toggleBtns = document.querySelectorAll('[onclick="toggleTheme()"]');
+    toggleBtns.forEach(btn => {
       const span = btn.querySelector('span');
-      if (document.body.classList.contains('light')) {
+      if (isLight) {
         span.classList.remove('translate-x-1');
         span.classList.add('translate-x-6');
       } else {
@@ -446,13 +804,30 @@
         span.classList.add('translate-x-1');
       }
     });
-    showToast('Theme changed!');
   }
 
   // Show toast notification
-  function showToast(message) {
+  function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
     const toastMessage = document.getElementById('toast-message');
+    
+    // Set icon based on type
+    let icon;
+    switch(type) {
+      case 'error':
+        icon = '<i class="fas fa-exclamation-circle text-red-500"></i>';
+        break;
+      case 'warning':
+        icon = '<i class="fas fa-exclamation-triangle text-yellow-500"></i>';
+        break;
+      case 'info':
+        icon = '<i class="fas fa-info-circle text-blue-500"></i>';
+        break;
+      default: // success
+        icon = '<i class="fas fa-check-circle text-green-500"></i>';
+    }
+    
+    toast.querySelector('.mr-3').innerHTML = icon;
     toastMessage.textContent = message;
     toast.classList.remove('hidden');
     toast.classList.add('animate__animated', 'animate__fadeInRight');
@@ -477,19 +852,27 @@
       setTimeout(() => {
         usernameInput.classList.remove('animate__animated', 'animate__shakeX');
       }, 1000);
-      return showToast('Please enter a username');
+      return showToast('Please enter a username', 'error');
+    }
+    
+    if (username.length < 3 || username.length > 20) {
+      usernameInput.classList.add('animate__animated', 'animate__shakeX');
+      setTimeout(() => {
+        usernameInput.classList.remove('animate__animated', 'animate__shakeX');
+      }, 1000);
+      return showToast('Username must be 3-20 characters', 'error');
     }
     
     const { error } = await client.from('users').update({ username }).eq('id', currentUser.id);
     if (error) {
-      showToast('Error: ' + error.message);
+      showToast('Error: ' + error.message, 'error');
     } else {
       showToast('Username updated successfully!');
       usernameInput.value = '';
-      // Update displayed username
-      document.getElementById('user-name').textContent = username;
-      // Pulse effect on success
+      
+      // Update displayed username with animation
       const nameElement = document.getElementById('user-name');
+      nameElement.textContent = username;
       nameElement.classList.add('animate__animated', 'animate__pulse');
       setTimeout(() => {
         nameElement.classList.remove('animate__animated', 'animate__pulse');
@@ -500,7 +883,8 @@
   // Use Discord profile picture
   async function useDiscordPfp() {
     const btn = document.querySelector('[onclick="useDiscordPfp()"]');
-    btn.innerHTML = '<span class="spinner">Loading...</span>';
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Loading...';
     
     const { data, error } = await client.auth.getUserIdentities();
     const discord = data?.identities?.find(i => i.provider === 'discord');
@@ -511,34 +895,70 @@
       }).eq('id', currentUser.id);
       
       if (updateError) {
-        showToast('Error: ' + updateError.message);
+        showToast('Error: ' + updateError.message, 'error');
       } else {
         showToast('Discord profile picture applied!');
-        // Update avatar display
+        
+        // Update avatar display with animation
         const avatarElement = document.getElementById('user-avatar');
         avatarElement.innerHTML = `<img src="${discord.identity_data.avatar_url}" class="w-full h-full object-cover" alt="Discord Avatar">`;
-        // Float animation
         avatarElement.classList.add('animate__animated', 'animate__bounceIn');
         setTimeout(() => {
           avatarElement.classList.remove('animate__animated', 'animate__bounceIn');
         }, 1000);
       }
     } else {
-      showToast('Discord not linked to your account');
+      showToast('Discord not linked to your account', 'error');
     }
     
-    btn.innerHTML = '<img src="https://www.svgrepo.com/show/353655/discord-icon.svg" class="w-5 h-5 mr-2" alt="Discord" /><span>Use Discord Avatar</span>';
+    btn.innerHTML = originalContent;
+  }
+
+  // Reset profile picture to default
+  async function resetPfp() {
+    const { error } = await client.from('users').update({ 
+      avatar: null 
+    }).eq('id', currentUser.id);
+    
+    if (error) {
+      showToast('Error: ' + error.message, 'error');
+    } else {
+      showToast('Profile picture reset to default');
+      
+      // Update avatar display
+      const avatarElement = document.getElementById('user-avatar');
+      avatarElement.innerHTML = '<i class="fas fa-user text-gray-400"></i>';
+      avatarElement.classList.add('animate__animated', 'animate__flipInY');
+      setTimeout(() => {
+        avatarElement.classList.remove('animate__animated', 'animate__flipInY');
+      }, 1000);
+    }
+  }
+
+  // Set profile theme
+  async function setTheme(theme) {
+    const { error } = await client.from('users').update({ 
+      theme 
+    }).eq('id', currentUser.id);
+    
+    if (error) {
+      showToast('Error: ' + error.message, 'error');
+    } else {
+      showToast(`Theme changed to ${theme}`);
+      // In a real app, you would apply the theme here
+    }
   }
 
   // Link Discord account
   async function linkDiscord() {
     const btn = document.getElementById('discord-btn');
-    btn.innerHTML = '<span class="spinner">Connecting...</span>';
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Connecting...';
     
     const { error } = await client.auth.linkIdentity({ provider: 'discord' });
     if (error) {
-      showToast('Link failed: ' + error.message);
-      btn.innerHTML = 'Connect';
+      showToast('Link failed: ' + error.message, 'error');
+      btn.innerHTML = originalContent;
     } else {
       showToast('Discord linked successfully!');
       checkConnectedAccounts();
@@ -548,16 +968,27 @@
   // Link Google account
   async function linkGoogle() {
     const btn = document.getElementById('google-btn');
-    btn.innerHTML = '<span class="spinner">Connecting...</span>';
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Connecting...';
     
     const { error } = await client.auth.linkIdentity({ provider: 'google' });
     if (error) {
-      showToast('Link failed: ' + error.message);
-      btn.innerHTML = 'Connect';
+      showToast('Link failed: ' + error.message, 'error');
+      btn.innerHTML = originalContent;
     } else {
       showToast('Google linked successfully!');
       checkConnectedAccounts();
     }
+  }
+
+  // Link Twitter account
+  async function linkTwitter() {
+    const btn = document.getElementById('twitter-btn');
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Connecting...';
+    
+    showToast('Twitter login coming soon!', 'info');
+    btn.innerHTML = originalContent;
   }
 
   // Check connected accounts
@@ -573,12 +1004,12 @@
     const discordBtn = document.getElementById('discord-btn');
     if (discord) {
       discordStatus.textContent = `Connected as ${discord.identity_data.name || 'Discord user'}`;
-      discordBtn.textContent = 'Connected';
+      discordBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Connected';
       discordBtn.classList.remove('bg-[#5865F2]', 'hover:bg-[#4752C4]');
       discordBtn.classList.add('bg-green-600', 'hover:bg-green-700');
     } else {
       discordStatus.textContent = 'Not connected';
-      discordBtn.textContent = 'Connect';
+      discordBtn.innerHTML = '<i class="fab fa-discord mr-2"></i>Connect';
       discordBtn.classList.add('bg-[#5865F2]', 'hover:bg-[#4752C4]');
       discordBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
     }
@@ -588,12 +1019,12 @@
     const googleBtn = document.getElementById('google-btn');
     if (google) {
       googleStatus.textContent = `Connected as ${google.identity_data.name || 'Google user'}`;
-      googleBtn.textContent = 'Connected';
+      googleBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Connected';
       googleBtn.classList.remove('bg-gray-700', 'hover:bg-gray-600');
       googleBtn.classList.add('bg-green-600', 'hover:bg-green-700');
     } else {
       googleStatus.textContent = 'Not connected';
-      googleBtn.textContent = 'Connect';
+      googleBtn.innerHTML = '<i class="fab fa-google mr-2"></i>Connect';
       googleBtn.classList.add('bg-gray-700', 'hover:bg-gray-600');
       googleBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
     }
@@ -601,14 +1032,29 @@
 
   // Upload profile picture (placeholder)
   function uploadPfp() {
-    showToast('Profile picture upload coming soon!');
+    showToast('Profile picture upload coming soon!', 'info');
   }
 
   // Confirm account deletion
-  function confirmDelete() {
+  async function confirmDelete() {
     if (confirm('Are you sure you want to delete your account? This cannot be undone.')) {
-      showToast('Account deletion initiated...');
-      // In a real app, you would call a delete function here
+      showToast('Account deletion initiated...', 'warning');
+      // In a real app, you would call the delete function here
+      // const { error } = await client.from('users').delete().eq('id', currentUser.id);
+      // if (!error) {
+      //   await client.auth.signOut();
+      // }
+    }
+  }
+
+  // Logout function
+  async function logout() {
+    const { error } = await client.auth.signOut();
+    if (error) {
+      showToast('Logout failed: ' + error.message, 'error');
+    } else {
+      showToast('Logged out successfully');
+      document.getElementById('login-modal').classList.remove('hidden');
     }
   }
 
@@ -631,23 +1077,32 @@
         const createdAt = new Date(user.created_at);
         document.getElementById('member-since').textContent = createdAt.toLocaleDateString();
         
+        // Update last active time
+        document.getElementById('last-active').textContent = 'Just now';
+        
         // Update avatar if exists
         const avatarElement = document.getElementById('user-avatar');
         if (data.avatar) {
           avatarElement.innerHTML = `<img src="${data.avatar}" class="w-full h-full object-cover" alt="User Avatar">`;
         } else {
-          avatarElement.innerHTML = `<svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-          </svg>`;
+          avatarElement.innerHTML = '<i class="fas fa-user text-gray-400"></i>';
         }
+        
+        // Remove spinner class
+        avatarElement.classList.remove('spinner');
         
         // Check connected accounts
         checkConnectedAccounts();
+        
+        // Apply saved theme preference
+        if (data.theme) {
+          // In a real app, you would apply the theme here
+        }
       }
     }
   }
 
-  // Event listeners
+  // Event listeners for login buttons
   document.getElementById('login-google').onclick = () => {
     client.auth.signInWithOAuth({ provider: 'google' });
   };
@@ -656,9 +1111,6 @@
     client.auth.signInWithOAuth({ provider: 'discord' });
   };
 
-  // Initialize
-  showUser();
-  
   // Listen for auth changes
   client.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN') {
