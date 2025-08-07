@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <base href="/" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile | guns.lol</title>
+    <title>Profile</title>
     <style>
         :root {
             --primary: #ff2e2e;
@@ -709,14 +710,15 @@
         async function init() {
             let username = null;
     
-    // Check query parameters first
-    const urlParams = new URLSearchParams(window.location.search);
-    username = urlParams.get('username');
-    
-    // If not in query params, check path
-    if (!username) {
-        const pathParts = window.location.pathname.split('/');
-        username = pathParts[pathParts.length - 1].replace('.html', '');
+    // Check if we're at the root path with a username (e.g., /username)
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    if (pathParts.length === 1 && pathParts[0] !== 'profile.html') {
+        username = pathParts[0];
+    }
+    // Check query parameters (e.g., profile.html?username=example)
+    else {
+        const urlParams = new URLSearchParams(window.location.search);
+        username = urlParams.get('username');
     }
     
     if (!username) {
