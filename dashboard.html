@@ -168,10 +168,6 @@
     usernameInput.value = profile.username || "";
     avatarUrlInput.value = profile.avatar_url || "";
 
-    function switchTab(tab) {
-      document.querySelectorAll(".tab").forEach(t => t.classList.add("hidden"));
-      document.getElementById(tab).classList.remove("hidden");
-    }
 
     function toggleTheme() {
       document.body.classList.toggle("dark");
@@ -230,19 +226,37 @@
     const discordLinked = session?.user?.identities?.some(id => id.provider === "discord");
     document.getElementById("discord-status").textContent = discordLinked ? "Discord Linked" : "Not Linked";
 
-function switchTab(tab) {
-    const tabs = ['account', 'edit-profile', 'settings'];
-    tabs.forEach(t => {
-      document.getElementById(`${t}-tab`).style.display = t === tab ? 'block' : 'none';
-      document.getElementById(`tab-btn-${t}`).classList.toggle('active', t === tab);
+
+    
+
+  if (typeof switchTab === "undefined") {
+    function switchTab(tab) {
+      const tabs = ['account', 'edit-profile', 'settings'];
+
+      tabs.forEach(t => {
+        const tabElement = document.getElementById(`${t}-tab`);
+        const button = document.getElementById(`tab-btn-${t}`);
+
+        if (tabElement && button) {
+          if (t === tab) {
+            tabElement.style.display = 'block';
+            tabElement.style.opacity = '1';
+            button.classList.add('active');
+          } else {
+            tabElement.style.display = 'none';
+            tabElement.style.opacity = '0';
+            button.classList.remove('active');
+          }
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      switchTab('account'); // Default tab
     });
   }
+</script>
 
-  // Optional: Initialize default tab
-  document.addEventListener('DOMContentLoaded', () => {
-    switchTab('account');
-  });
-    
-  </script>
+  
 </body>
 </html>
