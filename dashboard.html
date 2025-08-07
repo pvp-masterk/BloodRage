@@ -10,13 +10,26 @@
     body {
       display: flex;
       min-height: 100vh;
-      background: #111;
-      color: white;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    :root {
+      --bg: #111;
+      --text: #fff;
+      --card: #1a1a1a;
+    }
+
+    .light {
+      --bg: #f4f4f4;
+      --text: #111;
+      --card: #fff;
     }
 
     .sidebar {
       width: 220px;
-      background: #1a1a1a;
+      background: var(--card);
       padding: 20px;
     }
 
@@ -27,7 +40,7 @@
 
     .sidebar a {
       display: block;
-      color: #ddd;
+      color: var(--text);
       text-decoration: none;
       padding: 12px 10px;
       margin: 5px 0;
@@ -38,7 +51,6 @@
     .sidebar a:hover,
     .sidebar a.active {
       background: #333;
-      color: white;
     }
 
     .content {
@@ -64,6 +76,36 @@
       border-radius: 6px;
       text-decoration: none;
     }
+
+    input, textarea, button {
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+      border: 1px solid #444;
+      border-radius: 5px;
+      background: transparent;
+      color: var(--text);
+    }
+
+    button {
+      background: #333;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #444;
+    }
+
+    .setting-row {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -72,6 +114,7 @@
     <h2>Dashboard</h2>
     <a href="#account" id="link-account">Account</a>
     <a href="#edit" id="link-edit">Edit Profile</a>
+    <a href="#settings" id="link-settings">Settings</a>
     <a href="/" class="logout-btn">Logout</a>
   </div>
 
@@ -85,12 +128,34 @@
     <div id="edit" class="section">
       <h2>Edit Profile</h2>
       <form id="editForm">
-        <label>Bio:<br>
-          <textarea id="bio" rows="4" cols="40" style="width:100%"></textarea>
+        <label>Change Username:
+          <input type="text" id="newUsername" placeholder="New username" />
         </label>
-        <br><br>
+
+        <label>Bio:
+          <textarea id="bio" rows="4" placeholder="Your bio..."></textarea>
+        </label>
+
+        <label>Change Profile Picture:
+          <button type="button" onclick="alert('Feature coming soon')">Upload Profile Picture</button>
+        </label>
+
         <button type="submit">Save Changes</button>
       </form>
+    </div>
+
+    <div id="settings" class="section">
+      <h2>Settings</h2>
+
+      <div class="setting-row">
+        <label>
+          <input type="checkbox" id="themeToggle" /> Toggle Light Theme
+        </label>
+      </div>
+
+      <div class="setting-row" id="discordLinkRow" style="display:none">
+        <button onclick="linkDiscord()">Link Discord Account</button>
+      </div>
     </div>
   </div>
 
@@ -98,12 +163,24 @@
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
     const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
 
-    // Load session user
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      window.location.href = "/";
+    // Theme toggle
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("change", () => {
+      document.body.classList.toggle("light", themeToggle.checked);
+      localStorage.setItem("theme", themeToggle.checked ? "light" : "dark");
+    });
+
+    // Load theme from localStorage
+    if (localStorage.getItem("theme") === "light") {
+      themeToggle.checked = true;
+      document.body.classList.add("light");
     }
 
+    // Auth check
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) location.href = "/";
+
+    // Get user profile
     const { data, error } = await supabase
       .from("users")
       .select("*")
@@ -114,36 +191,49 @@
       document.getElementById("username").innerText = data.username;
       document.getElementById("email").innerText = user.email;
       document.getElementById("bio").value = data.bio || "";
+      document.getElementById("newUsername").value = data.username || "";
+
+      if (user.app_metadata?.provider === "google") {
+        document.getElementById("discordLinkRow").style.display = "block";
+      }
     }
 
-    // Save profile changes
+    // Update user profile
     document.getElementById("editForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const newBio = document.getElementById("bio").value;
+      const newUsername = document.getElementById("newUsername").value;
 
       const { error } = await supabase
         .from("users")
-        .update({ bio: newBio })
+        .update({ bio: newBio, username: newUsername })
         .eq("id", user.id);
 
-      if (!error) alert("Changes saved!");
+      if (!error) alert("Profile updated!");
+      else alert("Update failed!");
     });
 
-    // Handle sidebar section switching
+    // Sidebar navigation
     const links = document.querySelectorAll(".sidebar a");
     const sections = document.querySelectorAll(".section");
 
     function setActiveSection() {
       const hash = window.location.hash.substring(1) || "account";
-      sections.forEach(sec => sec.classList.remove("active"));
+      sections.forEach(s => s.classList.remove("active"));
       document.getElementById(hash)?.classList.add("active");
 
-      links.forEach(link => link.classList.remove("active"));
+      links.forEach(l => l.classList.remove("active"));
       document.getElementById("link-" + hash)?.classList.add("active");
     }
 
     window.addEventListener("hashchange", setActiveSection);
     setActiveSection();
+
+    // Discord linking function (mock)
+    window.linkDiscord = () => {
+      alert("Redirecting to Discord OAuth...");
+      // Replace with actual OAuth linking logic
+    };
   </script>
 
 </body>
