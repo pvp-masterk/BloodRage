@@ -1165,7 +1165,7 @@
                     // Close modal
                     editModal.classList.remove('active');
                 } catch (error) {
-                    console.error('Error saving profile:', error);
+                    console.error("Error saving profile:", error?.message || error);
                     alert('Failed to save profile. Please try again.');
                 } finally {
                     saveBtn.disabled = false;
