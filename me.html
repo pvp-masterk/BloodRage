@@ -68,7 +68,7 @@
   document.getElementById('avatar').src = profile.avatar_url;
   document.getElementById('username').textContent = `@${profile.username}`;
   document.getElementById('bio').textContent = profile.bio;
-  document.getElementById('publicLink').href = `/${profile.username}`;
+  document.getElementById('publicLink').href = `/profile.html?user=${profile.username}`;
 }
     loadProfile();
   </script>
