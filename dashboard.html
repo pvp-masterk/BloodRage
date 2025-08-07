@@ -407,7 +407,7 @@
 </div>
 
 <script>
-  const supabase = supabase.createClient('https://smcteblolwhfxcpngmvd.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s');
+  const client = supabase.createClient('https://smcteblolwhfxcpngmvd.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s');
   let currentUser = null;
 
   // Tab switching with animation
@@ -480,7 +480,7 @@
       return showToast('Please enter a username');
     }
     
-    const { error } = await supabase.from('users').update({ username }).eq('id', currentUser.id);
+    const { error } = await client.from('users').update({ username }).eq('id', currentUser.id);
     if (error) {
       showToast('Error: ' + error.message);
     } else {
@@ -502,11 +502,11 @@
     const btn = document.querySelector('[onclick="useDiscordPfp()"]');
     btn.innerHTML = '<span class="spinner">Loading...</span>';
     
-    const { data, error } = await supabase.auth.getUserIdentities();
+    const { data, error } = await client.auth.getUserIdentities();
     const discord = data?.identities?.find(i => i.provider === 'discord');
     
     if (discord && discord.identity_data?.avatar_url) {
-      const { error: updateError } = await supabase.from('users').update({ 
+      const { error: updateError } = await client.from('users').update({ 
         avatar: discord.identity_data.avatar_url 
       }).eq('id', currentUser.id);
       
@@ -535,7 +535,7 @@
     const btn = document.getElementById('discord-btn');
     btn.innerHTML = '<span class="spinner">Connecting...</span>';
     
-    const { error } = await supabase.auth.linkIdentity({ provider: 'discord' });
+    const { error } = await client.auth.linkIdentity({ provider: 'discord' });
     if (error) {
       showToast('Link failed: ' + error.message);
       btn.innerHTML = 'Connect';
@@ -550,7 +550,7 @@
     const btn = document.getElementById('google-btn');
     btn.innerHTML = '<span class="spinner">Connecting...</span>';
     
-    const { error } = await supabase.auth.linkIdentity({ provider: 'google' });
+    const { error } = await client.auth.linkIdentity({ provider: 'google' });
     if (error) {
       showToast('Link failed: ' + error.message);
       btn.innerHTML = 'Connect';
@@ -562,7 +562,7 @@
 
   // Check connected accounts
   async function checkConnectedAccounts() {
-    const { data, error } = await supabase.auth.getUserIdentities();
+    const { data, error } = await client.auth.getUserIdentities();
     if (error) return;
     
     const discord = data?.identities?.find(i => i.provider === 'discord');
@@ -614,14 +614,14 @@
 
   // Show user info
   async function showUser() {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await client.auth.getUser();
     if (!user) {
       document.getElementById('login-modal').classList.remove('hidden');
     } else {
       document.getElementById('login-modal').classList.add('hidden');
       currentUser = user;
       
-      const { data, error } = await supabase.from('users').select('*').eq('id', user.id).single();
+      const { data, error } = await client.from('users').select('*').eq('id', user.id).single();
       if (!error) {
         // Update account info
         document.getElementById('user-name').textContent = data.username || 'No username set';
@@ -649,18 +649,18 @@
 
   // Event listeners
   document.getElementById('login-google').onclick = () => {
-    supabase.auth.signInWithOAuth({ provider: 'google' });
+    client.auth.signInWithOAuth({ provider: 'google' });
   };
 
   document.getElementById('login-discord').onclick = () => {
-    supabase.auth.signInWithOAuth({ provider: 'discord' });
+    client.auth.signInWithOAuth({ provider: 'discord' });
   };
 
   // Initialize
   showUser();
   
   // Listen for auth changes
-  supabase.auth.onAuthStateChange((event, session) => {
+  client.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN') {
       showToast('Login successful!');
       showUser();
