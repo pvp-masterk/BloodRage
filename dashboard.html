@@ -235,9 +235,22 @@
       background: linear-gradient(90deg, #ff0000, #990000);
       transition: width 0.5s ease;
     }
-  button {
-    @apply bg-gray-800 hover:bg-gray-700 text-white rounded-lg px-4 py-2 btn-animate;
-  }
+ .btn {
+  background-color: #1f2937; /* bg-gray-800 */
+  color: white;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease, transform 0.2s ease;
+}
+.btn:hover {
+  background-color: #374151; /* bg-gray-700 */
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+.btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
 
 
   </style>
