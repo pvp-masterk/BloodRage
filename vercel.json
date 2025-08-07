@@ -5,22 +5,20 @@
   "routes": [
     {
       "src": "^/((?!dashboard|profile|_next|static|api|favicon\\.ico|.*\\..*).+)$",
-      "dest": "/profile.html?username=$1",
+      "dest": "/profile?username=$1",
       "status": 200
     },
     {
       "src": "^/$",
-      "dest": "/dashboard.html",
+      "dest": "/dashboard",
       "status": 200
     },
     {
       "src": "/dashboard",
-      "dest": "/dashboard.html",
       "status": 301
     },
     {
       "src": "/profile",
-      "dest": "/profile.html",
       "status": 301
     }
   ]
