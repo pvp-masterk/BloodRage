@@ -2,202 +2,130 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard - Bloodrage</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class'
-    };
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <style>
-    .fade-in {
-      animation: fadeIn 0.3s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+    html, body { background: #111; color: white; transition: background 0.3s, color 0.3s; }
+    .light { background: #f5f5f5; color: #111; }
+    .tab-content { display: none; opacity: 0; transform: translateY(10px); transition: opacity 0.3s, transform 0.3s; }
+    .tab-content.active { display: block; opacity: 1; transform: translateY(0); }
+    .modal-bg { background: rgba(0, 0, 0, 0.6); }
   </style>
 </head>
-<body class="dark bg-black text-white transition-all duration-300">
+<body class="font-sans">
 
-  <div class="flex h-screen">
-    <!-- Sidebar -->
-    <div class="w-60 bg-zinc-900 p-5 space-y-3">
-      <h2 class="text-xl font-bold mb-4">Dashboard</h2>
-      <button class="tab-button w-full text-left bg-zinc-800 p-2 rounded" data-tab="account">Account</button>
-      <button class="tab-button w-full text-left bg-zinc-800 p-2 rounded" data-tab="edit-profile">Edit Profile</button>
-      <button class="tab-button w-full text-left bg-zinc-800 p-2 rounded" data-tab="settings">Settings</button>
-    </div>
-
-    <!-- Main Content -->
-    <div class="flex-1 p-6 space-y-4 overflow-auto">
-      <!-- Account -->
-      <div id="account" class="tab-content fade-in">
-        <h1 class="text-2xl font-bold mb-2">Account</h1>
-        <p id="email">Loading...</p>
-        <p id="username">Loading...</p>
-        <img id="avatar" class="w-20 h-20 rounded-full mt-4" />
-      </div>
-
-      <!-- Edit Profile -->
-      <div id="edit-profile" class="tab-content hidden fade-in">
-        <h1 class="text-2xl font-bold mb-2">Edit Profile</h1>
-        <input id="new-username" class="bg-zinc-800 p-2 rounded w-full mb-2" placeholder="New Username" />
-        <button onclick="changeUsername()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Change Username</button>
-        <br /><br />
-        <input id="new-avatar" class="bg-zinc-800 p-2 rounded w-full mb-2" placeholder="New Avatar URL" />
-        <button onclick="changeAvatar()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Change Avatar</button>
-        <br /><br />
-        <button onclick="useDiscordAvatar()" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded">Use Discord Profile Picture (If linked)</button>
-      </div>
-
-      <!-- Settings -->
-      <div id="settings" class="tab-content hidden fade-in">
-        <h1 class="text-2xl font-bold mb-2">Settings</h1>
-        <label class="flex items-center space-x-2">
-          <input type="checkbox" id="themeToggle" onchange="toggleTheme()" />
-          <span>Dark Theme</span>
-        </label>
-        <br />
-       <button onclick="linkDiscord()" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
-  Link Discord
-</button>
-      </div>
-    </div>
+<!-- Login Popup -->
+<div id="login-modal" class="fixed inset-0 flex items-center justify-center z-50 modal-bg">
+  <div class="bg-white dark:bg-gray-900 p-6 rounded-lg w-full max-w-sm shadow-lg text-center">
+    <h2 class="text-xl font-bold mb-4">Login</h2>
+    <button id="login-google" class="w-full mb-3 bg-white text-black border rounded px-4 py-2 flex items-center justify-center gap-2">
+      <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google" />
+      Login with Google
+    </button>
+    <button id="login-discord" class="w-full bg-[#5865F2] text-white rounded px-4 py-2 flex items-center justify-center gap-2">
+      <img src="https://www.svgrepo.com/show/353655/discord-icon.svg" class="w-5 h-5" alt="Discord" />
+      Login with Discord
+    </button>
   </div>
+</div>
 
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+<!-- Dashboard UI -->
+<div class="flex h-screen">
+  <aside class="w-64 bg-gray-900 p-4 space-y-2">
+    <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
+    <button onclick="switchTab('account')" class="block w-full text-left">Account</button>
+    <button onclick="switchTab('edit')" class="block w-full text-left">Edit Profile</button>
+    <button onclick="switchTab('settings')" class="block w-full text-left">Settings</button>
+  </aside>
 
-    const supabase = createClient('https://YOUR_PROJECT_ID.supabase.co', 'YOUR_PUBLIC_ANON_KEY');
+  <main class="flex-1 p-6 space-y-4">
+    <div id="account" class="tab-content active">
+      <h2 class="text-xl font-semibold mb-2">Account Info</h2>
+      <div id="user-info">Loading user info...</div>
+    </div>
+    <div id="edit" class="tab-content">
+      <h2 class="text-xl font-semibold mb-2">Edit Profile</h2>
+      <input id="new-username" class="text-black p-2 rounded" placeholder="New Username">
+      <button onclick="changeUsername()" class="bg-blue-600 px-4 py-2 rounded ml-2">Change</button>
+      <br><br>
+      <button onclick="useDiscordPfp()" class="bg-purple-600 px-4 py-2 rounded">Use Discord Profile Picture</button>
+    </div>
+    <div id="settings" class="tab-content">
+      <h2 class="text-xl font-semibold mb-2">Settings</h2>
+      <button onclick="toggleTheme()" class="bg-gray-700 px-4 py-2 rounded">Toggle Theme</button>
+      <br><br>
+      <button onclick="linkDiscord()" class="bg-indigo-600 px-4 py-2 rounded">Link Discord</button>
+    </div>
+  </main>
+</div>
 
-    let user = null;
+<script>
+  const supabase = supabase.createClient('https://smcteblolwhfxcpngmvd.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s');
+  let currentUser = null;
 
-    const { data: { session } } = await supabase.auth.getSession();
-    user = session?.user;
-
-    if (!user) {
-      window.location.href = '/';
-    }
-
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-
-    if (error) {
-      alert('Profile fetch failed.');
-      console.error(error);
-    } else {
-      document.getElementById('email').textContent = `Email: ${user.email}`;
-      document.getElementById('username').textContent = `Username: ${data.username || 'No username'}`;
-      document.getElementById('avatar').src = data.avatar_url || 'https://via.placeholder.com/100';
-    }
-
-    window.changeUsername = async () => {
-      const newUsername = document.getElementById('new-username').value;
-      const { error } = await supabase
-        .from('users')
-        .update({ username: newUsername })
-        .eq('id', user.id);
-      if (!error) {
-        alert('Username updated!');
-        location.reload();
-      }
-    };
-
-    window.changeAvatar = async () => {
-      const newUrl = document.getElementById('new-avatar').value;
-      const { error } = await supabase
-        .from('users')
-        .update({ avatar_url: newUrl })
-        .eq('id', user.id);
-      if (!error) {
-        alert('Avatar updated!');
-        location.reload();
-      }
-    };
-
-    window.useDiscordAvatar = async () => {
-      const { data, error } = await supabase
-        .from('users')
-        .select('discord_avatar')
-        .eq('id', user.id)
-        .single();
-      if (!error && data.discord_avatar) {
-        await supabase
-          .from('users')
-          .update({ avatar_url: data.discord_avatar })
-          .eq('id', user.id);
-        alert('Discord avatar applied!');
-        location.reload();
-      } else {
-        alert('No Discord avatar linked.');
-      }
-    };
-
-
-    window.toggleTheme = () => {
-      document.body.classList.toggle('dark');
-    };
-
-    // Initial state
-    document.getElementById('themeToggle').checked = true;
-
-    // Tab switching logic
-    window.switchTab = (tabName) => {
-      document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.add('hidden');
-        tab.classList.remove('fade-in');
-      });
-
-      const activeTab = document.getElementById(tabName);
-      if (activeTab) {
-        activeTab.classList.remove('hidden');
-        activeTab.classList.add('fade-in');
-      }
-
-      document.querySelectorAll('.tab-button').forEach(btn => {
-        btn.classList.remove('bg-zinc-700');
-        btn.classList.add('bg-zinc-800');
-      });
-      const selectedButton = document.querySelector(`[data-tab="${tabName}"]`);
-      if (selectedButton) {
-        selectedButton.classList.add('bg-zinc-700');
-      }
-    };
-
-    document.querySelectorAll('.tab-button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tab = btn.getAttribute('data-tab');
-        switchTab(tab);
-      });
-    });
-
-    async function linkDiscord() {
-   const { data, error } = await supabase.auth.linkIdentity({
-  provider: 'discord'
-});
-
-if (error) {
-  console.error("Linking error:", error);
-  alert("Failed to link Discord.");
-} else {
-  // Optionally refresh or notify user
-  alert("Check the popup to finish linking Discord.");
-}
+  const tabs = document.querySelectorAll('.tab-content');
+  function switchTab(id) {
+    tabs.forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
   }
 
-    switchTab('account'); // default tab
-  </script>
+  function toggleTheme() {
+    document.body.classList.toggle('light');
+  }
+
+  async function changeUsername() {
+    const username = document.getElementById('new-username').value;
+    if (!username) return alert("Enter a username");
+    const { error } = await supabase.from('users').update({ username }).eq('id', currentUser.id);
+    if (error) alert("Error: " + error.message);
+    else alert("Username updated!");
+  }
+
+  async function useDiscordPfp() {
+    const { data, error } = await supabase.auth.getUserIdentities();
+    const discord = data?.identities?.find(i => i.provider === 'discord');
+    if (discord && discord.identity_data?.avatar_url) {
+      await supabase.from('users').update({ avatar: discord.identity_data.avatar_url }).eq('id', currentUser.id);
+      alert("Discord profile picture used!");
+    } else {
+      alert("Discord not linked.");
+    }
+  }
+
+  async function linkDiscord() {
+    const { error } = await supabase.auth.linkIdentity({ provider: 'discord' });
+    if (error) alert("Link failed: " + error.message);
+  }
+
+  async function showUser() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      document.getElementById('login-modal').classList.remove('hidden');
+    } else {
+      document.getElementById('login-modal').classList.add('hidden');
+      currentUser = user;
+      const { data, error } = await supabase.from('users').select('*').eq('id', user.id).single();
+      if (!error) {
+        document.getElementById('user-info').innerHTML = `
+          <p>Email: ${user.email}</p>
+          <p>Username: ${data.username || 'Not set'}</p>
+        `;
+      }
+    }
+  }
+
+  document.getElementById('login-google').onclick = () => {
+    supabase.auth.signInWithOAuth({ provider: 'google' });
+  }
+
+  document.getElementById('login-discord').onclick = () => {
+    supabase.auth.signInWithOAuth({ provider: 'discord' });
+  }
+
+  showUser();
+</script>
 </body>
 </html>
+
