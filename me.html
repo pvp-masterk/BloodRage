@@ -63,17 +63,20 @@
     profile = newProfile;
   }
 
-      async function applyUserTheme(username) {
+      async function applyUserBackground(username) {
     const { data, error } = await supabase
       .from("users")
-      .select("theme")
+      .select("background_theme")
       .eq("username", username)
       .single();
 
-    if (data?.theme) {
-      document.body.className = data.theme;
+    if (data?.background_theme) {
+      document.body.className = data.background_theme;
     }
   }
+
+  const username = new URLSearchParams(location.search).get("u");
+  if (username) applyUserBackground(username);
 
   document.querySelector('h1').style.display = 'none';
   document.getElementById('profile').style.display = 'block';
