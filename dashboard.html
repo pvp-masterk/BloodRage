@@ -32,44 +32,82 @@
                 radial-gradient(circle at 75% 75%, rgba(255, 46, 46, 0.1) 0%, transparent 50%);
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-            min-height: 100vh;
+        header {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
+            padding: 1rem 2rem;
+            background-color: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .logo {
-            font-size: 4rem;
+            font-size: 1.5rem;
             font-weight: 800;
-            margin-bottom: 2rem;
-            background: linear-gradient(45deg, var(--primary), var(--primary-light));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 0 20px rgba(255, 46, 46, 0.3);
-            animation: pulse 2s infinite alternate;
+            color: var(--primary);
         }
 
-        @keyframes pulse {
-            0% {
-                text-shadow: 0 0 20px rgba(255, 46, 46, 0.3);
-            }
-            100% {
-                text-shadow: 0 0 30px rgba(255, 46, 46, 0.6);
-            }
+        nav {
+            display: flex;
+            gap: 1.5rem;
         }
 
-        .tagline {
-            font-size: 1.2rem;
-            margin-bottom: 3rem;
+        nav a {
+            color: var(--text);
+            text-decoration: none;
             opacity: 0.8;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        nav a:hover {
+            opacity: 1;
+            color: var(--primary-light);
+        }
+
+        .hero {
             text-align: center;
-            max-width: 600px;
+            padding: 8rem 2rem 4rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            font-weight: 800;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .claim-btn {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .claim-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 46, 46, 0.3);
         }
 
         .auth-card {
@@ -78,15 +116,11 @@
             padding: 2rem;
             width: 100%;
             max-width: 400px;
+            margin: 2rem auto;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
             transition: var(--transition);
             border: 1px solid rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-        }
-
-        .auth-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
         }
 
         .auth-title {
@@ -254,42 +288,52 @@
         }
 
         @media (max-width: 768px) {
-            .logo {
-                font-size: 3rem;
+            .hero h1 {
+                font-size: 2.5rem;
             }
             
-            .tagline {
+            .hero p {
                 font-size: 1rem;
             }
             
-            .auth-card {
-                padding: 1.5rem;
+            nav {
+                gap: 1rem;
             }
         }
 
         @media (max-width: 480px) {
-            .container {
+            header {
+                flex-direction: column;
+                gap: 1rem;
                 padding: 1rem;
             }
             
-            .logo {
-                font-size: 2.5rem;
-                margin-bottom: 1.5rem;
+            .hero {
+                padding: 6rem 1rem 3rem;
             }
             
-            .tagline {
-                margin-bottom: 2rem;
+            .hero h1 {
+                font-size: 2rem;
             }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <h1 class="logo">BloodRage V1.0</h1>
-        <p class="tagline">BloodRage is the better than guns.lol</p>
-        
-        <div class="auth-card">
+    <header>
+        <div class="logo">BloodRage</div>
+        <nav>
+            <a href="#">Help Center</a>
+            <a href="#">Discord</a>
+            <a href="#">Pricing</a>
+            <a href="#" id="dashboardLink">Dashboard</a>
+        </nav>
+    </header>
+
+    <div class="hero">
+        <h1>Everything you want, right here.</h1>
+        <p>BloodRage is your go-to for modern, feature-rich bio links and fast, secure file hosting.<br>Everything you need — right here.</p>
+        <div class="auth-card" id="authCard">
             <h2 class="auth-title">Sign In</h2>
             <div class="auth-buttons">
                 <button class="auth-btn google-btn" id="googleLogin">
@@ -300,6 +344,7 @@
                 </button>
             </div>
         </div>
+        <a href="#" class="claim-btn" id="claimBtn">bloodrage.lol/username</a>
     </div>
 
     <div class="username-modal" id="usernameModal">
@@ -316,7 +361,8 @@
             </form>
         </div>
     </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const client = supabase.createClient(
     'https://smcteblolwhfxcpngmvd.supabase.co',
@@ -324,19 +370,23 @@
   );
 
   // Elements
-  const authCard = document.querySelector('.auth-card');
+  const authCard = document.getElementById('authCard');
+  const claimBtn = document.getElementById('claimBtn');
   const usernameModal = document.getElementById('usernameModal');
+  const dashboardLink = document.getElementById('dashboardLink');
 
   document.addEventListener('DOMContentLoaded', async () => {
     const { data: { user } } = await client.auth.getUser();
 
     if (!user) {
       // Not logged in — keep showing login UI
+      claimBtn.style.display = 'none';
       return;
     }
 
-    // Logged in — hide auth card
+    // Logged in — hide auth card and show claim button
     if (authCard) authCard.style.display = 'none';
+    claimBtn.style.display = 'inline-block';
 
     // Check if username is set
     const { data: profile, error } = await client
@@ -348,7 +398,9 @@
     if (error || !profile?.username) {
       usernameModal.classList.add('active');
     } else {
-      showEditProfileForm(profile);
+      claimBtn.textContent = `bloodrage.lol/${profile.username}`;
+      claimBtn.href = `profile.html?username=${profile.username}`;
+      dashboardLink.href = `edit-profile.html`;
     }
   });
 
@@ -424,60 +476,8 @@
       return;
     }
 
-    window.location.reload();
+    window.location.href = `edit-profile.html`;
   });
-
-  // Show edit profile form once username is set
-  function showEditProfileForm(profile) {
-    const container = document.querySelector('.container');
-    container.innerHTML = `
-      <h1 class="logo">Edit Profile</h1>
-      <form class="edit-form" id="editForm" style="max-width: 500px; width: 100%;">
-        <div class="form-group">
-          <label>Avatar URL</label>
-          <input type="text" id="editAvatar" class="username-input" value="${profile.avatar_url || ''}">
-        </div>
-        <div class="form-group">
-          <label>Bio</label>
-          <textarea id="editBio" class="username-input">${profile.bio || ''}</textarea>
-        </div>
-        <div class="form-group">
-          <label>Theme</label>
-          <select id="editTheme" class="username-input">
-            <option value="red" ${profile.theme === 'red' ? 'selected' : ''}>Red</option>
-            <option value="blue" ${profile.theme === 'blue' ? 'selected' : ''}>Blue</option>
-            <option value="green" ${profile.theme === 'green' ? 'selected' : ''}>Green</option>
-            <option value="purple" ${profile.theme === 'purple' ? 'selected' : ''}>Purple</option>
-            <option value="pink" ${profile.theme === 'pink' ? 'selected' : ''}>Pink</option>
-          </select>
-        </div>
-        <button type="submit" class="username-submit">Save Changes</button>
-      </form>
-    `;
-
-    document.getElementById('editForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const avatar = document.getElementById('editAvatar').value;
-      const bio = document.getElementById('editBio').value;
-      const theme = document.getElementById('editTheme').value;
-
-      const { error } = await client.from('profiles').update({
-        avatar_url: avatar,
-        bio,
-        theme,
-        updated_at: new Date().toISOString()
-      }).eq('id', profile.id);
-
-      if (error) {
-        alert("Failed to save profile");
-      } else {
-        alert("Profile updated!");
-        window.location.href = `profile.html?username=${profile.username}`;
-      }
-    });
-  }
 </script>
-
 </body>
 </html>
