@@ -1,26 +1,27 @@
 {
+  "version": 2,
   "cleanUrls": true,
   "trailingSlash": false,
-  "rewrites": [
+  "routes": [
     {
-      "source": "/",
-      "destination": "/dashboard.html"
+      "src": "^/(?!(dashboard|profile|_next|static|api|favicon\\.ico|.*\\..*))[^/]+$",
+      "dest": "/profile.html?username=$1",
+      "status": 200
     },
     {
-      "source": "/([a-zA-Z0-9_-]+)",
-      "destination": "/profile.html?username=:match"
-    }
-  ],
-  "redirects": [
-    {
-      "source": "/dashboard",
-      "destination": "/",
-      "permanent": true
+      "src": "^/$",
+      "dest": "/dashboard.html",
+      "status": 200
     },
     {
-      "source": "/profile",
-      "destination": "/profile.html",
-      "permanent": true
+      "src": "/dashboard",
+      "dest": "/dashboard.html",
+      "status": 301
+    },
+    {
+      "src": "/profile",
+      "dest": "/profile.html",
+      "status": 301
     }
   ]
 }
