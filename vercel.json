@@ -13,6 +13,10 @@
       "destination": "/dashboard.html"
     },
     {
+      "source": "/edit",
+      "destination": "/edit.html"
+    },
+    {
       "source": "/profile",
       "destination": "/profile.html"
     },
