@@ -322,133 +322,162 @@
     'https://smcteblolwhfxcpngmvd.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s'
   );
-        
-        // Check auth state
-        client.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_IN' && session?.user) {
-                await checkUsername(session.user.id);
-            }
-        });
-        
-        // Google login
-        document.getElementById('googleLogin').addEventListener('click', async () => {
-            const { error } = await client.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: window.location.origin + '/dashboard.html'
-                }
-            });
-            
-            if (error) {
-                console.error('Google login error:', error);
-                alert('Failed to login with Google');
-            }
-        });
-        
-        // Discord login
-        document.getElementById('discordLogin').addEventListener('click', async () => {
-            const { error } = await client.auth.signInWithOAuth({
-                provider: 'discord',
-                options: {
-                    redirectTo: window.location.origin + '/dashboard.html'
-                }
-            });
-            
-            if (error) {
-                console.error('Discord login error:', error);
-                alert('Failed to login with Discord');
-            }
-        });
-        
-        // Check if user has a username
-        async function checkUsername(userId) {
-            const { data, error } = await client
-                .from('profiles')
-                .select('username')
-                .eq('id', userId)
-                .single();
-            
-            if (error || !data?.username) {
-                // Show username modal
-                document.getElementById('usernameModal').classList.add('active');
-            } else {
-                // Redirect to profile
-                window.location.href = `profile.html?username=${data.username}`;
-            }
-        }
-        
-        // Username form submission
-        document.getElementById('usernameForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const usernameInput = document.getElementById('usernameInput');
-            const usernameSubmit = document.getElementById('usernameSubmit');
-            const usernameError = document.getElementById('usernameError');
-            
-            const username = usernameInput.value.trim();
-            
-            if (!username.match(/^[a-zA-Z0-9_]{3,20}$/)) {
-                usernameError.textContent = 'Username must be 3-20 characters (letters, numbers, _)';
-                return;
-            }
-            
-            usernameSubmit.disabled = true;
-            usernameSubmit.innerHTML = '<span class="loading"></span> Checking username...';
-            usernameError.textContent = '';
-            
-            // Check if username exists
-            const { data: usernameCheck, error: checkError } = await client
-  .from('profiles')
-  .select('username')
-  .eq('username', username)
-  .maybeSingle(); // ✅ Use maybeSingle() to avoid throwing on "not found"
 
-if (usernameCheck) {
-  usernameSubmit.disabled = false;
-  usernameSubmit.textContent = 'Claim Username';
-  usernameError.textContent = 'Username is already taken';
-  return;
-}
-            
-            // Get current user
-            const { data: { user } } = await client.auth.getUser();
-            
-            if (!user) {
-                usernameSubmit.disabled = false;
-                usernameSubmit.textContent = 'Claim Username';
-                usernameError.textContent = 'User not authenticated';
-                return;
-            }
-            
-            // Update profile with username
-            const { error: updateError } = await client
-                .from('profiles')
-                .upsert({
-                    id: user.id,
-                    username: username,
-                    updated_at: new Date().toISOString()
-                });
-            
-            if (updateError) {
-                usernameSubmit.disabled = false;
-                usernameSubmit.textContent = 'Claim Username';
-                usernameError.textContent = 'Failed to save username';
-                console.error('Update error:', updateError);
-                return;
-            }
-            
-            // Success - redirect to profile
-            window.location.href = `profile.html?username=${username}`;
-        });
-        
-        // Check if user is already logged in on page load
-        document.addEventListener('DOMContentLoaded', async () => {
-            const { data: { user } } = await client.auth.getUser();
-            
-            if (user) {
-                await checkUsername(user.id);
-            }
-        });
-    </script>
+  // Elements
+  const authCard = document.querySelector('.auth-card');
+  const usernameModal = document.getElementById('usernameModal');
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const { data: { user } } = await client.auth.getUser();
+
+    if (!user) {
+      // Not logged in — keep showing login UI
+      return;
+    }
+
+    // Logged in — hide auth card
+    if (authCard) authCard.style.display = 'none';
+
+    // Check if username is set
+    const { data: profile, error } = await client
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (error || !profile?.username) {
+      usernameModal.classList.add('active');
+    } else {
+      showEditProfileForm(profile);
+    }
+  });
+
+  // Login handlers
+  document.getElementById('googleLogin').addEventListener('click', async () => {
+    await client.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.href
+      }
+    });
+  });
+
+  document.getElementById('discordLogin').addEventListener('click', async () => {
+    await client.auth.signInWithOAuth({
+      provider: 'discord',
+      options: {
+        redirectTo: window.location.href
+      }
+    });
+  });
+
+  // Username claim form
+  document.getElementById('usernameForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const input = document.getElementById('usernameInput');
+    const username = input.value.trim();
+    const errorBox = document.getElementById('usernameError');
+    const button = document.getElementById('usernameSubmit');
+
+    if (!username.match(/^[a-zA-Z0-9_]{3,20}$/)) {
+      errorBox.textContent = 'Username must be 3-20 characters (letters, numbers, _)';
+      return;
+    }
+
+    button.disabled = true;
+    button.innerHTML = '<span class="loading"></span> Checking...';
+    errorBox.textContent = '';
+
+    const { data: taken } = await client
+      .from('profiles')
+      .select('username')
+      .eq('username', username)
+      .maybeSingle();
+
+    if (taken) {
+      button.disabled = false;
+      button.textContent = 'Claim Username';
+      errorBox.textContent = 'Username is already taken';
+      return;
+    }
+
+    const { data: { user } } = await client.auth.getUser();
+
+    if (!user) {
+      button.disabled = false;
+      button.textContent = 'Claim Username';
+      errorBox.textContent = 'You must be logged in';
+      return;
+    }
+
+    const { error: updateError } = await client.from('profiles').upsert({
+      id: user.id,
+      username,
+      updated_at: new Date().toISOString()
+    });
+
+    if (updateError) {
+      button.disabled = false;
+      button.textContent = 'Claim Username';
+      errorBox.textContent = 'Error saving username';
+      return;
+    }
+
+    window.location.reload();
+  });
+
+  // Show edit profile form once username is set
+  function showEditProfileForm(profile) {
+    const container = document.querySelector('.container');
+    container.innerHTML = `
+      <h1 class="logo">Edit Profile</h1>
+      <form class="edit-form" id="editForm" style="max-width: 500px; width: 100%;">
+        <div class="form-group">
+          <label>Avatar URL</label>
+          <input type="text" id="editAvatar" class="username-input" value="${profile.avatar_url || ''}">
+        </div>
+        <div class="form-group">
+          <label>Bio</label>
+          <textarea id="editBio" class="username-input">${profile.bio || ''}</textarea>
+        </div>
+        <div class="form-group">
+          <label>Theme</label>
+          <select id="editTheme" class="username-input">
+            <option value="red" ${profile.theme === 'red' ? 'selected' : ''}>Red</option>
+            <option value="blue" ${profile.theme === 'blue' ? 'selected' : ''}>Blue</option>
+            <option value="green" ${profile.theme === 'green' ? 'selected' : ''}>Green</option>
+            <option value="purple" ${profile.theme === 'purple' ? 'selected' : ''}>Purple</option>
+            <option value="pink" ${profile.theme === 'pink' ? 'selected' : ''}>Pink</option>
+          </select>
+        </div>
+        <button type="submit" class="username-submit">Save Changes</button>
+      </form>
+    `;
+
+    document.getElementById('editForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const avatar = document.getElementById('editAvatar').value;
+      const bio = document.getElementById('editBio').value;
+      const theme = document.getElementById('editTheme').value;
+
+      const { error } = await client.from('profiles').update({
+        avatar_url: avatar,
+        bio,
+        theme,
+        updated_at: new Date().toISOString()
+      }).eq('id', profile.id);
+
+      if (error) {
+        alert("Failed to save profile");
+      } else {
+        alert("Profile updated!");
+        window.location.href = `profile.html?username=${profile.username}`;
+      }
+    });
+  }
+</script>
+
 </body>
 </html>
