@@ -107,6 +107,21 @@
       max-width: 100px;
       border-radius: 8px;
     }
+  .fade-in {
+    animation: fadeInUp 0.3s ease-in-out;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   </style>
 </head>
 <body>
@@ -159,32 +174,7 @@
       .eq("id", user.id)
       .single();
 
-    if (typeof switchTab === "undefined") {
-    function switchTab(tab) {
-      const tabs = ['account', 'edit-profile', 'settings'];
-
-      tabs.forEach(t => {
-        const tabElement = document.getElementById(`${t}-tab`);
-        const button = document.getElementById(`tab-btn-${t}`);
-
-        if (tabElement && button) {
-          if (t === tab) {
-            tabElement.style.display = 'block';
-            tabElement.style.opacity = '1';
-            button.classList.add('active');
-          } else {
-            tabElement.style.display = 'none';
-            tabElement.style.opacity = '0';
-            button.classList.remove('active');
-          }
-        }
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      switchTab('account'); // Default tab
-    });
-  }
+    
 
     document.getElementById("user-email").textContent = user.email;
     document.getElementById("user-avatar").src = profile.avatar_url || "";
@@ -256,6 +246,39 @@
 
     
 </script>
+
+  <script>
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+      tab.classList.add('hidden');
+      tab.classList.remove('fade-in');
+    });
+
+    const activeTab = document.getElementById(tabName);
+    if (activeTab) {
+      activeTab.classList.remove('hidden');
+      activeTab.classList.add('fade-in');
+    }
+
+    // Highlight the selected tab button if you’re using that
+    document.querySelectorAll('.tab-button').forEach(btn => {
+      btn.classList.remove('bg-gray-700');
+      btn.classList.add('bg-gray-800');
+    });
+    const selectedButton = document.querySelector(`[data-tab="${tabName}"]`);
+    if (selectedButton) {
+      selectedButton.classList.add('bg-gray-700');
+    }
+  }
+
+  document.querySelectorAll('.tab-button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.getAttribute('data-tab');
+      switchTab(tab);
+    });
+  });
+</script>
+
 
   
 </body>
