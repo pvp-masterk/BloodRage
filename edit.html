@@ -53,9 +53,11 @@
       border-radius: 8px;
       transition: 0.2s;
       display: block;
+      cursor: pointer;
     }
 
-    nav a:hover {
+    nav a:hover,
+    nav a.active {
       background-color: var(--primary);
       color: #fff;
     }
@@ -63,6 +65,24 @@
     .main {
       flex: 1;
       padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .section {
+      position: absolute;
+      width: 100%;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.5s ease;
+    }
+
+    .section.active {
+      opacity: 1;
+      transform: translateY(0);
+      position: relative;
     }
 
     .cards {
@@ -148,69 +168,122 @@
       background: var(--primary-dark);
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <aside>
     <div class="logo">BloodRage</div>
     <nav>
-      <a href="#">Overview</a>
-      <a href="#">Analytics</a>
-      <a href="#">Badges</a>
-      <a href="#">Settings</a>
-      <a href="#">Customize</a>
-      <a href="#">Links</a>
-      <a href="#">Premium</a>
-      <a href="#">Image Host</a>
-      <a href="#">Templates</a>
+      <a data-section="overview" class="active">Overview</a>
+      <a data-section="settings">Settings</a>
     </nav>
   </aside>
   <main class="main">
-    <div class="cards">
-      <div class="card">
-        <div class="card-title">Username</div>
-        <div class="card-value">ur.psx</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Alias</div>
-        <div class="card-value">Unavailable</div>
-      </div>
-      <div class="card">
-        <div class="card-title">UID</div>
-        <div class="card-value">897,734</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Profile Views</div>
-        <div class="card-value">2</div>
+    <div id="overview" class="section active">
+      <div class="cards">
+        <div class="card">
+          <div class="card-title">Username</div>
+          <div class="card-value" id="username">Loading...</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Alias</div>
+          <div class="card-value">Unavailable</div>
+        </div>
+        <div class="card">
+          <div class="card-title">UID</div>
+          <div class="card-value" id="uid">-</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Profile Views</div>
+          <div class="card-value">2</div>
+        </div>
       </div>
     </div>
 
-    <div class="profile-section">
-      <h2>Account Statistics</h2>
-      <p>Profile Completion</p>
-      <div class="progress-bar"><div class="progress"></div></div>
+    <div id="settings" class="section">
+      <div class="profile-section">
+        <h2>Account Statistics</h2>
+        <p>Profile Completion</p>
+        <div class="progress-bar"><div class="progress"></div></div>
 
-      <form id="editForm">
-        <div class="form-group">
-          <label for="avatar">Avatar URL</label>
-          <input type="text" id="avatar" />
-        </div>
-        <div class="form-group">
-          <label for="bio">Bio</label>
-          <textarea id="bio"></textarea>
-        </div>
-        <div class="form-group">
-          <label for="theme">Theme</label>
-          <select id="theme">
-            <option value="red" selected>Red</option>
-            <option value="blue">Blue</option>
-            <option value="green">Green</option>
-            <option value="purple">Purple</option>
-            <option value="pink">Pink</option>
-          </select>
-        </div>
-        <button type="submit">Save Changes</button>
-      </form>
+        <form id="editForm">
+          <div class="form-group">
+            <label for="avatar">Avatar URL</label>
+            <input type="text" id="avatar" />
+          </div>
+          <div class="form-group">
+            <label for="bio">Bio</label>
+            <textarea id="bio"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="theme">Theme</label>
+            <select id="theme">
+              <option value="red" selected>Red</option>
+              <option value="blue">Blue</option>
+              <option value="green">Green</option>
+              <option value="purple">Purple</option>
+              <option value="pink">Pink</option>
+            </select>
+          </div>
+          <button type="submit">Save Changes</button>
+        </form>
+      </div>
     </div>
   </main>
+
+  <script>
+    const client = supabase.createClient(
+      'https://smcteblolwhfxcpngmvd.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s'
+    );
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const navLinks = document.querySelectorAll('nav a');
+      const sections = document.querySelectorAll('.section');
+
+      navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          navLinks.forEach(l => l.classList.remove('active'));
+          sections.forEach(s => s.classList.remove('active'));
+          document.getElementById(link.dataset.section).classList.add('active');
+          link.classList.add('active');
+        });
+      });
+
+      const { data: { user } } = await client.auth.getUser();
+
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      const { data: profile } = await client
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (profile) {
+        document.getElementById('username').textContent = profile.username;
+        document.getElementById('uid').textContent = user.id;
+        document.getElementById('avatar').value = profile.avatar_url || '';
+        document.getElementById('bio').value = profile.bio || '';
+        document.getElementById('theme').value = profile.theme || 'red';
+      }
+
+      document.getElementById('editForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        await client.from('profiles').update({
+          avatar_url: document.getElementById('avatar').value,
+          bio: document.getElementById('bio').value,
+          theme: document.getElementById('theme').value,
+          updated_at: new Date().toISOString()
+        }).eq('id', user.id);
+
+        alert('Profile updated successfully!');
+      });
+    });
+  </script>
 </body>
 </html>
