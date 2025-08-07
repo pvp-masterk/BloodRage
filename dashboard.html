@@ -182,14 +182,14 @@
   </div>
 
   <script>
-    const supabase = supabase.createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
+    const client = supabase.createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
 
     async function login(provider) {
-      await supabase.auth.signInWithOAuth({ provider });
+      await client.auth.signInWithOAuth({ provider });
     }
 
     async function checkSession() {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await client.auth.getSession();
       if (!session) {
         document.getElementById("login-popup").style.display = "flex";
         return;
@@ -199,7 +199,7 @@
     }
 
     async function loadUserData(user) {
-      const { data, error } = await supabase.from("users").select("*").eq("id", user.id).single();
+      const { data, error } = await client.from("users").select("*").eq("id", user.id).single();
       if (error) {
         console.error(error);
         return;
@@ -220,18 +220,18 @@
 
     async function changeUsername() {
       const newUsername = document.getElementById("new-username").value;
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await client.auth.getUser();
       if (!newUsername || !user) return;
-      await supabase.from("users").update({ username: newUsername }).eq("id", user.id);
+      await client.from("users").update({ username: newUsername }).eq("id", user.id);
       alert("Username updated!");
       location.reload();
     }
 
     async function useDiscordAvatar() {
-      const { data: { user } } = await supabase.auth.getUser();
-      const { data } = await supabase.from("users").select("discord_avatar").eq("id", user.id).single();
+      const { data: { user } } = await client.auth.getUser();
+      const { data } = await client.from("users").select("discord_avatar").eq("id", user.id).single();
       if (data?.discord_avatar) {
-        await supabase.from("users").update({ avatar_url: data.discord_avatar }).eq("id", user.id);
+        await client.from("users").update({ avatar_url: data.discord_avatar }).eq("id", user.id);
         alert("Discord avatar set!");
       } else {
         alert("No Discord avatar found.");
