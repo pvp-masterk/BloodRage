@@ -707,14 +707,22 @@
         
         // Initialize the page
         async function init() {
-            // Get username from URL
-            const pathParts = window.location.pathname.split('/');
-            const username = pathParts[1] || null;
-            
-            if (!username) {
-                showNotFound();
-                return;
-            }
+            let username = null;
+    
+    // Check query parameters first
+    const urlParams = new URLSearchParams(window.location.search);
+    username = urlParams.get('username');
+    
+    // If not in query params, check path
+    if (!username) {
+        const pathParts = window.location.pathname.split('/');
+        username = pathParts[pathParts.length - 1].replace('.html', '');
+    }
+    
+    if (!username) {
+        showNotFound();
+        return;
+    }
             
             // Check if user is logged in
             const { data: { user } } = await client.auth.getUser();
@@ -766,7 +774,7 @@
         }
         
         // Render profile
-        function renderProfile(profile) {
+        function renderProfile(profile, links = []) {
     const isCurrentUser = currentUser && currentUser.id === profile.id;
 
     // Set theme
@@ -778,12 +786,23 @@
     document.documentElement.style.setProperty('--primary-light', colors.primaryLight);
 
     profileContainer.innerHTML = `
-        <div class="profile-sidebar" style="grid-column: 1 / -1; display: flex; justify-content: center;">
-            <div class="profile-card" style="width: 100%; max-width: 500px;">
+        <div class="profile-sidebar">
+            <div class="profile-card">
                 <img src="${profile.avatar_url || 'https://www.gravatar.com/avatar/?d=mp'}" alt="Profile Avatar" class="profile-avatar">
                 <h2 class="profile-name">${profile.full_name || 'Anonymous'}</h2>
                 <p class="profile-username">@${profile.username}</p>
                 <p class="profile-bio">${profile.bio || 'No bio yet.'}</p>
+
+                <div class="profile-stats">
+                    <div class="stat">
+                        <div class="stat-value">${profile.links_count || 0}</div>
+                        <div class="stat-label">Links</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">${profile.views_count || 0}</div>
+                        <div class="stat-label">Views</div>
+                    </div>
+                </div>
 
                 ${profile.badges && profile.badges.length > 0 ? `
                     <div class="profile-badges">
@@ -795,11 +814,48 @@
                         `).join('')}
                     </div>
                 ` : ''}
+
+                ${isCurrentUser ? `
+                    <div class="profile-actions">
+                        <button class="action-btn primary-btn" id="editProfileBtn">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </button>
+                        <button class="action-btn secondary-btn" id="shareProfileBtn">
+                            <i class="fas fa-share-alt"></i> Share Profile
+                        </button>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+        <div class="profile-content">
+            <div class="content-section">
+                <h3 class="section-title">
+                    <i class="fas fa-link"></i> Links
+                </h3>
+                ${links.length > 0 ? `
+                    <div class="links-grid" id="linksGrid">
+                        ${links.map(link => `
+                            <a href="${link.url}" target="_blank" class="link-card">
+                                <div class="link-title">
+                                    <i class="fas fa-${link.icon || 'link'}"></i>
+                                    ${link.title}
+                                </div>
+                                <div class="link-url">${link.url}</div>
+                            </a>
+                        `).join('')}
+                    </div>
+                ` : `
+                    <p>No links added yet.</p>
+                `}
             </div>
         </div>
     `;
+    
+    // Increment view count if not the profile owner
+    if (!isCurrentUser) {
+        incrementViewCount(profile.id);
+    }
 }
-
         
         // Increment view count
         async function incrementViewCount(profileId) {
