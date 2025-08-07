@@ -403,12 +403,12 @@
                 .eq('username', username)
                 .single();
             
-            if (checkError || usernameCheck) {
-                usernameSubmit.disabled = false;
-                usernameSubmit.textContent = 'Claim Username';
-                usernameError.textContent = 'Username is already taken';
-                return;
-            }
+            if (usernameCheck) {
+  usernameSubmit.disabled = false;
+  usernameSubmit.textContent = 'Claim Username';
+  usernameError.textContent = 'Username is already taken';
+  return;
+}
             
             // Get current user
             const { data: { user } } = await client.auth.getUser();
