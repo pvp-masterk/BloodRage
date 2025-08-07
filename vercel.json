@@ -4,22 +4,22 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/dashboard"
+      "destination": "/dashboard.html"
     },
     {
-      "source": "/([^/]+)",
-      "destination": "/profile?username=:match"
+      "source": "/([a-zA-Z0-9_-]+)",
+      "destination": "/profile.html?username=:match"
     }
   ],
   "redirects": [
     {
-      "source": "/dashboard.html",
-      "destination": "/dashboard",
+      "source": "/dashboard",
+      "destination": "/",
       "permanent": true
     },
     {
-      "source": "/profile.html",
-      "destination": "/profile",
+      "source": "/profile",
+      "destination": "/profile.html",
       "permanent": true
     }
   ]
