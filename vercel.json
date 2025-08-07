@@ -1,8 +1,11 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/profile", "destination": "/profile.html" },
     { "source": "/dashboard", "destination": "/dashboard.html" },
-    { "source": "/", "destination": "/dashboard.html" }
+    { "source": "/profile", "destination": "/profile.html" },
+    {
+      "source": "/:username",
+      "destination": "/profile.html?username=:username"
+    }
   ]
 }
