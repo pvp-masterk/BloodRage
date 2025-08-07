@@ -362,7 +362,7 @@
         
         // Check if user has a username
         async function checkUsername(userId) {
-            const { data, error } = await supabase
+            const { data, error } = await client
                 .from('profiles')
                 .select('username')
                 .eq('id', userId)
@@ -397,7 +397,7 @@
             usernameError.textContent = '';
             
             // Check if username exists
-            const { data: usernameCheck, error: checkError } = await supabase
+            const { data: usernameCheck, error: checkError } = await client
                 .from('profiles')
                 .select('username')
                 .eq('username', username)
@@ -421,7 +421,7 @@
             }
             
             // Update profile with username
-            const { error: updateError } = await supabase
+            const { error: updateError } = await client
                 .from('profiles')
                 .upsert({
                     id: user.id,
