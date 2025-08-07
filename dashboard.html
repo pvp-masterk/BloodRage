@@ -229,6 +229,20 @@
     const session = await client.auth.getSession().then(res => res.data.session);
     const discordLinked = session?.user?.identities?.some(id => id.provider === "discord");
     document.getElementById("discord-status").textContent = discordLinked ? "Discord Linked" : "Not Linked";
+
+function switchTab(tab) {
+    const tabs = ['account', 'edit-profile', 'settings'];
+    tabs.forEach(t => {
+      document.getElementById(`${t}-tab`).style.display = t === tab ? 'block' : 'none';
+      document.getElementById(`tab-btn-${t}`).classList.toggle('active', t === tab);
+    });
+  }
+
+  // Optional: Initialize default tab
+  document.addEventListener('DOMContentLoaded', () => {
+    switchTab('account');
+  });
+    
   </script>
 </body>
 </html>
