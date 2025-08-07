@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | guns.lol</title>
+    <style>
+        :root {
+            --primary: #ff2e2e;
+            --primary-dark: #d10000;
+            --primary-light: #ff5e5e;
+            --text: #ffffff;
+            --bg: #0a0a0a;
+            --card-bg: #1a1a1a;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            background-color: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            opacity: 0.8;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-link:hover {
+            opacity: 1;
+            color: var(--primary-light);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 6rem 2rem 2rem;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+        }
+
+        .profile-sidebar {
+            position: relative;
+        }
+
+        .profile-card {
+            background-color: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: sticky;
+            top: 6rem;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 1.5rem;
+            display: block;
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 20px rgba(255, 46, 46, 0.3);
+            transition: var(--transition);
+        }
+
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 46, 46, 0.5);
+        }
+
+        .profile-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: var(--primary-light);
+        }
+
+        .profile-username {
+            font-size: 1rem;
+            text-align: center;
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-bio {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .profile-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .badge {
+            background-color: rgba(255, 46, 46, 0.2);
+            color: var(--primary-light);
+            padding: 0.3rem 0.8rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: var(--transition);
+        }
+
+        .badge:hover {
+            background-color: rgba(255, 46, 46, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .profile-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .action-btn {
+            padding: 0.8rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            color: white;
+            font-size: 0.9rem;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .primary-btn {
+            background-color: var(--primary);
+        }
+
+        .primary-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .secondary-btn {
+            background-color: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .secondary-btn:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .profile-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .content-section {
+            background-color: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .content-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title i {
+            font-size: 1.1rem;
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .link-card {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            text-decoration: none;
+            color: var(--text);
+        }
+
+        .link-card:hover {
+            background-color: rgba(255, 46, 46, 0.1);
+            border-color: rgba(255, 46, 46, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .link-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .link-url {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            word-break: break-all;
+        }
+
+        .edit-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .edit-modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .edit-card {
+            background-color: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: translateY(20px);
+            transition: var(--transition);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .edit-modal.active .edit-card {
+            transform: translateY(0);
+        }
+
+        .edit-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .edit-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            padding: 0.8rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(255, 46, 46, 0.3);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .theme-preview {
+            height: 100px;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .theme-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        .theme-option {
+            height: 60px;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .theme-option:hover {
+            transform: scale(1.05);
+        }
+
+        .theme-option.selected {
+            border-color: white;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .edit-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .edit-btn {
+            flex: 1;
+            padding: 0.8rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 1rem;
+        }
+
+        .save-btn {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .save-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .cancel-btn {
+            background-color: transparent;
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .cancel-btn:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .link-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .link-form-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .link-form-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.8rem;
+        }
+
+        .add-link-btn {
+            background-color: rgba(255, 46, 46, 0.2);
+            color: var(--primary-light);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .add-link-btn:hover {
+            background-color: rgba(255, 46, 46, 0.3);
+        }
+
+        .delete-link-btn {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid rgba(255, 46, 46, 0.3);
+        }
+
+        .delete-link-btn:hover {
+            background-color: rgba(255, 46, 46, 0.1);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .not-found {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .not-found-title {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .not-found-text {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        .home-btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 0.5rem;
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .home-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 900px) {
+            .profile-container {
+                grid-template-columns: 1fr;
+                padding-top: 5rem;
+            }
+            
+            .profile-card {
+                position: static;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 1rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .profile-container {
+                padding: 5rem 1rem 1rem;
+            }
+            
+            .profile-avatar {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .links-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .edit-card {
+                padding: 1.5rem;
+                max-width: 95%;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .logo {
+                font-size: 1.2rem;
+            }
+            
+            .nav-links {
+                gap: 0.7rem;
+            }
+            
+            .nav-link {
+                font-size: 0.9rem;
+            }
+            
+            .profile-name {
+                font-size: 1.5rem;
+            }
+            
+            .theme-options {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="dashboard.html" class="logo">guns.lol</a>
+        <div class="nav-links">
+            <a href="dashboard.html" class="nav-link">Home</a>
+            <a href="#" class="nav-link" id="editProfileBtn">Edit Profile</a>
+            <a href="#" class="nav-link" id="logoutBtn">Logout</a>
+        </div>
+    </nav>
+
+    <div class="profile-container" id="profileContainer">
+        <!-- Profile content will be loaded here dynamically -->
+    </div>
+
+    <div class="edit-modal" id="editModal">
+        <div class="edit-card">
+            <h2 class="edit-title">Edit Profile</h2>
+            <form class="edit-form" id="editForm">
+                <div class="form-group">
+                    <label for="editAvatar" class="form-label">Avatar URL</label>
+                    <input type="text" id="editAvatar" class="form-input" placeholder="https://example.com/avatar.jpg">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editBio" class="form-label">Bio</label>
+                    <textarea id="editBio" class="form-input form-textarea" placeholder="Tell us about yourself..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Theme</label>
+                    <div class="theme-preview" id="themePreview">
+                        Current Theme Preview
+                    </div>
+                    <div class="theme-options" id="themeOptions">
+                        <div class="theme-option selected" style="background: linear-gradient(45deg, #ff2e2e, #d10000);" data-theme="red"></div>
+                        <div class="theme-option" style="background: linear-gradient(45deg, #3b82f6, #1d4ed8);" data-theme="blue"></div>
+                        <div class="theme-option" style="background: linear-gradient(45deg, #10b981, #059669);" data-theme="green"></div>
+                        <div class="theme-option" style="background: linear-gradient(45deg, #f59e0b, #d97706);" data-theme="orange"></div>
+                        <div class="theme-option" style="background: linear-gradient(45deg, #8b5cf6, #7c3aed);" data-theme="purple"></div>
+                        <div class="theme-option" style="background: linear-gradient(45deg, #ec4899, #db2777);" data-theme="pink"></div>
+                    </div>
+                    <input type="hidden" id="selectedTheme" value="red">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Links</label>
+                    <div id="linksContainer">
+                        <!-- Links will be added here -->
+                    </div>
+                    <button type="button" class="add-link-btn" id="addLinkBtn">
+                        <i class="fas fa-plus"></i> Add Link
+                    </button>
+                </div>
+                
+                <div class="edit-actions">
+                    <button type="button" class="edit-btn cancel-btn" id="cancelEdit">Cancel</button>
+                    <button type="submit" class="edit-btn save-btn" id="saveProfile">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Supabase setup
+        const supabaseUrl = 'https://smcteblolwhfxcpngmvd.supabase.co';
+        const supabaseKey = 'your-supabase-key';eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s
+        
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // DOM elements
+        const profileContainer = document.getElementById('profileContainer');
+        const editModal = document.getElementById('editModal');
+        const editForm = document.getElementById('editForm');
+        const editProfileBtn = document.getElementById('editProfileBtn');
+        const cancelEdit = document.getElementById('cancelEdit');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const themeOptions = document.getElementById('themeOptions');
+        const themePreview = document.getElementById('themePreview');
+        const selectedTheme = document.getElementById('selectedTheme');
+        const linksContainer = document.getElementById('linksContainer');
+        const addLinkBtn = document.getElementById('addLinkBtn');
+        
+        // Current profile data
+        let profileData = null;
+        let currentUser = null;
+        
+        // Theme colors mapping
+        const themeColors = {
+            red: {
+                primary: '#ff2e2e',
+                primaryDark: '#d10000',
+                primaryLight: '#ff5e5e'
+            },
+            blue: {
+                primary: '#3b82f6',
+                primaryDark: '#1d4ed8',
+                primaryLight: '#60a5fa'
+            },
+            green: {
+                primary: '#10b981',
+                primaryDark: '#059669',
+                primaryLight: '#34d399'
+            },
+            orange: {
+                primary: '#f59e0b',
+                primaryDark: '#d97706',
+                primaryLight: '#fbbf24'
+            },
+            purple: {
+                primary: '#8b5cf6',
+                primaryDark: '#7c3aed',
+                primaryLight: '#a78bfa'
+            },
+            pink: {
+                primary: '#ec4899',
+                primaryDark: '#db2777',
+                primaryLight: '#f472b6'
+            }
+        };
+        
+        // Initialize the page
+        async function init() {
+            // Get username from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const username = urlParams.get('username');
+            
+            if (!username) {
+                showNotFound();
+                return;
+            }
+            
+            // Check if user is logged in
+            const { data: { user } } = await supabase.auth.getUser();
+            currentUser = user;
+            
+            // Load profile data
+            await loadProfile(username);
+            
+            // Set up event listeners
+            setupEventListeners();
+        }
+        
+        // Show not found message
+        function showNotFound() {
+            profileContainer.innerHTML = `
+                <div class="not-found">
+                    <h1 class="not-found-title">Profile Not Found</h1>
+                    <p class="not-found-text">The profile you're looking for doesn't exist or may have been deleted.</p>
+                    <a href="dashboard.html" class="home-btn">Return Home</a>
+                </div>
+            `;
+        }
+        
+        // Load profile data
+        async function loadProfile(username) {
+            // Fetch profile data
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('username', username)
+                .single();
+            
+            if (error || !profile) {
+                showNotFound();
+                return;
+            }
+            
+            profileData = profile;
+            
+            // Fetch user's links
+            const { data: links } = await supabase
+                .from('links')
+                .select('*')
+                .eq('user_id', profile.id)
+                .order('created_at', { ascending: true });
+            
+            // Render profile
+            renderProfile(profile, links || []);
+        }
+        
+        // Render profile
+        function renderProfile(profile, links) {
+            // Determine if this is the current user's profile
+            const isCurrentUser = currentUser && currentUser.id === profile.id;
+            
+            // Set theme colors
+            const theme = profile.theme || 'red';
+            const colors = themeColors[theme] || themeColors.red;
+            
+            // Update CSS variables
+            document.documentElement.style.setProperty('--primary', colors.primary);
+            document.documentElement.style.setProperty('--primary-dark', colors.primaryDark);
+            document.documentElement.style.setProperty('--primary-light', colors.primaryLight);
+            
+            // Render profile HTML
+            profileContainer.innerHTML = `
+                <div class="profile-sidebar">
+                    <div class="profile-card">
+                        <img src="${profile.avatar_url || 'https://www.gravatar.com/avatar/?d=mp'}" alt="Profile Avatar" class="profile-avatar">
+                        <h2 class="profile-name">${profile.full_name || 'Anonymous'}</h2>
+                        <p class="profile-username">@${profile.username}</p>
+                        <p class="profile-bio">${profile.bio || 'No bio yet.'}</p>
+                        
+                        <div class="profile-stats">
+                            <div class="stat">
+                                <div class="stat-value">${profile.links_count || 0}</div>
+                                <div class="stat-label">Links</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">${profile.views_count || 0}</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+                        
+                        ${profile.badges && profile.badges.length > 0 ? `
+                            <div class="profile-badges">
+                                ${profile.badges.map(badge => `
+                                    <div class="badge">
+                                        <i class="fas fa-${badge.icon || 'star'}"></i>
+                                        ${badge.text}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                        
+                        ${isCurrentUser ? `
+                            <div class="profile-actions">
+                                <button class="action-btn primary-btn" id="editProfileBtnInner">
+                                    <i class="fas fa-edit"></i> Edit Profile
+                                </button>
+                                <button class="action-btn secondary-btn" id="shareProfileBtn">
+                                    <i class="fas fa-share"></i> Share Profile
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                <div class="profile-content">
+                    <div class="content-section">
+                        <h3 class="section-title"><i class="fas fa-link"></i> Links</h3>
+                        ${links.length > 0 ? `
+                            <div class="links-grid">
+                                ${links.map(link => `
+                                    <a href="${link.url}" target="_blank" class="link-card">
+                                        <div class="link-title">
+                                            <i class="fas fa-${link.icon || 'link'}"></i>
+                                            ${link.title}
+                                        </div>
+                                        <div class="link-url">${link.url}</div>
+                                    </a>
+                                `).join('')}
+                            </div>
+                        ` : `
+                            <p>No links added yet.</p>
+                        `}
+                    </div>
+                    
+                    ${isCurrentUser ? `
+                        <div class="content-section">
+                            <h3 class="section-title"><i class="fas fa-chart-line"></i> Analytics</h3>
+                            <p>Profile views: ${profile.views_count || 0}</p>
+                            <p>Last viewed: ${profile.last_viewed_at ? new Date(profile.last_viewed_at).toLocaleString() : 'Never'}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            // Set up event listeners for dynamically created elements
+            if (isCurrentUser) {
+                document.getElementById('editProfileBtnInner')?.addEventListener('click', showEditModal);
+                document.getElementById('shareProfileBtn')?.addEventListener('click', shareProfile);
+            }
+            
+            // Increment view count if this is not the current user's profile
+            if (!isCurrentUser && currentUser) {
+                incrementViewCount(profile.id);
+            }
+        }
+        
+        // Increment view count
+        async function incrementViewCount(profileId) {
+            await supabase
+                .from('profiles')
+                .update({
+                    views_count: (profileData.views_count || 0) + 1,
+                    last_viewed_at: new Date().toISOString()
+                })
+                .eq('id', profileId);
+        }
+        
+        // Show edit modal
+        function showEditModal() {
+            // Populate form with current data
+            document.getElementById('editAvatar').value = profileData.avatar_url || '';
+            document.getElementById('editBio').value = profileData.bio || '';
+            
+            // Set theme
+            const theme = profileData.theme || 'red';
+            selectedTheme.value = theme;
+            
+            // Update theme preview
+            updateThemePreview(theme);
+            
+            // Highlight selected theme option
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.classList.remove('selected');
+                if (option.dataset.theme === theme) {
+                    option.classList.add('selected');
+                }
+            });
+            
+            // Load links
+            loadLinksForEdit();
+            
+            // Show modal
+            editModal.classList.add('active');
+        }
+        
+        // Load links for editing
+        async function loadLinksForEdit() {
+            const { data: links } = await supabase
+                .from('links')
+                .select('*')
+                .eq('user_id', profileData.id)
+                .order('created_at', { ascending: true });
+            
+            linksContainer.innerHTML = '';
+            
+            if (links && links.length > 0) {
+                links.forEach((link, index) => {
+                    addLinkForm(link, index);
+                });
+            }
+        }
+        
+        // Add link form
+        function addLinkForm(linkData = null, index = null) {
+            const linkId = linkData?.id || Date.now();
+            const isNew = index === null;
+            
+            const linkForm = document.createElement('div');
+            linkForm.className = 'link-form';
+            linkForm.dataset.linkId = linkId;
+            
+            linkForm.innerHTML = `
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" class="form-input" value="${linkData?.title || ''}" placeholder="Link title" data-link-field="title">
+                </div>
+                <div class="form-group">
+                    <label>URL</label>
+                    <input type="url" class="form-input" value="${linkData?.url || ''}" placeholder="https://example.com" data-link-field="url">
+                </div>
+                <div class="form-group">
+                    <label>Icon (Font Awesome class, e.g. "github")</label>
+                    <input type="text" class="form-input" value="${linkData?.icon || ''}" placeholder="link" data-link-field="icon">
+                </div>
+                <div class="link-form-actions">
+                    <button type="button" class="link-form-btn delete-link-btn" data-link-action="delete">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            `;
+            
+            linksContainer.appendChild(linkForm);
+            
+            // Set up event listeners for the new form
+            linkForm.querySelector('[data-link-action="delete"]').addEventListener('click', () => {
+                linkForm.remove();
+            });
+        }
+        
+        // Update theme preview
+        function updateThemePreview(theme) {
+            const colors = themeColors[theme] || themeColors.red;
+            themePreview.style.background = `linear-gradient(45deg, ${colors.primary}, ${colors.primaryDark})`;
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Edit profile button
+            editProfileBtn?.addEventListener('click', showEditModal);
+            
+            // Cancel edit button
+            cancelEdit?.addEventListener('click', () => {
+                editModal.classList.remove('active');
+            });
+            
+            // Logout button
+            logoutBtn?.addEventListener('click', async () => {
+                const { error } = await supabase.auth.signOut();
+                if (!error) {
+                    window.location.href = 'dashboard.html';
+                }
+            });
+            
+            // Theme selection
+            themeOptions?.addEventListener('click', (e) => {
+                const themeOption = e.target.closest('.theme-option');
+                if (themeOption) {
+                    document.querySelectorAll('.theme-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    themeOption.classList.add('selected');
+                    const theme = themeOption.dataset.theme;
+                    selectedTheme.value = theme;
+                    updateThemePreview(theme);
+                }
+            });
+            
+            // Add link button
+            addLinkBtn?.addEventListener('click', () => {
+                addLinkForm();
+            });
+            
+            // Save profile form
+            editForm?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const saveBtn = document.getElementById('saveProfile');
+                const originalText = saveBtn.innerHTML;
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<span class="loading"></span> Saving...';
+                
+                try {
+                    // Update profile data
+                    const avatarUrl = document.getElementById('editAvatar').value;
+                    const bio = document.getElementById('editBio').value;
+                    const theme = selectedTheme.value;
+                    
+                    const { error: profileError } = await supabase
+                        .from('profiles')
+                        .update({
+                            avatar_url: avatarUrl,
+                            bio: bio,
+                            theme: theme,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', profileData.id);
+                    
+                    if (profileError) throw profileError;
+                    
+                    // Process links
+                    const linkForms = Array.from(document.querySelectorAll('.link-form'));
+                    const linksToSave = [];
+                    const linksToDelete = [];
+                    
+                    // First collect all current links to compare
+                    const { data: currentLinks } = await supabase
+                        .from('links')
+                        .select('id')
+                        .eq('user_id', profileData.id);
+                    
+                    const currentLinkIds = currentLinks?.map(link => link.id) || [];
+                    
+                    // Process each link form
+                    for (const form of linkForms) {
+                        const linkId = form.dataset.linkId;
+                        const title = form.querySelector('[data-link-field="title"]').value;
+                        const url = form.querySelector('[data-link-field="url"]').value;
+                        const icon = form.querySelector('[data-link-field="icon"]').value;
+                        
+                        if (title && url) {
+                            linksToSave.push({
+                                id: isNaN(linkId) ? undefined : linkId,
+                                user_id: profileData.id,
+                                title,
+                                url,
+                                icon: icon || 'link'
+                            });
+                        }
+                    }
+                    
+                    // Determine which links to delete (present in DB but not in forms)
+                    const formLinkIds = linkForms.map(form => {
+                        const id = form.dataset.linkId;
+                        return isNaN(id) ? undefined : parseInt(id);
+                    }).filter(id => id !== undefined);
+                    
+                    currentLinkIds.forEach(id => {
+                        if (!formLinkIds.includes(id)) {
+                            linksToDelete.push(id);
+                        }
+                    });
+                    
+                    // Perform deletions
+                    if (linksToDelete.length > 0) {
+                        const { error: deleteError } = await supabase
+                            .from('links')
+                            .delete()
+                            .in('id', linksToDelete);
+                            
+                        if (deleteError) throw deleteError;
+                    }
+                    
+                    // Perform upserts for links to save
+                    for (const link of linksToSave) {
+                        if (link.id) {
+                            // Update existing link
+                            const { error: updateError } = await supabase
+                                .from('links')
+                                .update(link)
+                                .eq('id', link.id);
+                                
+                            if (updateError) throw updateError;
+                        } else {
+                            // Insert new link
+                            const { error: insertError } = await supabase
+                                .from('links')
+                                .insert(link);
+                                
+                            if (insertError) throw insertError;
+                        }
+                    }
+                    
+                    // Update links count
+                    const { error: countError } = await supabase
+                        .from('profiles')
+                        .update({
+                            links_count: linksToSave.length,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', profileData.id);
+                        
+                    if (countError) throw countError;
+                    
+                    // Reload profile
+                    await loadProfile(profileData.username);
+                    
+                    // Close modal
+                    editModal.classList.remove('active');
+                } catch (error) {
+                    console.error('Error saving profile:', error);
+                    alert('Failed to save profile. Please try again.');
+                } finally {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalText;
+                }
+            });
+        }
+        
+        // Share profile
+        function shareProfile() {
+            const profileUrl = `${window.location.origin}/profile.html?username=${profileData.username}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: `Check out ${profileData.username}'s profile on guns.lol`,
+                    url: profileUrl
+                }).catch(err => {
+                    console.log('Error sharing:', err);
+                    copyToClipboard(profileUrl);
+                });
+            } else {
+                copyToClipboard(profileUrl);
+            }
+        }
+        
+        // Copy to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Profile URL copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                prompt('Copy this URL:', text);
+            });
+        }
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
