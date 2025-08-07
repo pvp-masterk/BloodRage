@@ -2,239 +2,178 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard | BloodRage</title>
+  <title>Dashboard - Bloodrage</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-
     body {
+      margin: 0;
       display: flex;
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--text);
-      transition: background 0.3s, color 0.3s;
-    }
-
-    :root {
-      --bg: #111;
-      --text: #fff;
-      --card: #1a1a1a;
-    }
-
-    .light {
-      --bg: #f4f4f4;
-      --text: #111;
-      --card: #fff;
+      font-family: sans-serif;
     }
 
     .sidebar {
-      width: 220px;
-      background: var(--card);
-      padding: 20px;
-    }
-
-    .sidebar h2 {
-      margin-bottom: 20px;
-      font-size: 1.4rem;
+      width: 200px;
+      background: #111;
+      color: white;
+      height: 100vh;
+      padding: 1rem;
+      box-sizing: border-box;
     }
 
     .sidebar a {
       display: block;
-      color: var(--text);
+      color: white;
       text-decoration: none;
-      padding: 12px 10px;
-      margin: 5px 0;
-      border-radius: 6px;
-      transition: background 0.2s;
-    }
-
-    .sidebar a:hover,
-    .sidebar a.active {
-      background: #333;
+      margin: 10px 0;
     }
 
     .content {
+      padding: 2rem;
       flex: 1;
-      padding: 30px;
     }
 
-    .section {
+    section {
       display: none;
     }
 
-    .section.active {
+    section.active {
       display: block;
     }
 
-    .logout-btn {
-      margin-top: 20px;
-      display: block;
-      padding: 10px;
-      background: crimson;
-      text-align: center;
-      color: white;
-      border-radius: 6px;
-      text-decoration: none;
-    }
-
-    input, textarea, button {
-      padding: 10px;
-      margin: 5px 0;
-      width: 100%;
-      border: 1px solid #444;
-      border-radius: 5px;
-      background: transparent;
-      color: var(--text);
-    }
-
-    button {
-      background: #333;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #444;
-    }
-
-    .setting-row {
-      margin-bottom: 20px;
+    .input-group {
+      margin-bottom: 1rem;
     }
 
     label {
       display: block;
-      margin-top: 10px;
+      margin-bottom: 0.2rem;
+    }
+
+    input, button {
+      padding: 0.5rem;
+      width: 100%;
     }
   </style>
 </head>
 <body>
-
   <div class="sidebar">
     <h2>Dashboard</h2>
-    <a href="#account" id="link-account">Account</a>
-    <a href="#edit" id="link-edit">Edit Profile</a>
-    <a href="#settings" id="link-settings">Settings</a>
-    <a href="/" class="logout-btn">Logout</a>
+    <a href="#account">Account</a>
+    <a href="#edit">Edit Profile</a>
+    <a href="#settings">Settings</a>
   </div>
 
   <div class="content">
-    <div id="account" class="section">
+    <section id="account" class="active">
       <h2>Account</h2>
-      <p>Username: <span id="username"></span></p>
-      <p>Email: <span id="email"></span></p>
-    </div>
+      <p>Username: <span id="user-username">Loading...</span></p>
+      <p>Email: <span id="user-email">Loading...</span></p>
+      <p>Discord Linked: <span id="user-discord">Checking...</span></p>
+    </section>
 
-    <div id="edit" class="section">
+    <section id="edit">
       <h2>Edit Profile</h2>
-      <form id="editForm">
-        <label>Change Username:
-          <input type="text" id="newUsername" placeholder="New username" />
-        </label>
+      <div class="input-group">
+        <label for="new-username">Change Username</label>
+        <input type="text" id="new-username" placeholder="New username">
+      </div>
 
-        <label>Bio:
-          <textarea id="bio" rows="4" placeholder="Your bio..."></textarea>
-        </label>
+      <div class="input-group">
+        <label for="new-avatar">Change Avatar (Image URL)</label>
+        <input type="text" id="new-avatar" placeholder="New avatar URL">
+      </div>
 
-        <label>Change Profile Picture:
-          <button type="button" onclick="alert('Feature coming soon')">Upload Profile Picture</button>
-        </label>
+      <button onclick="updateProfile()">Save Changes</button>
+      <button onclick="useDiscordAvatar()">Use Discord Profile Picture (If linked)</button>
+    </section>
 
-        <button type="submit">Save Changes</button>
-      </form>
-    </div>
-
-    <div id="settings" class="section">
+    <section id="settings">
       <h2>Settings</h2>
-
-      <div class="setting-row">
-        <label>
-          <input type="checkbox" id="themeToggle" /> Toggle Light Theme
-        </label>
+      <div class="input-group">
+        <label>Theme</label>
+        <button onclick="toggleTheme()">Toggle Light/Dark</button>
       </div>
 
-      <div class="setting-row" id="discordLinkRow" style="display:none">
-        <button onclick="linkDiscord()">Link Discord Account</button>
+      <div class="input-group">
+        <label>Link Discord</label>
+        <button onclick="loginWithDiscord()">Login to Discord</button>
       </div>
-    </div>
+    </section>
   </div>
 
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-    const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const client = supabase.createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
 
-    // Theme toggle
-    const themeToggle = document.getElementById("themeToggle");
-    themeToggle.addEventListener("change", () => {
-      document.body.classList.toggle("light", themeToggle.checked);
-      localStorage.setItem("theme", themeToggle.checked ? "light" : "dark");
+    const sections = document.querySelectorAll("section");
+    window.addEventListener("hashchange", () => {
+      sections.forEach(s => s.classList.remove("active"));
+      const hash = location.hash.slice(1);
+      document.getElementById(hash)?.classList.add("active");
     });
+    window.dispatchEvent(new Event("hashchange"));
 
-    // Load theme from localStorage
-    if (localStorage.getItem("theme") === "light") {
-      themeToggle.checked = true;
-      document.body.classList.add("light");
+    async function loadProfile() {
+      const { data: { user } } = await client.auth.getUser();
+      if (!user) return location.href = "/";
+
+      const { data } = await client.from("users").select("*").eq("id", user.id).single();
+      document.getElementById("user-username").textContent = data.username;
+      document.getElementById("user-email").textContent = user.email;
+      document.getElementById("user-discord").textContent = data.discord_id ? "Yes" : "No";
+
+      document.getElementById("new-username").value = data.username;
+      document.getElementById("new-avatar").value = data.avatar_url;
     }
 
-    // Auth check
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) location.href = "/";
+    async function updateProfile() {
+      const { data: { user } } = await client.auth.getUser();
+      const newUsername = document.getElementById("new-username").value;
+      const newAvatar = document.getElementById("new-avatar").value;
 
-    // Get user profile
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("id", user.id)
-      .single();
+      const { error } = await client.from("users").update({
+        username: newUsername,
+        avatar_url: newAvatar
+      }).eq("id", user.id);
 
-    if (data) {
-      document.getElementById("username").innerText = data.username;
-      document.getElementById("email").innerText = user.email;
-      document.getElementById("bio").value = data.bio || "";
-      document.getElementById("newUsername").value = data.username || "";
-
-      if (user.app_metadata?.provider === "google") {
-        document.getElementById("discordLinkRow").style.display = "block";
+      if (error) {
+        alert("Error: " + error.message);
+      } else {
+        alert("Profile updated!");
+        loadProfile();
       }
     }
 
-    // Update user profile
-    document.getElementById("editForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const newBio = document.getElementById("bio").value;
-      const newUsername = document.getElementById("newUsername").value;
+    async function useDiscordAvatar() {
+      const { data: { user } } = await client.auth.getUser();
+      const { data } = await client.from("users").select("*").eq("id", user.id).single();
 
-      const { error } = await supabase
-        .from("users")
-        .update({ bio: newBio, username: newUsername })
-        .eq("id", user.id);
+      if (!data.discord_avatar) {
+        alert("No Discord account linked.");
+        return;
+      }
 
-      if (!error) alert("Profile updated!");
-      else alert("Update failed!");
-    });
-
-    // Sidebar navigation
-    const links = document.querySelectorAll(".sidebar a");
-    const sections = document.querySelectorAll(".section");
-
-    function setActiveSection() {
-      const hash = window.location.hash.substring(1) || "account";
-      sections.forEach(s => s.classList.remove("active"));
-      document.getElementById(hash)?.classList.add("active");
-
-      links.forEach(l => l.classList.remove("active"));
-      document.getElementById("link-" + hash)?.classList.add("active");
+      const avatarUrl = `https://cdn.discordapp.com/avatars/${data.discord_id}/${data.discord_avatar}.png`;
+      document.getElementById("new-avatar").value = avatarUrl;
     }
 
-    window.addEventListener("hashchange", setActiveSection);
-    setActiveSection();
+    async function loginWithDiscord() {
+      const { data, error } = await client.auth.signInWithOAuth({
+        provider: "discord",
+        options: {
+          redirectTo: location.origin + "/dashboard"
+        }
+      });
 
-    // Discord linking function (mock)
-    window.linkDiscord = () => {
-      alert("Redirecting to Discord OAuth...");
-      // Replace with actual OAuth linking logic
-    };
+      if (error) alert("Login failed.");
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("dark");
+    }
+
+    loadProfile();
   </script>
-
 </body>
 </html>
