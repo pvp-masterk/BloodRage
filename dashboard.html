@@ -2,234 +2,253 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg: #121212;
+      --fg: #fff;
+      --accent: #1e90ff;
+    }
+
     body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, sans-serif;
       margin: 0;
-      font-family: 'Inter', sans-serif;
-      background: #0f0f0f;
-      color: white;
-      transition: background 0.3s, color 0.3s;
-    }
-    .light {
-      background: #fff;
-      color: #000;
-    }
-    header {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px;
-      background: #1a1a1a;
-      border-bottom: 1px solid #333;
+      height: 100vh;
+      overflow: hidden;
     }
+
     .sidebar {
       width: 200px;
-      background: #151515;
-      height: 100vh;
-      position: fixed;
-      top: 64px;
-      left: 0;
-      padding: 16px;
+      background: #1c1c1c;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
+
     .sidebar button {
       background: none;
+      color: var(--fg);
       border: none;
-      color: white;
-      font-size: 16px;
+      padding: 10px;
       text-align: left;
-      padding: 8px;
-      border-radius: 8px;
       cursor: pointer;
-      transition: background 0.2s;
-    }
-    .sidebar button:hover,
-    .sidebar button.active {
-      background: #333;
-    }
-    main {
-      margin-left: 220px;
-      padding: 24px;
+      border-left: 4px solid transparent;
       transition: all 0.3s ease;
     }
+
+    .sidebar button.active,
+    .sidebar button:hover {
+      background: #2c2c2c;
+      border-left: 4px solid var(--accent);
+    }
+
+    .content {
+      flex-grow: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+
     .tab {
       display: none;
       opacity: 0;
-      transition: opacity 0.3s ease-in-out;
+      transition: opacity 0.4s ease;
     }
+
     .tab.active {
       display: block;
       opacity: 1;
     }
-    .theme-toggle {
-      background: #222;
-      color: white;
-      padding: 6px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      border: none;
-      transition: 0.3s;
-    }
+
     .login-popup {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.8);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 999;
+      z-index: 9999;
     }
-    .login-box {
-      background: #1a1a1a;
-      padding: 32px;
+
+    .login-popup-inner {
+      background: #222;
+      padding: 30px;
       border-radius: 12px;
       text-align: center;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      color: white;
+      width: 300px;
     }
+
     .login-btn {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 10px;
-      margin: 12px 0;
-      padding: 10px 20px;
-      font-size: 16px;
       background: #333;
       color: white;
+      padding: 10px;
+      margin-top: 15px;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      transition: background 0.2s ease;
+      transition: background 0.3s;
     }
+
     .login-btn:hover {
       background: #444;
     }
-    .login-btn img {
-      width: 20px;
-      height: 20px;
+
+    .toggle {
+      appearance: none;
+      width: 60px;
+      height: 30px;
+      background: #555;
+      border-radius: 20px;
+      position: relative;
+      outline: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle:checked {
+      background: var(--accent);
+    }
+
+    .toggle::before {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.3s;
+    }
+
+    .toggle:checked::before {
+      transform: translateX(30px);
     }
   </style>
 </head>
 <body>
-  <div id="login-popup" class="login-popup">
-    <div class="login-box">
+  <div class="login-popup" id="login-popup">
+    <div class="login-popup-inner">
       <h2>Login to continue</h2>
       <button class="login-btn" onclick="login('google')">
-        <img src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/google.svg" alt="Google"> Login with Google
+        <img src="https://img.icons8.com/color/24/000000/google-logo.png"/>
+        Login with Google
       </button>
       <button class="login-btn" onclick="login('discord')">
-        <img src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/discord.svg" alt="Discord"> Login with Discord
+        <img src="https://img.icons8.com/ios-filled/24/ffffff/discord-logo.png"/>
+        Login with Discord
       </button>
     </div>
   </div>
 
-  <header>
-    <h1>Dashboard</h1>
-    <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
-  </header>
-
   <div class="sidebar">
-    <button id="tab-btn-account" onclick="switchTab('account')" class="active">Account</button>
+    <button id="tab-btn-account" onclick="switchTab('account')">Account</button>
     <button id="tab-btn-edit-profile" onclick="switchTab('edit-profile')">Edit Profile</button>
     <button id="tab-btn-settings" onclick="switchTab('settings')">Settings</button>
   </div>
 
-  <main>
-    <section id="account-tab" class="tab active">
+  <div class="content">
+    <div id="account-tab" class="tab active">
       <h2>Account</h2>
       <p><strong>Email:</strong> <span id="email"></span></p>
       <p><strong>Username:</strong> <span id="username"></span></p>
-      <p><strong>Provider:</strong> <span id="provider"></span></p>
-    </section>
+    </div>
 
-    <section id="edit-profile-tab" class="tab">
+    <div id="edit-profile-tab" class="tab">
       <h2>Edit Profile</h2>
-      <input type="text" id="new-username" placeholder="New Username" /><br /><br />
-      <input type="text" id="new-pfp" placeholder="New Profile Picture URL" /><br /><br />
-      <button onclick="updateProfile()">Save Changes</button>
-      <button onclick="useDiscordPFP()">Use Discord Profile Picture (if linked)</button>
-    </section>
+      <input type="text" id="new-username" placeholder="New username" />
+      <button onclick="changeUsername()">Change Username</button><br><br>
+      <button onclick="useDiscordAvatar()">Use Discord Profile Picture (if linked)</button>
+    </div>
 
-    <section id="settings-tab" class="tab">
+    <div id="settings-tab" class="tab">
       <h2>Settings</h2>
-      <p>Theme toggled from top-right.</p>
-      <p>Link Discord:</p>
-      <button onclick="login('discord')">Link Discord</button>
-    </section>
-  </main>
+      <label>
+        Dark Mode
+        <input type="checkbox" class="toggle" id="theme-toggle" checked onchange="toggleTheme()" />
+      </label><br><br>
+      <button onclick="linkDiscord()">Link Discord</button>
+    </div>
+  </div>
 
   <script>
-    const client = supabase.createClient(
-      'https://smcteblolwhfxcpngmvd.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s'
-    );
-
-    let user = null;
+    const supabase = supabase.createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
 
     async function login(provider) {
-      const { error } = await client.auth.signInWithOAuth({ provider });
-      if (error) console.error('Login error:', error.message);
+      await supabase.auth.signInWithOAuth({ provider });
     }
 
-    async function checkAuth() {
-      const { data } = await client.auth.getSession();
-      if (data.session) {
-        user = data.session.user;
-        document.getElementById('login-popup').style.display = 'none';
-        loadProfile();
-      } else {
-        document.getElementById('login-popup').style.display = 'flex';
+    async function checkSession() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        document.getElementById("login-popup").style.display = "flex";
+        return;
       }
+      document.getElementById("login-popup").style.display = "none";
+      loadUserData(session.user);
     }
 
-    function toggleTheme() {
-      document.body.classList.toggle("light");
+    async function loadUserData(user) {
+      const { data, error } = await supabase.from("users").select("*").eq("id", user.id).single();
+      if (error) {
+        console.error(error);
+        return;
+      }
+      document.getElementById("email").textContent = user.email;
+      document.getElementById("username").textContent = data.username || "(no username)";
     }
 
     function switchTab(tab) {
-      const tabs = ['account', 'edit-profile', 'settings'];
+      const tabs = ["account", "edit-profile", "settings"];
       tabs.forEach(t => {
-        document.getElementById(`${t}-tab`).classList.remove('active');
-        document.getElementById(`tab-btn-${t}`).classList.remove('active');
+        document.getElementById(`${t}-tab`).classList.remove("active");
+        document.getElementById(`tab-btn-${t}`).classList.remove("active");
       });
-      document.getElementById(`${tab}-tab`).classList.add('active');
-      document.getElementById(`tab-btn-${tab}`).classList.add('active');
+      document.getElementById(`${tab}-tab`).classList.add("active");
+      document.getElementById(`tab-btn-${tab}`).classList.add("active");
     }
 
-    function loadProfile() {
-      document.getElementById('email').innerText = user.email;
-      document.getElementById('username').innerText = user.user_metadata?.username || 'Unknown';
-      document.getElementById('provider').innerText = user.app_metadata?.provider || 'email';
-    }
-
-    async function updateProfile() {
+    async function changeUsername() {
       const newUsername = document.getElementById("new-username").value;
-      const newPFP = document.getElementById("new-pfp").value;
-      const updates = {
-        id: user.id,
-        username: newUsername,
-        avatar_url: newPFP
-      };
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!newUsername || !user) return;
+      await supabase.from("users").update({ username: newUsername }).eq("id", user.id);
+      alert("Username updated!");
+      location.reload();
+    }
 
-      const { error } = await client.from("users").upsert(updates, { onConflict: "id" });
-      if (error) {
-        alert("Update failed: " + error.message);
+    async function useDiscordAvatar() {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data } = await supabase.from("users").select("discord_avatar").eq("id", user.id).single();
+      if (data?.discord_avatar) {
+        await supabase.from("users").update({ avatar_url: data.discord_avatar }).eq("id", user.id);
+        alert("Discord avatar set!");
       } else {
-        alert("Profile updated!");
-        loadProfile();
+        alert("No Discord avatar found.");
       }
     }
 
-    function useDiscordPFP() {
-      alert("Feature not fully implemented. You need to fetch from user_metadata.");
+    async function linkDiscord() {
+      await login("discord");
     }
 
-    checkAuth();
+    function toggleTheme() {
+      const isDark = document.getElementById("theme-toggle").checked;
+      document.body.style.background = isDark ? "#121212" : "#ffffff";
+      document.body.style.color = isDark ? "#fff" : "#000";
+    }
+
+    checkSession();
   </script>
 </body>
 </html>
