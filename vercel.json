@@ -5,7 +5,7 @@
     { "source": "/profile", "destination": "/profile.html" },
     {
       "source": "/:username",
-      "destination": "/profile.html?username=:username"
+      "destination": "/profile.html"
     }
   ]
 }
