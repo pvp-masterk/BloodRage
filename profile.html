@@ -697,7 +697,7 @@
         const supabaseUrl = 'https://smcteblolwhfxcpngmvd.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s';
         
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        const client = supabase.createClient(supabaseUrl, supabaseKey);
         
         // DOM elements
         const profileContainer = document.getElementById('profileContainer');
@@ -762,7 +762,7 @@
             }
             
             // Check if user is logged in
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user } } = await client.auth.getUser();
             currentUser = user;
             
             // Load profile data
@@ -786,7 +786,7 @@
         // Load profile data
         async function loadProfile(username) {
             // Fetch profile data
-            const { data: profile, error } = await supabase
+            const { data: profile, error } = await client
                 .from('profiles')
                 .select('*')
                 .eq('username', username)
@@ -800,7 +800,7 @@
             profileData = profile;
             
             // Fetch user's links
-            const { data: links } = await supabase
+            const { data: links } = await client
                 .from('links')
                 .select('*')
                 .eq('user_id', profile.id)
@@ -912,7 +912,7 @@
         
         // Increment view count
         async function incrementViewCount(profileId) {
-            await supabase
+            await client
                 .from('profiles')
                 .update({
                     views_count: (profileData.views_count || 0) + 1,
@@ -951,7 +951,7 @@
         
         // Load links for editing
         async function loadLinksForEdit() {
-            const { data: links } = await supabase
+            const { data: links } = await client
                 .from('links')
                 .select('*')
                 .eq('user_id', profileData.id)
@@ -1021,7 +1021,7 @@
             
             // Logout button
             logoutBtn?.addEventListener('click', async () => {
-                const { error } = await supabase.auth.signOut();
+                const { error } = await client.auth.signOut();
                 if (!error) {
                     window.location.href = 'dashboard.html';
                 }
@@ -1062,7 +1062,7 @@
                     const bio = document.getElementById('editBio').value;
                     const theme = selectedTheme.value;
                     
-                    const { error: profileError } = await supabase
+                    const { error: profileError } = await client
                         .from('profiles')
                         .update({
                             avatar_url: avatarUrl,
@@ -1080,7 +1080,7 @@
                     const linksToDelete = [];
                     
                     // First collect all current links to compare
-                    const { data: currentLinks } = await supabase
+                    const { data: currentLinks } = await client
                         .from('links')
                         .select('id')
                         .eq('user_id', profileData.id);
@@ -1119,7 +1119,7 @@
                     
                     // Perform deletions
                     if (linksToDelete.length > 0) {
-                        const { error: deleteError } = await supabase
+                        const { error: deleteError } = await client
                             .from('links')
                             .delete()
                             .in('id', linksToDelete);
@@ -1131,7 +1131,7 @@
                     for (const link of linksToSave) {
                         if (link.id) {
                             // Update existing link
-                            const { error: updateError } = await supabase
+                            const { error: updateError } = await client
                                 .from('links')
                                 .update(link)
                                 .eq('id', link.id);
@@ -1139,7 +1139,7 @@
                             if (updateError) throw updateError;
                         } else {
                             // Insert new link
-                            const { error: insertError } = await supabase
+                            const { error: insertError } = await client
                                 .from('links')
                                 .insert(link);
                                 
@@ -1148,7 +1148,7 @@
                     }
                     
                     // Update links count
-                    const { error: countError } = await supabase
+                    const { error: countError } = await client
                         .from('profiles')
                         .update({
                             links_count: linksToSave.length,
