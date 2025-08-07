@@ -164,7 +164,7 @@
   </main>
 
   <script>
-    const supabase = supabase.createClient(
+    const client = supabase.createClient(
       'https://smcteblolwhfxcpngmvd.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s'
     );
@@ -172,12 +172,12 @@
     let user = null;
 
     async function login(provider) {
-      const { error } = await supabase.auth.signInWithOAuth({ provider });
+      const { error } = await client.auth.signInWithOAuth({ provider });
       if (error) console.error('Login error:', error.message);
     }
 
     async function checkAuth() {
-      const { data } = await supabase.auth.getSession();
+      const { data } = await client.auth.getSession();
       if (data.session) {
         user = data.session.user;
         document.getElementById('login-popup').style.display = 'none';
@@ -216,7 +216,7 @@
         avatar_url: newPFP
       };
 
-      const { error } = await supabase.from("users").upsert(updates, { onConflict: "id" });
+      const { error } = await client.from("users").upsert(updates, { onConflict: "id" });
       if (error) {
         alert("Update failed: " + error.message);
       } else {
