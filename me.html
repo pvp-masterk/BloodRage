@@ -25,36 +25,42 @@
     );
 
     async function loadProfile() {
-      const {
-        data: { session }
-      } = await supabase.auth.getSession();
+  const {
+    data: { session },
+    error: sessionError
+  } = await supabase.auth.getSession();
 
-      if (!session) {
-        window.location.href = '/index.html';
-        return;
-      }
+  if (sessionError) {
+    alert("Error fetching session: " + sessionError.message);
+    return;
+  }
 
-      const userId = session.user.id;
+  if (!session) {
+    alert("No session found. Redirecting to login.");
+    window.location.href = '/index.html';
+    return;
+  }
 
-      const { data: profile, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single();
+  const userId = session.user.id;
 
-      if (error) {
-        console.error('Profile fetch error:', error);
-        return;
-      }
+  const { data: profile, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', userId)
+    .single();
 
-      document.querySelector('h1').style.display = 'none';
-      document.getElementById('profile').style.display = 'block';
-      document.getElementById('avatar').src = profile.avatar_url;
-      document.getElementById('username').textContent = `@${profile.username}`;
-      document.getElementById('bio').textContent = profile.bio;
-      document.getElementById('publicLink').href = `/${profile.username}`;
-    }
+  if (error) {
+    alert("Profile fetch failed: " + error.message);
+    return;
+  }
 
+  document.querySelector('h1').style.display = 'none';
+  document.getElementById('profile').style.display = 'block';
+  document.getElementById('avatar').src = profile.avatar_url;
+  document.getElementById('username').textContent = `@${profile.username}`;
+  document.getElementById('bio').textContent = profile.bio;
+  document.getElementById('publicLink').href = `/${profile.username}`;
+}
     loadProfile();
   </script>
 
