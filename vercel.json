@@ -4,7 +4,7 @@
   "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/:username",
+      "source": "/:username([a-zA-Z0-9_-]+)",
       "destination": "/account.html?username=:username"
     }
   ],
