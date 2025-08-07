@@ -241,16 +241,49 @@
   border-radius: 0.5rem;
   padding: 0.75rem 1rem;
   transition: all 0.3s ease, transform 0.2s ease;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 500;
 }
+
 .btn:hover {
   background-color: #374151; /* bg-gray-700 */
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
+
 .btn:active {
   transform: translateY(1px) scale(0.98);
 }
 
+/* Specific button variants */
+.btn-primary {
+  background-color: #ef4444; /* red-500 */
+}
+
+.btn-primary:hover {
+  background-color: #dc2626; /* red-600 */
+}
+
+.btn-secondary {
+  background-color: #3b82f6; /* blue-500 */
+}
+
+.btn-secondary:hover {
+  background-color: #2563eb; /* blue-600 */
+}
+
+.btn-discord {
+  background-color: #5865F2;
+}
+
+.btn-discord:hover {
+  background-color: #4752C4;
+}
 
 
   </style>
@@ -307,27 +340,27 @@
     </div>
     
     <nav class="flex-1 space-y-1">
-      <button onclick="switchTab('dashboard')" class="w-full text-left py-3 px-4 flex items-center sidebar-item active">
+      <button onclick="switchTab('dashboard')" class="btn w-full text-left py-3 px-4 flex items-center sidebar-item active">
         <i class="fas fa-tachometer-alt sidebar-icon mr-3 text-gray-400"></i>
         <span class="sidebar-text">Dashboard</span>
       </button>
       
-      <button onclick="switchTab('account')" class="w-full text-left py-3 px-4 flex items-center sidebar-item">
+      <button onclick="switchTab('account')" class="btn w-full text-left py-3 px-4 flex items-center sidebar-item">
         <i class="fas fa-user sidebar-icon mr-3 text-gray-400"></i>
         <span class="sidebar-text">Account</span>
       </button>
       
-      <button onclick="switchTab('edit')" class="w-full text-left py-3 px-4 flex items-center sidebar-item">
+      <button onclick="switchTab('edit')" class="btn w-full text-left py-3 px-4 flex items-center sidebar-item">
         <i class="fas fa-edit sidebar-icon mr-3 text-gray-400"></i>
         <span class="sidebar-text">Edit Profile</span>
       </button>
       
-      <button onclick="switchTab('settings')" class="w-full text-left py-3 px-4 flex items-center sidebar-item">
+      <button onclick="switchTab('settings')" class="btn w-full text-left py-3 px-4 flex items-center sidebar-item">
         <i class="fas fa-cog sidebar-icon mr-3 text-gray-400"></i>
         <span class="sidebar-text">Settings</span>
       </button>
       
-      <button onclick="switchTab('stats')" class="w-full text-left py-3 px-4 flex items-center sidebar-item">
+      <button onclick="switchTab('stats')" class="btn w-full text-left py-3 px-4 flex items-center sidebar-item">
         <i class="fas fa-chart-line sidebar-icon mr-3 text-gray-400"></i>
         <span class="sidebar-text">Statistics</span>
       </button>
@@ -343,7 +376,7 @@
       </div>
       
       <div class="mt-4 pt-4 border-t border-gray-800">
-        <button onclick="logout()" class="w-full text-left py-2 px-4 flex items-center text-gray-400 hover:text-white rounded-lg">
+        <button onclick="logout()" class="btn w-full text-left py-2 px-4 flex items-center text-gray-400 hover:text-white rounded-lg">
           <i class="fas fa-sign-out-alt mr-3"></i>
           <span class="sidebar-text">Logout</span>
         </button>
