@@ -2,1176 +2,234 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BloodRage | Dashboard</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap');
-    
-    html, body { 
-      background: #111; 
-      color: white; 
-      transition: all 0.5s cubic-bezier(0.65, 0, 0.35, 1); 
-      font-family: 'Roboto', sans-serif;
-      height: 100%;
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #0f0f0f;
+      color: white;
+      transition: background 0.3s, color 0.3s;
     }
-    .light { background: #f5f5f5; color: #111; }
-    
-    /* Tab animations */
-    .tab-content { 
-      display: none; 
-      opacity: 0; 
-      transform: translateY(20px); 
-      transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
-      animation-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    .light {
+      background: #fff;
+      color: #000;
     }
-    .tab-content.active { 
-      display: block; 
-      opacity: 1; 
-      transform: translateY(0); 
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      background: #1a1a1a;
+      border-bottom: 1px solid #333;
     }
-    
-    /* Modal background */
-    .modal-bg { 
-      background: rgba(0, 0, 0, 0.8); 
-      backdrop-filter: blur(5px);
-    }
-    
-    /* Button animations */
-    .btn-animate {
-      transition: all 0.3s ease, transform 0.2s ease;
-      transform-origin: center;
-    }
-    .btn-animate:hover {
-      transform: translateY(-2px) scale(1.02);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    }
-    .btn-animate:active {
-      transform: translateY(1px) scale(0.98);
-    }
-    
-    /* Sidebar styling */
     .sidebar {
-      width: 250px;
-      transition: all 0.3s ease;
-    }
-    .sidebar-collapsed {
-      width: 80px;
-    }
-    .sidebar-item {
-      position: relative;
-      transition: all 0.3s ease;
-      padding-left: 1rem;
-      border-radius: 0.5rem;
-    }
-    .sidebar-item::before {
-      content: '';
-      position: absolute;
+      width: 200px;
+      background: #151515;
+      height: 100vh;
+      position: fixed;
+      top: 64px;
       left: 0;
-      top: 0;
-      height: 100%;
-      width: 3px;
-      background: linear-gradient(to bottom, #ff0000, #990000);
-      transform: scaleY(0);
-      transform-origin: bottom;
-      transition: transform 0.3s ease;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
-    .sidebar-item:hover {
-      background: rgba(255, 255, 255, 0.05);
-      padding-left: 1.5rem;
+    .sidebar button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 16px;
+      text-align: left;
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
     }
-    .sidebar-item:hover::before {
-      transform: scaleY(1);
-    }
-    .sidebar-item.active {
-      background: rgba(255, 0, 0, 0.1);
-      padding-left: 1.5rem;
-    }
-    .sidebar-item.active::before {
-      transform: scaleY(1);
-    }
-    .sidebar-item.active .sidebar-icon {
-      color: #ff0000;
-    }
-    .sidebar-text {
-      transition: opacity 0.3s ease;
-    }
-    .sidebar-collapsed .sidebar-text {
-      opacity: 0;
-      width: 0;
-      position: absolute;
-    }
-    .sidebar-collapsed .sidebar-item {
-      justify-content: center;
-      padding-left: 0;
-    }
-    
-    /* Glow effect for active elements */
-    .glow {
-      box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-    }
-    .glow-text {
-      text-shadow: 0 0 8px rgba(255, 0, 0, 0.7);
-    }
-    
-    /* Input field styling */
-    .input-field {
-      transition: all 0.3s ease;
-      border: 1px solid #333;
-    }
-    .input-field:focus {
-      border-color: #ff0000;
-      box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.2);
-    }
-    
-    /* Pulse animation for notifications */
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
-    .pulse {
-      animation: pulse 2s infinite;
-    }
-    
-    /* Loading spinner */
-    .spinner {
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    /* Floating animation */
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-    .float {
-      animation: float 3s ease-in-out infinite;
-    }
-    
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #222;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #ff0000;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #990000;
-    }
-    
-    /* Blood drip effect */
-    .blood-drip {
-      position: relative;
-    }
-    .blood-drip::after {
-      content: '';
-      position: absolute;
-      bottom: -5px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 2px;
-      height: 10px;
-      background: #ff0000;
-      opacity: 0;
-      transition: all 0.3s ease;
-    }
-    .blood-drip:hover::after {
-      opacity: 1;
-      height: 15px;
-    }
-    
-    /* Status indicators */
-    .status-indicator {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      display: inline-block;
-      margin-right: 6px;
-    }
-    .status-online {
-      background: #10B981;
-      box-shadow: 0 0 8px #10B981;
-    }
-    .status-offline {
-      background: #6B7280;
-    }
-    .status-busy {
-      background: #EF4444;
-      box-shadow: 0 0 8px #EF4444;
-    }
-    
-    /* Card styling */
-    .card {
-      background: linear-gradient(145deg, #1a1a1a, #222);
-      border: 1px solid #2d2d2d;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-    }
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    }
-    
-    /* Progress bar */
-    .progress-bar {
-      height: 6px;
-      border-radius: 3px;
+    .sidebar button:hover,
+    .sidebar button.active {
       background: #333;
-      overflow: hidden;
     }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #ff0000, #990000);
-      transition: width 0.5s ease;
+    main {
+      margin-left: 220px;
+      padding: 24px;
+      transition: all 0.3s ease;
     }
- .btn {
-  background-color: #1f2937; /* bg-gray-800 */
-  color: white;
-  border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
-  transition: all 0.3s ease, transform 0.2s ease;
-  border: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  font-weight: 500;
-}
-
-.btn:hover {
-  background-color: #374151; /* bg-gray-700 */
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.btn:active {
-  transform: translateY(1px) scale(0.98);
-}
-
-/* Specific button variants */
-.btn-primary {
-  background-color: #ef4444; /* red-500 */
-}
-
-.btn-primary:hover {
-  background-color: #dc2626; /* red-600 */
-}
-
-.btn-secondary {
-  background-color: #3b82f6; /* blue-500 */
-}
-
-.btn-secondary:hover {
-  background-color: #2563eb; /* blue-600 */
-}
-
-.btn-discord {
-  background-color: #5865F2;
-}
-
-.btn-discord:hover {
-  background-color: #4752C4;
-}
-
-
+    .tab {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+    .tab.active {
+      display: block;
+      opacity: 1;
+    }
+    .theme-toggle {
+      background: #222;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      transition: 0.3s;
+    }
+    .login-popup {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .login-box {
+      background: #1a1a1a;
+      padding: 32px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    .login-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 12px 0;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .login-btn:hover {
+      background: #444;
+    }
+    .login-btn img {
+      width: 20px;
+      height: 20px;
+    }
   </style>
 </head>
-<body class="font-sans overflow-hidden">
-
-<!-- Login Popup -->
-<div id="login-modal" class="fixed inset-0 flex items-center justify-center z-50 modal-bg hidden animate__animated animate__fadeIn">
-  <div class="bg-gray-900 p-8 rounded-xl w-full max-w-sm shadow-2xl text-center border border-gray-800 transform transition-all duration-500 animate__animated animate__zoomIn">
-    <h2 class="text-2xl font-bold mb-6 glow-text">Welcome to BloodRage</h2>
-    <div class="mb-6">
-      <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-900 to-black flex items-center justify-center border-2 border-red-800 float">
-        <i class="fas fa-skull text-red-500 text-3xl"></i>
-      </div>
-      <p class="text-gray-400 mb-6">Sign in to access your dashboard</p>
-    </div>
-    <button id="login-google" class="w-full mb-4 bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 rounded-lg px-4 py-3 flex items-center justify-center gap-3 btn-animate">
-      <i class="fab fa-google text-red-500"></i>
-      <span>Login with Google</span>
-    </button>
-    <button id="login-discord" class="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-lg px-4 py-3 flex items-center justify-center gap-3 btn-animate">
-      <i class="fab fa-discord"></i>
-      <span>Login with Discord</span>
-    </button>
-  </div>
-</div>
-
-<!-- Notification Toast -->
-<div id="toast" class="fixed top-4 right-4 z-50 hidden">
-  <div class="bg-gray-800 border-l-4 border-red-500 text-white px-4 py-3 rounded shadow-lg max-w-xs animate__animated animate__fadeInRight">
-    <div class="flex items-center">
-      <div class="mr-3">
-        <i class="fas fa-check-circle text-red-500"></i>
-      </div>
-      <div>
-        <p id="toast-message" class="text-sm"></p>
-      </div>
+<body>
+  <div id="login-popup" class="login-popup">
+    <div class="login-box">
+      <h2>Login to continue</h2>
+      <button class="login-btn" onclick="login('google')">
+        <img src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/google.svg" alt="Google"> Login with Google
+      </button>
+      <button class="login-btn" onclick="login('discord')">
+        <img src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/discord.svg" alt="Discord"> Login with Discord
+      </button>
     </div>
   </div>
-</div>
 
-<!-- Dashboard UI -->
-<div class="flex h-screen overflow-hidden">
-  <!-- Sidebar -->
-  <aside id="sidebar" class="sidebar bg-gray-900 p-4 space-y-2 border-r border-gray-800 flex flex-col">
-    <div class="flex items-center justify-between mb-8">
-      <div class="flex items-center">
-        <i class="fas fa-skull text-red-500 text-2xl mr-2"></i>
-        <h1 class="text-2xl font-bold glow-text blood-drip sidebar-text">BloodRage</h1>
-      </div>
-      <button id="sidebar-toggle" class="text-gray-400 hover:text-white">
-        <i class="fas fa-bars"></i>
-      </button>
-    </div>
-    
-    <nav class="flex-1 space-y-1">
-      <button onclick="switchTab('dashboard')" class="btn w-full text-left py-3 px-4 flex items-center sidebar-item active">
-        <i class="fas fa-tachometer-alt sidebar-icon mr-3 text-gray-400"></i>
-        <span class="sidebar-text">Dashboard</span>
-      </button>
-      
-      <button onclick="switchTab('account')" class="btn w-full text-left py-3 px-4 flex items-center sidebar-item">
-        <i class="fas fa-user sidebar-icon mr-3 text-gray-400"></i>
-        <span class="sidebar-text">Account</span>
-      </button>
-      
-      <button onclick="switchTab('edit')" class="btn w-full text-left py-3 px-4 flex items-center sidebar-item">
-        <i class="fas fa-edit sidebar-icon mr-3 text-gray-400"></i>
-        <span class="sidebar-text">Edit Profile</span>
-      </button>
-      
-      <button onclick="switchTab('settings')" class="btn w-full text-left py-3 px-4 flex items-center sidebar-item">
-        <i class="fas fa-cog sidebar-icon mr-3 text-gray-400"></i>
-        <span class="sidebar-text">Settings</span>
-      </button>
-      
-      <button onclick="switchTab('stats')" class="btn w-full text-left py-3 px-4 flex items-center sidebar-item">
-        <i class="fas fa-chart-line sidebar-icon mr-3 text-gray-400"></i>
-        <span class="sidebar-text">Statistics</span>
-      </button>
-    </nav>
-    
-    <div class="mt-auto pt-4 border-t border-gray-800">
-      <div class="flex items-center justify-between text-gray-400 text-sm">
-        <span class="sidebar-text">Dark Mode</span>
-        <button onclick="toggleTheme()" class="relative inline-flex items-center h-6 rounded-full w-11 bg-gray-700 transition-colors focus:outline-none">
-          <span class="sr-only">Toggle theme</span>
-          <span class="inline-block w-4 h-4 transform transition-transform bg-red-500 rounded-full translate-x-1"></span>
-        </button>
-      </div>
-      
-      <div class="mt-4 pt-4 border-t border-gray-800">
-        <button onclick="logout()" class="btn w-full text-left py-2 px-4 flex items-center text-gray-400 hover:text-white rounded-lg">
-          <i class="fas fa-sign-out-alt mr-3"></i>
-          <span class="sidebar-text">Logout</span>
-        </button>
-      </div>
-    </div>
-  </aside>
+  <header>
+    <h1>Dashboard</h1>
+    <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+  </header>
 
-  <!-- Main Content -->
-  <main class="flex-1 p-6 overflow-y-auto">
-    <!-- Dashboard Tab -->
-    <div id="dashboard" class="tab-content active">
-      <div class="animate__animated animate__fadeIn">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-2xl font-bold flex items-center">
-            <i class="fas fa-tachometer-alt text-red-500 mr-2"></i>
-            <span>Dashboard Overview</span>
-          </h2>
-          <div class="flex items-center">
-            <span class="status-indicator status-online"></span>
-            <span class="text-sm text-gray-400">Online</span>
-          </div>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div class="card p-6 rounded-xl">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold">Total Sessions</h3>
-              <i class="fas fa-clock text-red-500 text-xl"></i>
-            </div>
-            <p class="text-3xl font-bold mb-2">142</p>
-            <p class="text-green-500 text-sm flex items-center">
-              <i class="fas fa-arrow-up mr-1"></i> 12% from last week
-            </p>
-          </div>
-          
-          <div class="card p-6 rounded-xl">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold">Active Now</h3>
-              <i class="fas fa-users text-red-500 text-xl"></i>
-            </div>
-            <p class="text-3xl font-bold mb-2">24</p>
-            <p class="text-green-500 text-sm flex items-center">
-              <i class="fas fa-arrow-up mr-1"></i> 3 new today
-            </p>
-          </div>
-          
-          <div class="card p-6 rounded-xl">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold">XP Progress</h3>
-              <i class="fas fa-trophy text-red-500 text-xl"></i>
-            </div>
-            <p class="text-3xl font-bold mb-2">Level 5</p>
-            <div class="progress-bar mt-2">
-              <div class="progress-fill" style="width: 65%"></div>
-            </div>
-            <p class="text-gray-400 text-sm mt-1">65% to next level</p>
-          </div>
-        </div>
-        
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="card p-6 rounded-xl">
-            <h3 class="text-lg font-semibold mb-4 flex items-center">
-              <i class="fas fa-fire text-red-500 mr-2"></i>
-              Recent Activity
-            </h3>
-            <div class="space-y-4">
-              <div class="flex items-start">
-                <div class="bg-gray-800 p-2 rounded-full mr-3">
-                  <i class="fas fa-user-plus text-green-500"></i>
-                </div>
-                <div>
-                  <p class="font-medium">New member joined</p>
-                  <p class="text-gray-400 text-sm">2 hours ago</p>
-                </div>
-              </div>
-              <div class="flex items-start">
-                <div class="bg-gray-800 p-2 rounded-full mr-3">
-                  <i class="fas fa-award text-yellow-500"></i>
-                </div>
-                <div>
-                  <p class="font-medium">Achievement unlocked</p>
-                  <p class="text-gray-400 text-sm">5 hours ago</p>
-                </div>
-              </div>
-              <div class="flex items-start">
-                <div class="bg-gray-800 p-2 rounded-full mr-3">
-                  <i class="fas fa-bell text-red-500"></i>
-                </div>
-                <div>
-                  <p class="font-medium">System notification</p>
-                  <p class="text-gray-400 text-sm">1 day ago</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="card p-6 rounded-xl">
-            <h3 class="text-lg font-semibold mb-4 flex items-center">
-              <i class="fas fa-calendar-alt text-red-500 mr-2"></i>
-              Upcoming Events
-            </h3>
-            <div class="space-y-4">
-              <div class="flex items-start">
-                <div class="bg-red-900/30 p-2 rounded-full mr-3">
-                  <i class="fas fa-skull text-red-500"></i>
-                </div>
-                <div>
-                  <p class="font-medium">Blood Moon Tournament</p>
-                  <p class="text-gray-400 text-sm">Starts in 3 days</p>
-                </div>
-              </div>
-              <div class="flex items-start">
-                <div class="bg-blue-900/30 p-2 rounded-full mr-3">
-                  <i class="fas fa-users text-blue-500"></i>
-                </div>
-                <div>
-                  <p class="font-medium">Community Meetup</p>
-                  <p class="text-gray-400 text-sm">Next week</p>
-                </div>
-              </div>
-              <div class="flex items-start">
-                <div class="bg-purple-900/30 p-2 rounded-full mr-3">
-                  <i class="fas fa-gift text-purple-500"></i>
-                </div>
-                <div>
-                  <p class="font-medium">Seasonal Rewards</p>
-                  <p class="text-gray-400 text-sm">End of month</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="sidebar">
+    <button id="tab-btn-account" onclick="switchTab('account')" class="active">Account</button>
+    <button id="tab-btn-edit-profile" onclick="switchTab('edit-profile')">Edit Profile</button>
+    <button id="tab-btn-settings" onclick="switchTab('settings')">Settings</button>
+  </div>
 
-    <!-- Account Tab -->
-    <div id="account" class="tab-content">
-      <div class="animate__animated animate__fadeIn">
-        <h2 class="text-2xl font-bold mb-6 flex items-center">
-          <i class="fas fa-user text-red-500 mr-2"></i>
-          <span>Account Information</span>
-        </h2>
-        
-        <div class="card p-6 rounded-xl animate__animated animate__fadeInUp">
-          <div class="flex items-center mb-6">
-            <div id="user-avatar" class="w-16 h-16 rounded-full bg-gray-800 border-2 border-red-500 flex items-center justify-center overflow-hidden mr-4">
-              <i class="fas fa-user text-gray-400 spinner"></i>
-            </div>
-            <div>
-              <h3 id="user-name" class="text-xl font-semibold">Loading...</h3>
-              <p id="user-email" class="text-gray-400 text-sm">Loading...</p>
-            </div>
-          </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-              <h4 class="text-sm font-medium text-gray-400 mb-2">Account Status</h4>
-              <div class="flex items-center">
-                <div class="status-indicator status-online mr-2"></div>
-                <span class="font-medium">Active</span>
-              </div>
-            </div>
-            
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-              <h4 class="text-sm font-medium text-gray-400 mb-2">Member Since</h4>
-              <p id="member-since" class="font-medium">Loading...</p>
-            </div>
-            
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-              <h4 class="text-sm font-medium text-gray-400 mb-2">Account Tier</h4>
-              <div class="flex items-center">
-                <i class="fas fa-crown text-yellow-500 mr-2"></i>
-                <span class="font-medium">Premium</span>
-              </div>
-            </div>
-            
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-              <h4 class="text-sm font-medium text-gray-400 mb-2">Last Active</h4>
-              <p id="last-active" class="font-medium">Just now</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <main>
+    <section id="account-tab" class="tab active">
+      <h2>Account</h2>
+      <p><strong>Email:</strong> <span id="email"></span></p>
+      <p><strong>Username:</strong> <span id="username"></span></p>
+      <p><strong>Provider:</strong> <span id="provider"></span></p>
+    </section>
 
-    <!-- Edit Profile Tab -->
-    <div id="edit" class="tab-content">
-      <div class="animate__animated animate__fadeIn">
-        <h2 class="text-2xl font-bold mb-6 flex items-center">
-          <i class="fas fa-edit text-red-500 mr-2"></i>
-          <span>Edit Profile</span>
-        </h2>
-        
-        <div class="card p-6 rounded-xl animate__animated animate__fadeInUp">
-          <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-4">Change Username</h3>
-            <div class="flex items-center">
-              <input id="new-username" class="input-field flex-1 bg-gray-800 text-white p-3 rounded-lg focus:outline-none" placeholder="Enter new username">
-              <button onclick="changeUsername()" class="ml-3 bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-lg btn-animate">
-                <i class="fas fa-save mr-2"></i>Update
-              </button>
-            </div>
-          </div>
-          
-          <div class="pt-6 border-t border-gray-800">
-            <h3 class="text-lg font-semibold mb-4">Profile Picture</h3>
-            <div class="flex flex-wrap gap-4">
-              <button onclick="useDiscordPfp()" class="bg-[#5865F2] hover:bg-[#4752C4] text-white px-5 py-3 rounded-lg flex items-center btn-animate">
-                <i class="fab fa-discord mr-2"></i>
-                <span>Use Discord Avatar</span>
-              </button>
-              
-              <button onclick="uploadPfp()" class="bg-gray-800 hover:bg-gray-700 text-white px-5 py-3 rounded-lg flex items-center btn-animate">
-                <i class="fas fa-upload mr-2"></i>
-                <span>Upload Image</span>
-              </button>
-              
-              <button onclick="resetPfp()" class="bg-gray-800 hover:bg-gray-700 text-white px-5 py-3 rounded-lg flex items-center btn-animate">
-                <i class="fas fa-user-slash mr-2"></i>
-                <span>Reset to Default</span>
-              </button>
-            </div>
-          </div>
-          
-          <div class="pt-6 border-t border-gray-800 mt-6">
-            <h3 class="text-lg font-semibold mb-4">Profile Theme</h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div class="theme-option bg-gradient-to-br from-red-900 to-black h-24 rounded-lg cursor-pointer border-2 border-transparent hover:border-red-500 transition-all" onclick="setTheme('blood')"></div>
-              <div class="theme-option bg-gradient-to-br from-blue-900 to-black h-24 rounded-lg cursor-pointer border-2 border-transparent hover:border-blue-500 transition-all" onclick="setTheme('ocean')"></div>
-              <div class="theme-option bg-gradient-to-br from-purple-900 to-black h-24 rounded-lg cursor-pointer border-2 border-transparent hover:border-purple-500 transition-all" onclick="setTheme('royal')"></div>
-              <div class="theme-option bg-gradient-to-br from-green-900 to-black h-24 rounded-lg cursor-pointer border-2 border-transparent hover:border-green-500 transition-all" onclick="setTheme('forest')"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <section id="edit-profile-tab" class="tab">
+      <h2>Edit Profile</h2>
+      <input type="text" id="new-username" placeholder="New Username" /><br /><br />
+      <input type="text" id="new-pfp" placeholder="New Profile Picture URL" /><br /><br />
+      <button onclick="updateProfile()">Save Changes</button>
+      <button onclick="useDiscordPFP()">Use Discord Profile Picture (if linked)</button>
+    </section>
 
-    <!-- Settings Tab -->
-    <div id="settings" class="tab-content">
-      <div class="animate__animated animate__fadeIn">
-        <h2 class="text-2xl font-bold mb-6 flex items-center">
-          <i class="fas fa-cog text-red-500 mr-2"></i>
-          <span>Settings</span>
-        </h2>
-        
-        <div class="card p-6 rounded-xl animate__animated animate__fadeInUp">
-          <div class="mb-8">
-            <h3 class="text-lg font-semibold mb-4">Appearance</h3>
-            <div class="flex items-center justify-between bg-gray-800 p-4 rounded-lg border border-gray-700">
-              <div>
-                <h4 class="font-medium mb-1">Dark Mode</h4>
-                <p class="text-gray-400 text-sm">Toggle between light and dark theme</p>
-              </div>
-              <button onclick="toggleTheme()" class="relative inline-flex items-center h-6 rounded-full w-11 bg-gray-700 transition-colors focus:outline-none btn-animate">
-                <span class="sr-only">Toggle theme</span>
-                <span class="inline-block w-4 h-4 transform transition-transform bg-red-500 rounded-full translate-x-1"></span>
-              </button>
-            </div>
-          </div>
-          
-          <div class="mb-8 pt-6 border-t border-gray-800">
-            <h3 class="text-lg font-semibold mb-4">Connections</h3>
-            <div class="space-y-4">
-              <div class="flex items-center justify-between bg-gray-800 p-4 rounded-lg border border-gray-700">
-                <div class="flex items-center">
-                  <i class="fab fa-discord text-[#5865F2] text-xl mr-3"></i>
-                  <div>
-                    <h4 class="font-medium">Discord</h4>
-                    <p id="discord-status" class="text-gray-400 text-sm">Not connected</p>
-                  </div>
-                </div>
-                <button onclick="linkDiscord()" id="discord-btn" class="bg-[#5865F2] hover:bg-[#4752C4] text-white px-4 py-2 rounded text-sm btn-animate">
-                  Connect
-                </button>
-              </div>
-              
-              <div class="flex items-center justify-between bg-gray-800 p-4 rounded-lg border border-gray-700">
-                <div class="flex items-center">
-                  <i class="fab fa-google text-red-500 text-xl mr-3"></i>
-                  <div>
-                    <h4 class="font-medium">Google</h4>
-                    <p id="google-status" class="text-gray-400 text-sm">Not connected</p>
-                  </div>
-                </div>
-                <button onclick="linkGoogle()" id="google-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm btn-animate">
-                  Connect
-                </button>
-              </div>
-              
-              <div class="flex items-center justify-between bg-gray-800 p-4 rounded-lg border border-gray-700">
-                <div class="flex items-center">
-                  <i class="fab fa-twitter text-blue-400 text-xl mr-3"></i>
-                  <div>
-                    <h4 class="font-medium">Twitter</h4>
-                    <p id="twitter-status" class="text-gray-400 text-sm">Not connected</p>
-                  </div>
-                </div>
-                <button onclick="linkTwitter()" id="twitter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm btn-animate">
-                  Connect
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <div class="pt-6 border-t border-gray-800">
-            <h3 class="text-lg font-semibold mb-4">Danger Zone</h3>
-            <div class="bg-gray-800 p-4 rounded-lg border border-red-900/50">
-              <h4 class="font-medium text-red-500 mb-2">Delete Account</h4>
-              <p class="text-gray-400 text-sm mb-4">This will permanently delete your account and all associated data.</p>
-              <button onclick="confirmDelete()" class="bg-red-900/30 hover:bg-red-900/40 text-red-500 px-4 py-2 rounded text-sm border border-red-900/50 btn-animate">
-                <i class="fas fa-trash-alt mr-2"></i>Delete Account
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Stats Tab -->
-    <div id="stats" class="tab-content">
-      <div class="animate__animated animate__fadeIn">
-        <h2 class="text-2xl font-bold mb-6 flex items-center">
-          <i class="fas fa-chart-line text-red-500 mr-2"></i>
-          <span>Statistics</span>
-        </h2>
-        
-        <div class="card p-6 rounded-xl animate__animated animate__fadeInUp">
-          <h3 class="text-lg font-semibold mb-4">Activity Overview</h3>
-          <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 h-64 mb-6">
-            <!-- Chart placeholder -->
-            <div class="flex items-center justify-center h-full text-gray-500">
-              <i class="fas fa-chart-bar text-4xl mr-3"></i>
-              <span>Activity chart will appear here</span>
-            </div>
-          </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-              <h4 class="font-medium mb-3">Session History</h4>
-              <div class="space-y-3">
-                <div class="flex justify-between items-center">
-                  <span>Today</span>
-                  <span class="font-medium">3 sessions</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span>This Week</span>
-                  <span class="font-medium">18 sessions</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span>This Month</span>
-                  <span class="font-medium">64 sessions</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span>All Time</span>
-                  <span class="font-medium">142 sessions</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-              <h4 class="font-medium mb-3">Achievements</h4>
-              <div class="space-y-3">
-                <div class="flex items-center">
-                  <i class="fas fa-trophy text-yellow-500 mr-3"></i>
-                  <span>First Blood (Completed)</span>
-                </div>
-                <div class="flex items-center">
-                  <i class="fas fa-trophy text-yellow-500 mr-3"></i>
-                  <span>Veteran (5/10)</span>
-                </div>
-                <div class="flex items-center">
-                  <i class="fas fa-trophy text-yellow-500 mr-3"></i>
-                  <span>Legendary (2/5)</span>
-                </div>
-                <div class="flex items-center">
-                  <i class="fas fa-trophy text-gray-500 mr-3"></i>
-                  <span>Immortal (Locked)</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <section id="settings-tab" class="tab">
+      <h2>Settings</h2>
+      <p>Theme toggled from top-right.</p>
+      <p>Link Discord:</p>
+      <button onclick="login('discord')">Link Discord</button>
+    </section>
   </main>
-</div>
 
-<script>
-  // Initialize Supabase
-  const client = supabase.createClient('https://smcteblolwhfxcpngmvd.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s');
-  let currentUser = null;
-  let sidebarCollapsed = false;
+  <script>
+    const supabase = supabase.createClient(
+      'https://smcteblolwhfxcpngmvd.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s'
+    );
 
-  // DOM Elements
-  const sidebar = document.getElementById('sidebar');
-  const sidebarToggle = document.getElementById('sidebar-toggle');
+    let user = null;
 
-  // Initialize the dashboard
-  document.addEventListener('DOMContentLoaded', () => {
-    // Check if user prefers dark mode
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      document.body.classList.remove('light');
-      updateThemeToggle(false);
-    } else {
-      document.body.classList.add('light');
-      updateThemeToggle(true);
+    async function login(provider) {
+      const { error } = await supabase.auth.signInWithOAuth({ provider });
+      if (error) console.error('Login error:', error.message);
     }
-    
-    // Set up sidebar toggle
-    sidebarToggle.addEventListener('click', toggleSidebar);
-    
-    // Check auth status
-    showUser();
-  });
 
-  // Toggle sidebar collapse
-  function toggleSidebar() {
-    sidebarCollapsed = !sidebarCollapsed;
-    if (sidebarCollapsed) {
-      sidebar.classList.add('sidebar-collapsed');
-      sidebarToggle.innerHTML = '<i class="fas fa-chevron-right"></i>';
-    } else {
-      sidebar.classList.remove('sidebar-collapsed');
-      sidebarToggle.innerHTML = '<i class="fas fa-bars"></i>';
-    }
-  }
-
-  // Tab switching with animation
-  const tabs = document.querySelectorAll('.tab-content');
-  function switchTab(id) {
-    // Update active state in sidebar
-    document.querySelectorAll('.sidebar-item').forEach(item => {
-      item.classList.remove('active');
-    });
-    document.querySelector(`[onclick="switchTab('${id}')"]`).classList.add('active');
-    
-    // Animate tab transition
-    tabs.forEach(t => {
-      if (t.classList.contains('active')) {
-        t.classList.remove('active');
-        t.classList.add('animate__animated', 'animate__fadeOut');
-        setTimeout(() => {
-          t.classList.remove('animate__animated', 'animate__fadeOut');
-        }, 300);
-      }
-    });
-    
-    setTimeout(() => {
-      const newTab = document.getElementById(id);
-      newTab.classList.add('active', 'animate__animated', 'animate__fadeIn');
-      setTimeout(() => {
-        newTab.classList.remove('animate__animated', 'animate__fadeIn');
-      }, 500);
-    }, 300);
-  }
-
-  // Theme toggle with animation
-  function toggleTheme() {
-    const isLight = document.body.classList.toggle('light');
-    updateThemeToggle(isLight);
-    showToast(`Switched to ${isLight ? 'light' : 'dark'} mode`);
-    
-    // Save preference to localStorage
-    localStorage.setItem('themePreference', isLight ? 'light' : 'dark');
-  }
-  
-  function updateThemeToggle(isLight) {
-    const toggleBtns = document.querySelectorAll('[onclick="toggleTheme()"]');
-    toggleBtns.forEach(btn => {
-      const span = btn.querySelector('span');
-      if (isLight) {
-        span.classList.remove('translate-x-1');
-        span.classList.add('translate-x-6');
+    async function checkAuth() {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        user = data.session.user;
+        document.getElementById('login-popup').style.display = 'none';
+        loadProfile();
       } else {
-        span.classList.remove('translate-x-6');
-        span.classList.add('translate-x-1');
+        document.getElementById('login-popup').style.display = 'flex';
       }
-    });
-  }
+    }
 
-  // Show toast notification
-  function showToast(message, type = 'success') {
-    const toast = document.getElementById('toast');
-    const toastMessage = document.getElementById('toast-message');
-    
-    // Set icon based on type
-    let icon;
-    switch(type) {
-      case 'error':
-        icon = '<i class="fas fa-exclamation-circle text-red-500"></i>';
-        break;
-      case 'warning':
-        icon = '<i class="fas fa-exclamation-triangle text-yellow-500"></i>';
-        break;
-      case 'info':
-        icon = '<i class="fas fa-info-circle text-blue-500"></i>';
-        break;
-      default: // success
-        icon = '<i class="fas fa-check-circle text-green-500"></i>';
+    function toggleTheme() {
+      document.body.classList.toggle("light");
     }
-    
-    toast.querySelector('.mr-3').innerHTML = icon;
-    toastMessage.textContent = message;
-    toast.classList.remove('hidden');
-    toast.classList.add('animate__animated', 'animate__fadeInRight');
-    
-    setTimeout(() => {
-      toast.classList.remove('animate__fadeInRight');
-      toast.classList.add('animate__fadeOutRight');
-      setTimeout(() => {
-        toast.classList.add('hidden');
-        toast.classList.remove('animate__fadeOutRight');
-      }, 500);
-    }, 3000);
-  }
 
-  // Change username with animation
-  async function changeUsername() {
-    const usernameInput = document.getElementById('new-username');
-    const username = usernameInput.value.trim();
-    
-    if (!username) {
-      usernameInput.classList.add('animate__animated', 'animate__shakeX');
-      setTimeout(() => {
-        usernameInput.classList.remove('animate__animated', 'animate__shakeX');
-      }, 1000);
-      return showToast('Please enter a username', 'error');
+    function switchTab(tab) {
+      const tabs = ['account', 'edit-profile', 'settings'];
+      tabs.forEach(t => {
+        document.getElementById(`${t}-tab`).classList.remove('active');
+        document.getElementById(`tab-btn-${t}`).classList.remove('active');
+      });
+      document.getElementById(`${tab}-tab`).classList.add('active');
+      document.getElementById(`tab-btn-${tab}`).classList.add('active');
     }
-    
-    if (username.length < 3 || username.length > 20) {
-      usernameInput.classList.add('animate__animated', 'animate__shakeX');
-      setTimeout(() => {
-        usernameInput.classList.remove('animate__animated', 'animate__shakeX');
-      }, 1000);
-      return showToast('Username must be 3-20 characters', 'error');
-    }
-    
-    const { error } = await client.from('users').update({ username }).eq('id', currentUser.id);
-    if (error) {
-      showToast('Error: ' + error.message, 'error');
-    } else {
-      showToast('Username updated successfully!');
-      usernameInput.value = '';
-      
-      // Update displayed username with animation
-      const nameElement = document.getElementById('user-name');
-      nameElement.textContent = username;
-      nameElement.classList.add('animate__animated', 'animate__pulse');
-      setTimeout(() => {
-        nameElement.classList.remove('animate__animated', 'animate__pulse');
-      }, 1000);
-    }
-  }
 
-  // Use Discord profile picture
-  async function useDiscordPfp() {
-    const btn = document.querySelector('[onclick="useDiscordPfp()"]');
-    const originalContent = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Loading...';
-    
-    const { data, error } = await client.auth.getUserIdentities();
-    const discord = data?.identities?.find(i => i.provider === 'discord');
-    
-    if (discord && discord.identity_data?.avatar_url) {
-      const { error: updateError } = await client.from('users').update({ 
-        avatar: discord.identity_data.avatar_url 
-      }).eq('id', currentUser.id);
-      
-      if (updateError) {
-        showToast('Error: ' + updateError.message, 'error');
+    function loadProfile() {
+      document.getElementById('email').innerText = user.email;
+      document.getElementById('username').innerText = user.user_metadata?.username || 'Unknown';
+      document.getElementById('provider').innerText = user.app_metadata?.provider || 'email';
+    }
+
+    async function updateProfile() {
+      const newUsername = document.getElementById("new-username").value;
+      const newPFP = document.getElementById("new-pfp").value;
+      const updates = {
+        id: user.id,
+        username: newUsername,
+        avatar_url: newPFP
+      };
+
+      const { error } = await supabase.from("users").upsert(updates, { onConflict: "id" });
+      if (error) {
+        alert("Update failed: " + error.message);
       } else {
-        showToast('Discord profile picture applied!');
-        
-        // Update avatar display with animation
-        const avatarElement = document.getElementById('user-avatar');
-        avatarElement.innerHTML = `<img src="${discord.identity_data.avatar_url}" class="w-full h-full object-cover" alt="Discord Avatar">`;
-        avatarElement.classList.add('animate__animated', 'animate__bounceIn');
-        setTimeout(() => {
-          avatarElement.classList.remove('animate__animated', 'animate__bounceIn');
-        }, 1000);
-      }
-    } else {
-      showToast('Discord not linked to your account', 'error');
-    }
-    
-    btn.innerHTML = originalContent;
-  }
-
-  // Reset profile picture to default
-  async function resetPfp() {
-    const { error } = await client.from('users').update({ 
-      avatar: null 
-    }).eq('id', currentUser.id);
-    
-    if (error) {
-      showToast('Error: ' + error.message, 'error');
-    } else {
-      showToast('Profile picture reset to default');
-      
-      // Update avatar display
-      const avatarElement = document.getElementById('user-avatar');
-      avatarElement.innerHTML = '<i class="fas fa-user text-gray-400"></i>';
-      avatarElement.classList.add('animate__animated', 'animate__flipInY');
-      setTimeout(() => {
-        avatarElement.classList.remove('animate__animated', 'animate__flipInY');
-      }, 1000);
-    }
-  }
-
-  // Set profile theme
-  async function setTheme(theme) {
-    const { error } = await client.from('users').update({ 
-      theme 
-    }).eq('id', currentUser.id);
-    
-    if (error) {
-      showToast('Error: ' + error.message, 'error');
-    } else {
-      showToast(`Theme changed to ${theme}`);
-      // In a real app, you would apply the theme here
-    }
-  }
-
-  // Link Discord account
-  async function linkDiscord() {
-    const btn = document.getElementById('discord-btn');
-    const originalContent = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Connecting...';
-    
-    const { error } = await client.auth.linkIdentity({ provider: 'discord' });
-    if (error) {
-      showToast('Link failed: ' + error.message, 'error');
-      btn.innerHTML = originalContent;
-    } else {
-      showToast('Discord linked successfully!');
-      checkConnectedAccounts();
-    }
-  }
-
-  // Link Google account
-  async function linkGoogle() {
-    const btn = document.getElementById('google-btn');
-    const originalContent = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Connecting...';
-    
-    const { error } = await client.auth.linkIdentity({ provider: 'google' });
-    if (error) {
-      showToast('Link failed: ' + error.message, 'error');
-      btn.innerHTML = originalContent;
-    } else {
-      showToast('Google linked successfully!');
-      checkConnectedAccounts();
-    }
-  }
-
-  // Link Twitter account
-  async function linkTwitter() {
-    const btn = document.getElementById('twitter-btn');
-    const originalContent = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Connecting...';
-    
-    showToast('Twitter login coming soon!', 'info');
-    btn.innerHTML = originalContent;
-  }
-
-  // Check connected accounts
-  async function checkConnectedAccounts() {
-    const { data, error } = await client.auth.getUserIdentities();
-    if (error) return;
-    
-    const discord = data?.identities?.find(i => i.provider === 'discord');
-    const google = data?.identities?.find(i => i.provider === 'google');
-    
-    // Update Discord status
-    const discordStatus = document.getElementById('discord-status');
-    const discordBtn = document.getElementById('discord-btn');
-    if (discord) {
-      discordStatus.textContent = `Connected as ${discord.identity_data.name || 'Discord user'}`;
-      discordBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Connected';
-      discordBtn.classList.remove('bg-[#5865F2]', 'hover:bg-[#4752C4]');
-      discordBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-    } else {
-      discordStatus.textContent = 'Not connected';
-      discordBtn.innerHTML = '<i class="fab fa-discord mr-2"></i>Connect';
-      discordBtn.classList.add('bg-[#5865F2]', 'hover:bg-[#4752C4]');
-      discordBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-    }
-    
-    // Update Google status
-    const googleStatus = document.getElementById('google-status');
-    const googleBtn = document.getElementById('google-btn');
-    if (google) {
-      googleStatus.textContent = `Connected as ${google.identity_data.name || 'Google user'}`;
-      googleBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Connected';
-      googleBtn.classList.remove('bg-gray-700', 'hover:bg-gray-600');
-      googleBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-    } else {
-      googleStatus.textContent = 'Not connected';
-      googleBtn.innerHTML = '<i class="fab fa-google mr-2"></i>Connect';
-      googleBtn.classList.add('bg-gray-700', 'hover:bg-gray-600');
-      googleBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-    }
-  }
-
-  // Upload profile picture (placeholder)
-  function uploadPfp() {
-    showToast('Profile picture upload coming soon!', 'info');
-  }
-
-  // Confirm account deletion
-  async function confirmDelete() {
-    if (confirm('Are you sure you want to delete your account? This cannot be undone.')) {
-      showToast('Account deletion initiated...', 'warning');
-      // In a real app, you would call the delete function here
-      // const { error } = await client.from('users').delete().eq('id', currentUser.id);
-      // if (!error) {
-      //   await client.auth.signOut();
-      // }
-    }
-  }
-
-  // Logout function
-  async function logout() {
-    const { error } = await client.auth.signOut();
-    if (error) {
-      showToast('Logout failed: ' + error.message, 'error');
-    } else {
-      showToast('Logged out successfully');
-      document.getElementById('login-modal').classList.remove('hidden');
-    }
-  }
-
-  // Show user info
-  async function showUser() {
-    const { data: { user } } = await client.auth.getUser();
-    if (!user) {
-      document.getElementById('login-modal').classList.remove('hidden');
-    } else {
-      document.getElementById('login-modal').classList.add('hidden');
-      currentUser = user;
-      
-      const { data, error } = await client.from('users').select('*').eq('id', user.id).single();
-      if (!error) {
-        // Update account info
-        document.getElementById('user-name').textContent = data.username || 'No username set';
-        document.getElementById('user-email').textContent = user.email;
-        
-        // Format created_at date
-        const createdAt = new Date(user.created_at);
-        document.getElementById('member-since').textContent = createdAt.toLocaleDateString();
-        
-        // Update last active time
-        document.getElementById('last-active').textContent = 'Just now';
-        
-        // Update avatar if exists
-        const avatarElement = document.getElementById('user-avatar');
-        if (data.avatar) {
-          avatarElement.innerHTML = `<img src="${data.avatar}" class="w-full h-full object-cover" alt="User Avatar">`;
-        } else {
-          avatarElement.innerHTML = '<i class="fas fa-user text-gray-400"></i>';
-        }
-        
-        // Remove spinner class
-        avatarElement.classList.remove('spinner');
-        
-        // Check connected accounts
-        checkConnectedAccounts();
-        
-        // Apply saved theme preference
-        if (data.theme) {
-          // In a real app, you would apply the theme here
-        }
+        alert("Profile updated!");
+        loadProfile();
       }
     }
-  }
 
-  // Event listeners for login buttons
-  document.getElementById('login-google').onclick = () => {
-    client.auth.signInWithOAuth({ provider: 'google' });
-  };
-
-  document.getElementById('login-discord').onclick = () => {
-    client.auth.signInWithOAuth({ provider: 'discord' });
-  };
-
-  // Listen for auth changes
-  client.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN') {
-      showToast('Login successful!');
-      showUser();
-    } else if (event === 'SIGNED_OUT') {
-      showToast('Logged out successfully');
-      document.getElementById('login-modal').classList.remove('hidden');
+    function useDiscordPFP() {
+      alert("Feature not fully implemented. You need to fetch from user_metadata.");
     }
-  });
-</script>
+
+    checkAuth();
+  </script>
 </body>
 </html>
