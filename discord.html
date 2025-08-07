@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Discord Server - BloodRage</title>
+  <style>
+    :root {
+      --primary: #ff2e2e;
+      --primary-dark: #b30000;
+      --bg: #0a0a0a;
+      --card-bg: #1a1a1a;
+      --text: #ffffff;
+      --muted: #aaaaaa;
+      --border: rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: #111;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary);
+    }
+
+    .container {
+      flex: 1;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .discord-card {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      max-width: 800px;
+      width: 100%;
+    }
+
+    .discord-card h1 {
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+    }
+
+    .discord-card p {
+      color: var(--muted);
+      margin-bottom: 2rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .discord-widget {
+      margin: 0 auto;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 2rem;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--primary-dark);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">BloodRage</div>
+  </header>
+
+  <div class="container">
+    <div class="discord-card">
+      <h1>Join Our Discord</h1>
+      <p>Join our discord server to get frequently notified whenever a update drops and we do giveaways too.</p>
+      
+      <div class="discord-widget">
+        <iframe src="https://discord.com/widget?id=1402838999294283918&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+      </div>
+
+      <a href="#" class="back-link">← Back to Dashboard</a>
+    </div>
+  </div>
+</body>
+</html>
