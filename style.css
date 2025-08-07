@@ -1,0 +1,59 @@
+body {
+  margin: 0;
+  background: #000;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  text-align: center;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+p {
+  color: #999;
+  margin-bottom: 2rem;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.discord-btn,
+.google-btn {
+  padding: 12px 24px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.discord-btn {
+  background: #5865F2;
+  color: white;
+}
+
+.google-btn {
+  background: white;
+  color: black;
+}
+
+.discord-btn:hover {
+  background: #4752C4;
+}
+
+.google-btn:hover {
+  background: #ddd;
+}
