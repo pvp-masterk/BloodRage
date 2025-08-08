@@ -5,9 +5,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>BloodRage Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+    
+    .sidebar-link {
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .sidebar-link::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 2px;
+      background-color: #ef4444;
+      transition: width 0.3s ease;
+    }
+    
+    .sidebar-link:hover::after {
+      width: 100%;
+    }
+    
     .active-link {
-      background-color: #b91c1c;
+      background-color: rgba(239, 68, 68, 0.2);
+    }
+    
+    .active-link::after {
+      width: 100%;
+    }
+    
+    .card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4);
     }
   </style>
 </head>
@@ -16,27 +60,53 @@
   <div class="flex min-h-screen">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-zinc-900 p-6 space-y-4">
-      <h1 class="text-2xl font-bold text-red-500 mb-6">BloodRage</h1>
+    <aside class="w-64 bg-zinc-900 p-6 space-y-4 border-r border-zinc-800">
+      <h1 class="text-2xl font-bold text-red-500 mb-6 animate__animated animate__fadeInLeft">BloodRage</h1>
       <nav class="space-y-3">
-        <a href="#" id="nav-account" class="block px-3 py-2 rounded active-link">Account</a>
-        <a href="customize.html" class="block px-3 py-2 rounded hover:bg-zinc-800">Customize</a>
-        <a href="links.html" class="block px-3 py-2 rounded hover:bg-zinc-800">Links</a>
+        <a href="dashboard.html" class="block px-3 py-2 rounded sidebar-link active-link animate__animated animate__fadeInLeft animate__delay-1s">Account</a>
+        <a href="customize.html" class="block px-3 py-2 rounded sidebar-link animate__animated animate__fadeInLeft animate__delay-1s">Customize</a>
+        <a href="links.html" class="block px-3 py-2 rounded sidebar-link animate__animated animate__fadeInLeft animate__delay-1s">Links</a>
       </nav>
     </aside>
 
     <!-- Main Content -->
     <main class="flex-1 p-8">
-      <h2 class="text-3xl font-bold text-red-500 mb-6">Account Info</h2>
+      <h2 class="text-3xl font-bold text-red-500 mb-6 animate__animated animate__fadeIn">Account Info</h2>
 
-      <div id="loading" class="text-red-400 animate-pulse">Loading account data...</div>
+      <div id="loading" class="text-red-400 animate-pulse flex items-center space-x-2">
+        <svg class="animate-spin h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span>Loading account data...</span>
+      </div>
 
-      <div id="account-info" class="hidden space-y-4">
-        <div><strong>User ID:</strong> <span id="user-id"></span></div>
-        <div><strong>Email:</strong> <span id="email"></span></div>
-        <div><strong>Provider:</strong> <span id="provider"></span></div>
-        <div><strong>Username:</strong> <span id="username"></span></div>
-        <div><strong>Account Created:</strong> <span id="created-at"></span></div>
+      <div id="account-info" class="hidden space-y-6 max-w-2xl">
+        <div class="card bg-zinc-900 p-6 rounded-xl border border-zinc-800 fade-in">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-red-400 mb-1">User ID</label>
+              <div id="user-id" class="p-2 bg-zinc-800 rounded text-sm"></div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-red-400 mb-1">Email</label>
+              <div id="email" class="p-2 bg-zinc-800 rounded text-sm"></div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-red-400 mb-1">Provider</label>
+              <div id="provider" class="p-2 bg-zinc-800 rounded text-sm"></div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-red-400 mb-1">Username</label>
+              <div id="username" class="p-2 bg-zinc-800 rounded text-sm"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card bg-zinc-900 p-6 rounded-xl border border-zinc-800 fade-in">
+          <label class="block text-sm font-medium text-red-400 mb-1">Account Created</label>
+          <div id="created-at" class="p-2 bg-zinc-800 rounded text-sm"></div>
+        </div>
       </div>
     </main>
   </div>
@@ -46,27 +116,36 @@
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
     const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      window.location.href = "/";
-    }
+    document.addEventListener('DOMContentLoaded', async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        window.location.href = "/";
+      }
 
-    // Get profile
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
+      // Get profile
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
 
-    // Display
-    document.getElementById("user-id").textContent = user.id;
-    document.getElementById("email").textContent = user.email;
-    document.getElementById("provider").textContent = user.app_metadata?.provider || 'unknown';
-    document.getElementById("created-at").textContent = new Date(user.created_at).toLocaleString();
-    document.getElementById("username").textContent = profile?.username || 'Not set';
+      // Display with staggered animations
+      document.getElementById("user-id").textContent = user.id;
+      document.getElementById("email").textContent = user.email;
+      document.getElementById("provider").textContent = user.app_metadata?.provider || 'unknown';
+      document.getElementById("created-at").textContent = new Date(user.created_at).toLocaleString();
+      document.getElementById("username").textContent = profile?.username || 'Not set';
 
-    document.getElementById("loading").style.display = 'none';
-    document.getElementById("account-info").classList.remove("hidden");
+      document.getElementById("loading").style.display = 'none';
+      const accountInfo = document.getElementById("account-info");
+      accountInfo.classList.remove("hidden");
+      
+      // Animate cards in sequence
+      const cards = accountInfo.querySelectorAll('.card');
+      cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+      });
+    });
   </script>
 </body>
 </html>
