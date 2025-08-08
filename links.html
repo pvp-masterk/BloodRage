@@ -50,12 +50,12 @@
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
     const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
 
-    const apps = [
-      { name: "Discord", icon: "bxl-discord", base: "https://discord.gg/" },
-      { name: "X", icon: "bxl-twitter", base: "https://x.com/" },
-      { name: "YouTube", icon: "bxl-youtube", base: "https://youtube.com/" },
-      { name: "GitHub", icon: "bxl-github", base: "https://github.com/" }
-    ];
+   const apps = [
+  { name: "Discord", icon: "bxl-discord", base: "https://discord.gg/" },
+  { name: "X", icon: "bxl-twitter", base: "https://x.com/" },
+  { name: "YouTube", icon: "bxl-youtube", base: "https://youtube.com/" },
+  { name: "GitHub", icon: "bxl-github", base: "https://github.com/" }
+];
 
     let selectedApp = null;
     let profile = null;
@@ -68,6 +68,15 @@
       .eq("id", user.id)
       .single();
     profile = data;
+
+    if (!user) {
+  console.error("No Supabase user found.");
+  window.location.href = '/';
+}
+
+console.log("Logged in as:", user.email);
+console.log("Profile data:", profile);
+
 
     const appIconsDiv = document.getElementById("app-icons");
 
