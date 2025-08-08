@@ -1,35 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BloodRage Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-black text-white font-sans">
-
+<body class="flex">
   <!-- Sidebar -->
-  <aside class="w-64 bg-zinc-900 p-6 border-r border-red-800 min-h-screen fixed left-0 top-0 pt-20 space-y-4">
-  <nav class="flex flex-col space-y-3 text-lg font-medium">
-    <a href="/dashboard.html" class="sidebar-link text-zinc-300 hover:text-white">Dashboard</a>
-    <a href="/account.html" class="sidebar-link text-zinc-300 hover:text-white">Account</a>
-    <a href="/customize.html" class="sidebar-link text-zinc-300 hover:text-white">Customize</a>
-  </nav>
-</aside>
-  <!-- insert sidebar code here -->
-  <script>
-  const path = window.location.pathname;
-  document.querySelectorAll(".sidebar-link").forEach(link => {
-    if (path.endsWith(link.getAttribute("href"))) {
-      link.classList.add("text-red-500", "font-semibold");
-    }
-  });
-</script>
+  <aside class="w-64 bg-zinc-900 p-6">
+    <a href="#" onclick="loadPage('account.html')" class="block text-white">Account</a>
+    <a href="#" onclick="loadPage('customize.html')" class="block text-white">Customize</a>
+  </aside>
 
-  <!-- Main Content -->
-  <div class="ml-64 p-10 pt-20">
-    <h1 class="text-3xl font-bold text-red-500 mb-4">Welcome to your Dashboard</h1>
-    <p class="text-zinc-300">Use the sidebar to manage your account and profile.</p>
-  </div>
+  <!-- Content iframe -->
+  <main class="flex-1">
+    <iframe id="contentFrame" src="account.html" class="w-full h-screen border-none"></iframe>
+  </main>
+
+  <script>
+    function loadPage(page) {
+      document.getElementById('contentFrame').src = page;
+    }
+  </script>
 </body>
-</html>
