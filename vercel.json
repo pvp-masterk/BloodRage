@@ -9,10 +9,10 @@
       "status": 404
     },
     {
-      "src": "/([^/]+)",  // Matches any single path segment (username)
+      "src": "/([^/]+)",  
       "dest": "/profile.html",
       "headers": {
-        "x-username": ":1"  // Pass the username as a header
+        "x-username": ":1"  
       }
     },
     {
