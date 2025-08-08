@@ -1,81 +1,11 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BloodRage</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .tilted {
-      transform: rotate(-6deg) scale(0.95);
-    }
-  </style>
+  <meta http-equiv="refresh" content="0; URL='landing.html'" />
+  <title>Redirecting...</title>
 </head>
-<body class="bg-black text-white font-sans flex flex-col min-h-screen justify-between">
-
-  <!-- Floating Header -->
-  <header class="fixed top-4 left-4 right-4 z-50 rounded-full bg-red-600/80 backdrop-blur-md px-6 py-3 flex justify-end space-x-6 text-sm shadow-lg">
-    <a href="/help" class="hover:underline">Help</a>
-    <a href="/dashboard" class="hover:underline">Dashboard</a>
-    <a href="/support" class="hover:underline">Support</a>
-  </header>
-
-  <!-- Main Content -->
-  <main class="flex flex-col justify-center items-center text-center px-6 flex-grow">
-    <h1 class="text-5xl font-extrabold text-red-500 mt-32 mb-4">BloodRage</h1>
-    <p class="text-lg text-gray-300 mb-6">Create your identity.</p>
-
-    <!-- Username Input Form -->
-    <form action="" method="GET" onsubmit="return redirectToUsername()" class="flex space-x-2 mb-12">
-      <input id="usernameInput" type="text" placeholder="Enter username"
-        class="px-4 py-2 rounded-lg bg-zinc-900 text-white border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-      <button type="submit"
-        class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white font-semibold">Go</button>
-    </form>
-
-    <!-- Tilted Dashboard Image -->
-    <div class="tilted mb-8">
-      <img src="dashboard-preview.png" alt="Dashboard Preview"
-        class="rounded-2xl shadow-2xl border border-red-800 max-w-[600px] w-full" />
-    </div>
-  </main>
-
-  <!-- Footer -->
-  <footer class="text-sm text-zinc-500 text-center mb-6 space-x-4">
-    <a href="/terms" class="hover:underline">Terms of Use</a>
-    <a href="/privacy" class="hover:underline">Privacy Policy</a>
-  </footer>
-
-  <!-- Auth Popup -->
-  <div id="authPopup"
-    class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
-    <div class="bg-zinc-900 p-6 rounded-2xl shadow-xl text-center space-y-4 w-80">
-      <h2 class="text-xl font-semibold">Sign in to continue</h2>
-      <button class="flex items-center justify-center w-full bg-white text-black py-2 rounded-lg font-semibold">
-        <img src="google-icon.svg" alt="Google" class="w-5 h-5 mr-2" />
-        Sign in with Google
-      </button>
-      <button class="flex items-center justify-center w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold">
-        <img src="discord-icon.svg" alt="Discord" class="w-5 h-5 mr-2" />
-        Sign in with Discord
-      </button>
-    </div>
-  </div>
-
-  <!-- Scripts -->
-  <script>
-    function redirectToUsername() {
-      const username = document.getElementById("usernameInput").value.trim();
-      if (username) {
-        window.location.href = `/${username}`;
-      }
-      return false;
-    }
-
-    // Simulate user not signed in
-    window.onload = () => {
-      document.getElementById("authPopup").classList.remove("hidden");
-    };
-  </script>
+<body>
+  <p>If you are not redirected, <a href="landing.html">click here</a>.</p>
 </body>
 </html>
