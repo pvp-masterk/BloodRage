@@ -1,17 +1,21 @@
 {
   "routes": [
-    
     {
       "src": "/(.*)\\.html",
       "dest": "/$1",
       "status": 301
     },
-    
+    {
+      "src": "/profile\\.html",
+      "status": 404
+    },
     {
       "src": "/:username",
-      "dest": "/profile.html"
+      "dest": "/profile.html",
+      "headers": {
+        "x-username": ":username"
+      }
     },
-    
     {
       "src": "/(.*)",
       "dest": "/$1.html",
