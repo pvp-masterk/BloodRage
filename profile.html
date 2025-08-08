@@ -119,15 +119,15 @@
 
   // Get username from the path
 // Get username from path, allow @username style
-let username = window.location.pathname.replace(/^\/+|\/+$/g, ''); // trim slashes
+// Get username from path and allow @username style
+let username = window.location.pathname.replace(/^\/+|\/+$/g, ''); // remove leading/trailing slashes
 if (username.startsWith('@')) {
-  username = username.substring(1); // remove the '@'
+  username = username.substring(1); // remove the @ if present
 }
 
 if (!username) {
   window.location.href = '/';
 } else {
-
 
   async function loadProfile() {
     // Show loading state
