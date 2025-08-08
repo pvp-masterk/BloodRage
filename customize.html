@@ -3,8 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Customize Profile - BloodRage</title>
+  <title>Customize - BloodRage</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    #profile-preview {
+      transition: background 0.5s ease;
+    }
+  </style>
 </head>
 <body class="bg-black text-white font-sans">
 
@@ -14,108 +19,99 @@
     <aside class="w-64 bg-zinc-900 p-6 space-y-4">
       <h1 class="text-2xl font-bold text-red-500 mb-6">BloodRage</h1>
       <nav class="space-y-3">
-        <a href="/dashboard/account.html" class="block px-3 py-2 rounded hover:bg-zinc-800">Account</a>
-        <a href="/dashboard/customize.html" class="block px-3 py-2 rounded bg-red-700">Customize</a>
-        <a href="/dashboard/links.html" class="block px-3 py-2 rounded hover:bg-zinc-800">Links</a>
+        <a href="dashboard.html" class="block px-3 py-2 rounded hover:bg-zinc-800">Account</a>
+        <a href="customize.html" class="block px-3 py-2 rounded bg-red-700">Customize</a>
+        <a href="links.html" class="block px-3 py-2 rounded hover:bg-zinc-800">Links</a>
       </nav>
     </aside>
 
     <!-- Main Content -->
     <main class="flex-1 p-8">
-
       <h2 class="text-3xl font-bold text-red-500 mb-6">Customize Your Profile</h2>
 
-      <!-- Avatar Upload -->
-      <div class="relative w-32 h-32 mb-6">
-        <img id="avatar-preview" src="" alt="Avatar"
-             class="w-full h-full object-cover rounded-full border-4 border-red-600">
-        <label for="avatar-upload" class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 transition cursor-pointer">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6-6m2 2l-6 6M5 13l4 4L20 6" />
-          </svg>
-          <input id="avatar-upload" type="file" accept="image/*" class="hidden">
-        </label>
+      <!-- Profile Preview -->
+      <div id="profile-preview" class="rounded-xl p-6 text-center text-white shadow-md mb-8"
+           style="background: linear-gradient(to right, #991b1b, #1e1b4b);">
+        <img id="avatar" src="" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-white" alt="Avatar" />
+        <h3 id="username" class="text-xl font-bold"></h3>
+        <p id="bio" class="text-sm mt-1 text-gray-200"></p>
       </div>
 
-      <!-- Uploading -->
-      <div id="upload-status" class="text-sm text-red-400 hidden mb-4">Uploading avatar...</div>
+      <!-- Color Pickers -->
+      <div class="space-y-6 max-w-md">
+        <div>
+          <label class="block mb-1 text-sm font-medium text-red-400">Primary Color</label>
+          <input type="color" id="primaryColor" class="w-full h-12 rounded cursor-pointer" />
+        </div>
 
-      <!-- Form -->
-      <form id="profileForm" class="space-y-4 max-w-xl">
-        <textarea id="bio" placeholder="Bio" class="w-full px-4 py-2 rounded bg-zinc-800 text-white" rows="2"></textarea>
-        <textarea id="links" placeholder='Links as JSON e.g. {"Twitter":"https://x.com/you"}'
-          class="w-full px-4 py-2 rounded bg-zinc-800 text-white h-32"></textarea>
-        <button type="submit" class="bg-red-600 hover:bg-red-700 w-full py-2 rounded font-semibold">Save Profile</button>
-      </form>
-      <p id="saved" class="text-green-400 mt-4 hidden">Profile saved!</p>
+        <div>
+          <label class="block mb-1 text-sm font-medium text-red-400">Secondary Color</label>
+          <input type="color" id="secondaryColor" class="w-full h-12 rounded cursor-pointer" />
+        </div>
+
+        <button id="saveColors" class="mt-6 bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white font-semibold">
+          Save Colors
+        </button>
+
+        <div id="savedMsg" class="text-green-400 mt-4 hidden">Saved successfully!</div>
+      </div>
     </main>
   </div>
 
   <!-- Supabase Script -->
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
     const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
 
-    const userRes = await supabase.auth.getUser();
-    const user = userRes.data.user;
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) window.location.href = '/';
 
-    if (!user) {
-      alert("You must be logged in.");
-      window.location.href = "/";
-    }
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
 
-    const id = user.id;
+    // Set preview data
+    document.getElementById("username").textContent = profile.username;
+    document.getElementById("bio").textContent = profile.bio || "";
+    document.getElementById("avatar").src = profile.avatar_url || "https://via.placeholder.com/100";
 
-    const avatarPreview = document.getElementById("avatar-preview");
-    const uploadStatus = document.getElementById("upload-status");
+    // Set default or saved colors
+    const primaryColorInput = document.getElementById("primaryColor");
+    const secondaryColorInput = document.getElementById("secondaryColor");
 
-    const { data: profile } = await supabase.from("profiles").select("*").eq("id", id).single();
+    primaryColorInput.value = profile.primary_color || "#991b1b";
+    secondaryColorInput.value = profile.secondary_color || "#1e1b4b";
 
-    avatarPreview.src = profile?.avatar_url || "https://placehold.co/128x128/111/fff?text=Avatar";
-    document.getElementById("bio").value = profile?.bio || '';
-    document.getElementById("links").value = JSON.stringify(profile?.links || {}, null, 2);
+    const updatePreview = () => {
+      const primary = primaryColorInput.value;
+      const secondary = secondaryColorInput.value;
+      document.getElementById("profile-preview").style.background = `linear-gradient(to right, ${primary}, ${secondary})`;
+    };
 
-    document.getElementById("avatar-upload").addEventListener("change", async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+    primaryColorInput.addEventListener("input", updatePreview);
+    secondaryColorInput.addEventListener("input", updatePreview);
+    updatePreview();
 
-      uploadStatus.classList.remove("hidden");
+    // Save handler
+    document.getElementById("saveColors").onclick = async () => {
+      const primary = primaryColorInput.value;
+      const secondary = secondaryColorInput.value;
 
-      const ext = file.name.split('.').pop();
-      const path = `avatars/${id}-${Date.now()}.${ext}`;
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          primary_color: primary,
+          secondary_color: secondary
+        })
+        .eq("id", user.id);
 
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(path, file, { upsert: true });
-
-      if (uploadError) {
-        alert("Upload failed.");
-        uploadStatus.classList.add("hidden");
-        return;
+      if (!error) {
+        document.getElementById("savedMsg").classList.remove("hidden");
+        setTimeout(() => document.getElementById("savedMsg").classList.add("hidden"), 2000);
+        updatePreview();
       }
-
-      const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
-      const avatarUrl = urlData.publicUrl;
-
-      await supabase.from("profiles").update({ avatar_url: avatarUrl }).eq("id", id);
-      avatarPreview.src = avatarUrl;
-      uploadStatus.classList.add("hidden");
-    });
-
-    document.getElementById("profileForm").onsubmit = async (e) => {
-      e.preventDefault();
-      const bio = document.getElementById("bio").value;
-      let links = {};
-      try {
-        links = JSON.parse(document.getElementById("links").value);
-      } catch (err) {
-        alert("Invalid JSON in links.");
-        return;
-      }
-
-      const { error } = await supabase.from("profiles").update({ bio, links }).eq("id", id);
-      if (!error) document.getElementById("saved").classList.remove("hidden");
     };
   </script>
 </body>
