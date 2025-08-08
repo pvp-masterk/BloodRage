@@ -5,9 +5,75 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Customize - BloodRage</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <style>
+    @keyframes gradientPulse {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
     #profile-preview {
-      transition: background 0.5s ease;
+      transition: all 0.5s ease;
+      background-size: 200% 200%;
+    }
+    
+    .color-picker {
+      transition: transform 0.3s ease;
+    }
+    
+    .color-picker:hover {
+      transform: scale(1.05);
+    }
+    
+    .save-btn {
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .save-btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.7s;
+    }
+    
+    .save-btn:hover::after {
+      left: 100%;
+    }
+    
+    .sidebar-link {
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .sidebar-link::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 2px;
+      background-color: #ef4444;
+      transition: width 0.3s ease;
+    }
+    
+    .sidebar-link:hover::after {
+      width: 100%;
+    }
+    
+    .active-link {
+      background-color: rgba(239, 68, 68, 0.2);
+    }
+    
+    .active-link::after {
+      width: 100%;
     }
   </style>
 </head>
@@ -16,44 +82,57 @@
   <div class="flex min-h-screen">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-zinc-900 p-6 space-y-4">
-      <h1 class="text-2xl font-bold text-red-500 mb-6">BloodRage</h1>
+    <aside class="w-64 bg-zinc-900 p-6 space-y-4 border-r border-zinc-800">
+      <h1 class="text-2xl font-bold text-red-500 mb-6 animate__animated animate__fadeInLeft">BloodRage</h1>
       <nav class="space-y-3">
-        <a href="dashboard.html" class="block px-3 py-2 rounded hover:bg-zinc-800">Account</a>
-        <a href="customize.html" class="block px-3 py-2 rounded bg-red-700">Customize</a>
-        <a href="links.html" class="block px-3 py-2 rounded hover:bg-zinc-800">Links</a>
+        <a href="dashboard.html" class="block px-3 py-2 rounded sidebar-link animate__animated animate__fadeInLeft animate__delay-1s">Account</a>
+        <a href="customize.html" class="block px-3 py-2 rounded sidebar-link active-link animate__animated animate__fadeInLeft animate__delay-1s">Customize</a>
+        <a href="links.html" class="block px-3 py-2 rounded sidebar-link animate__animated animate__fadeInLeft animate__delay-1s">Links</a>
       </nav>
     </aside>
 
     <!-- Main Content -->
     <main class="flex-1 p-8">
-      <h2 class="text-3xl font-bold text-red-500 mb-6">Customize Your Profile</h2>
+      <h2 class="text-3xl font-bold text-red-500 mb-6 animate__animated animate__fadeIn">Customize Your Profile</h2>
 
       <!-- Profile Preview -->
-      <div id="profile-preview" class="rounded-xl p-6 text-center text-white shadow-md mb-8"
+      <div id="profile-preview" class="rounded-xl p-8 text-center text-white shadow-lg mb-8 animate__animated animate__fadeIn"
            style="background: linear-gradient(to right, #991b1b, #1e1b4b);">
-        <img id="avatar" src="" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-white" alt="Avatar" />
-        <h3 id="username" class="text-xl font-bold"></h3>
-        <p id="bio" class="text-sm mt-1 text-gray-200"></p>
+        <div class="animate__animated animate__fadeIn animate__delay-1s">
+          <img id="avatar" src="" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-white shadow-lg hover:scale-105 transition-transform duration-300" alt="Avatar" />
+          <h3 id="username" class="text-2xl font-bold tracking-wide"></h3>
+          <p id="bio" class="text-sm mt-2 text-gray-200 max-w-md mx-auto"></p>
+        </div>
       </div>
 
       <!-- Color Pickers -->
-      <div class="space-y-6 max-w-md">
-        <div>
-          <label class="block mb-1 text-sm font-medium text-red-400">Primary Color</label>
-          <input type="color" id="primaryColor" class="w-full h-12 rounded cursor-pointer" />
+      <div class="space-y-6 max-w-md animate__animated animate__fadeIn animate__delay-1s">
+        <div class="color-picker">
+          <label class="block mb-2 text-sm font-medium text-red-400">Primary Color</label>
+          <div class="flex items-center space-x-4">
+            <input type="color" id="primaryColor" class="w-16 h-16 rounded-full cursor-pointer shadow-lg border-2 border-zinc-700 hover:border-red-500 transition" />
+            <span id="primaryHex" class="text-sm bg-zinc-800 px-3 py-1 rounded">#991b1b</span>
+          </div>
         </div>
 
-        <div>
-          <label class="block mb-1 text-sm font-medium text-red-400">Secondary Color</label>
-          <input type="color" id="secondaryColor" class="w-full h-12 rounded cursor-pointer" />
+        <div class="color-picker">
+          <label class="block mb-2 text-sm font-medium text-red-400">Secondary Color</label>
+          <div class="flex items-center space-x-4">
+            <input type="color" id="secondaryColor" class="w-16 h-16 rounded-full cursor-pointer shadow-lg border-2 border-zinc-700 hover:border-red-500 transition" />
+            <span id="secondaryHex" class="text-sm bg-zinc-800 px-3 py-1 rounded">#1e1b4b</span>
+          </div>
         </div>
 
-        <button id="saveColors" class="mt-6 bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white font-semibold">
+        <button id="saveColors" class="mt-6 bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg text-white font-semibold save-btn animate__animated animate__pulse animate__infinite">
           Save Colors
         </button>
 
-        <div id="savedMsg" class="text-green-400 mt-4 hidden">Saved successfully!</div>
+        <div id="savedMsg" class="text-green-400 mt-4 hidden flex items-center space-x-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          <span>Saved successfully!</span>
+        </div>
       </div>
     </main>
   </div>
@@ -63,56 +142,87 @@
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
     const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
 
-    const user = (await supabase.auth.getUser()).data.user;
-    if (!user) window.location.href = '/';
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) window.location.href = '/';
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
-
-    // Set preview data
-    document.getElementById("username").textContent = profile.username;
-    document.getElementById("bio").textContent = profile.bio || "";
-    document.getElementById("avatar").src = profile.avatar_url || "https://via.placeholder.com/100";
-
-    // Set default or saved colors
-    const primaryColorInput = document.getElementById("primaryColor");
-    const secondaryColorInput = document.getElementById("secondaryColor");
-
-    primaryColorInput.value = profile.primary_color || "#991b1b";
-    secondaryColorInput.value = profile.secondary_color || "#1e1b4b";
-
-    const updatePreview = () => {
-      const primary = primaryColorInput.value;
-      const secondary = secondaryColorInput.value;
-      document.getElementById("profile-preview").style.background = `linear-gradient(to right, ${primary}, ${secondary})`;
-    };
-
-    primaryColorInput.addEventListener("input", updatePreview);
-    secondaryColorInput.addEventListener("input", updatePreview);
-    updatePreview();
-
-    // Save handler
-    document.getElementById("saveColors").onclick = async () => {
-      const primary = primaryColorInput.value;
-      const secondary = secondaryColorInput.value;
-
-      const { error } = await supabase
+      const { data: profile } = await supabase
         .from("profiles")
-        .update({
-          primary_color: primary,
-          secondary_color: secondary
-        })
-        .eq("id", user.id);
+        .select("*")
+        .eq("id", user.id)
+        .single();
 
-      if (!error) {
-        document.getElementById("savedMsg").classList.remove("hidden");
-        setTimeout(() => document.getElementById("savedMsg").classList.add("hidden"), 2000);
-        updatePreview();
-      }
-    };
+      // Set preview data
+      document.getElementById("username").textContent = profile.username;
+      document.getElementById("bio").textContent = profile.bio || "No bio yet";
+      document.getElementById("avatar").src = profile.avatar_url || "https://via.placeholder.com/100";
+
+      // Set default or saved colors
+      const primaryColorInput = document.getElementById("primaryColor");
+      const secondaryColorInput = document.getElementById("secondaryColor");
+      const primaryHex = document.getElementById("primaryHex");
+      const secondaryHex = document.getElementById("secondaryHex");
+
+      primaryColorInput.value = profile.primary_color || "#991b1b";
+      secondaryColorInput.value = profile.secondary_color || "#1e1b4b";
+      primaryHex.textContent = profile.primary_color || "#991b1b";
+      secondaryHex.textContent = profile.secondary_color || "#1e1b4b";
+
+      const updatePreview = () => {
+        const primary = primaryColorInput.value;
+        const secondary = secondaryColorInput.value;
+        document.getElementById("profile-preview").style.background = `linear-gradient(to right, ${primary}, ${secondary})`;
+        primaryHex.textContent = primary;
+        secondaryHex.textContent = secondary;
+      };
+
+      primaryColorInput.addEventListener("input", updatePreview);
+      secondaryColorInput.addEventListener("input", updatePreview);
+      updatePreview();
+
+      // Save handler
+      document.getElementById("saveColors").onclick = async () => {
+        const primary = primaryColorInput.value;
+        const secondary = secondaryColorInput.value;
+
+        const saveBtn = document.getElementById("saveColors");
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = `
+          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Saving...
+        `;
+
+        const { error } = await supabase
+          .from("profiles")
+          .update({
+            primary_color: primary,
+            secondary_color: secondary
+          })
+          .eq("id", user.id);
+
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save Colors";
+
+        if (!error) {
+          const savedMsg = document.getElementById("savedMsg");
+          savedMsg.classList.remove("hidden");
+          savedMsg.classList.add("animate__animated", "animate__fadeIn");
+          
+          setTimeout(() => {
+            savedMsg.classList.add("animate__fadeOut");
+            setTimeout(() => {
+              savedMsg.classList.add("hidden");
+              savedMsg.classList.remove("animate__fadeIn", "animate__fadeOut");
+            }, 500);
+          }, 2000);
+          
+          updatePreview();
+        }
+      };
+    });
   </script>
 </body>
 </html>
