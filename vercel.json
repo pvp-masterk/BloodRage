@@ -6,15 +6,13 @@
       "status": 301
     },
     {
-      "src": "/profile\\.html",
+      "src": "/profile",
       "status": 404
     },
     {
       "src": "/:username",
       "dest": "/profile.html",
-      "headers": {
-        "x-username": ":username"
-      }
+      "continue": true
     },
     {
       "src": "/(.*)",
