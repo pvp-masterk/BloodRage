@@ -117,11 +117,8 @@
 
   const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "your-supabase-key");
 
-  // Get username from query parameter
-  const urlParams = new URLSearchParams(window.location.search);
-  const username = urlParams.get('user');
-
-  // If no username parameter, redirect to home
+  // Get username from the path
+let username = window.location.pathname.replace(/^\/+|\/+$/g, ''); // trim slashes
 if (!username) {
   window.location.href = '/';
 } else {
