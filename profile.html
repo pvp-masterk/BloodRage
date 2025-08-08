@@ -87,14 +87,20 @@
     );
 
     // Get username from path (supports @username)
-    let username = window.location.pathname.replace(/^\/+|\/+$/g, '');
-    if (username.startsWith('@')) {
-      username = username.substring(1);
-    }
+    // Get username from path, clean it for DB query
+let username = window.location.pathname
+  .replace(/^\/+|\/+$/g, '') // remove leading/trailing slashes
+  .trim();
 
-    if (!username) {
-      window.location.href = '/';
-    } else {
+if (username.startsWith('@')) {
+  username = username.substring(1);
+}
+
+username = decodeURIComponent(username); // handle %20 etc.
+
+if (!username) {
+  window.location.href = '/';
+}
       async function loadProfile() {
         document.getElementById("loading").classList.remove("hidden");
         const { data, error } = await supabase
@@ -172,7 +178,7 @@
       }
 
       loadProfile();
-    }
+    
   </script>
 </body>
 </html>
