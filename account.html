@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account Info - BloodRage</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white font-sans">
+  
+  <!-- Sidebar -->
+<aside class="w-64 bg-zinc-900 p-6 border-r border-red-800 min-h-screen fixed left-0 top-0 pt-20 space-y-4">
+  <nav class="flex flex-col space-y-3 text-lg font-medium">
+    <a href="/dashboard.html" class="sidebar-link text-zinc-300 hover:text-white">Dashboard</a>
+    <a href="/account.html" class="sidebar-link text-zinc-300 hover:text-white">Account</a>
+    <a href="/customize.html" class="sidebar-link text-zinc-300 hover:text-white">Customize</a>
+  </nav>
+</aside>
+
+<script>
+  const path = window.location.pathname;
+  document.querySelectorAll(".sidebar-link").forEach(link => {
+    if (path.endsWith(link.getAttribute("href"))) {
+      link.classList.add("text-red-500", "font-semibold");
+    }
+  });
+</script>
+
+
+  <!-- Main Content -->
+  <div class="ml-64 p-10 pt-20">
+    <h1 class="text-3xl font-bold text-red-500 mb-4">Account Information</h1>
+    <div id="accountInfo" class="space-y-4 text-zinc-300">
+      <p><strong>Signed in with:</strong> <span id="provider"></span></p>
+      <p><strong>Email:</strong> <span id="email"></span></p>
+      <p><strong>Created on:</strong> <span id="createdAt"></span></p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+    const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
+
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user) {
+      document.getElementById("provider").textContent = user.app_metadata.provider;
+      document.getElementById("email").textContent = user.email;
+      document.getElementById("createdAt").textContent = new Date(user.created_at).toLocaleString();
+    }
+  </script>
+</body>
+</html>
