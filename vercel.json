@@ -1,18 +1,19 @@
 {
   "routes": [
     {
-      "src": "/(.*)\\.html",
-      "dest": "/$1",
-      "status": 301
+      "src": "/profile\\.html",
+      "status": 404
     },
     {
       "src": "/profile",
       "status": 404
     },
     {
-      "src": "/:username",
+      "src": "/([^/]+)",  // Matches any single path segment (username)
       "dest": "/profile.html",
-      "continue": true
+      "headers": {
+        "x-username": ":1"  // Pass the username as a header
+      }
     },
     {
       "src": "/(.*)",
