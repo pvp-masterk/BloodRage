@@ -5,30 +5,110 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>BloodRage Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <style>
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .floating { animation: float 4s ease-in-out infinite; }
+    .glow-red { text-shadow: 0 0 8px rgba(239, 68, 68, 0.7); }
+    .transition-all-slow { transition: all 0.5s ease; }
+    .transition-transform { transition: transform 0.3s ease; }
+    .hover-scale:hover { transform: scale(1.03); }
+    .hover-glow:hover { box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+    .pulse-slow { animation: pulse 3s infinite; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+    .bg-gradient-dark {
+      background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+    }
+  </style>
 </head>
-<body class="bg-black text-white font-sans flex items-center justify-center min-h-screen p-4">
+<body class="bg-black text-white font-sans min-h-screen p-4 relative overflow-x-hidden">
+  <!-- Floating Header -->
+  <header class="fixed top-0 left-0 right-0 bg-zinc-900/80 backdrop-blur-sm z-50 border-b border-red-900/50 shadow-lg animate__animated animate__fadeInDown">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 bg-red-600 rounded-full animate-pulse"></div>
+        <span class="font-bold text-red-500 glow-red">BLOODRAGE</span>
+      </div>
+      <nav class="hidden md:flex space-x-6">
+        <a href="#" class="text-zinc-300 hover:text-red-500 transition-colors">Home</a>
+        <a href="#" class="text-zinc-300 hover:text-red-500 transition-colors">Profiles</a>
+        <a href="#" class="text-zinc-300 hover:text-red-500 transition-colors">About</a>
+      </nav>
+      <button class="bg-red-600 hover:bg-red-700 px-4 py-1 rounded-full text-sm transition-all-slow hover-glow">
+        Join
+      </button>
+    </div>
+  </header>
 
-  <!-- Loading State -->
-  <div id="loading" class="text-red-500 text-xl animate-pulse">Loading profile...</div>
-
-  <!-- Profile Card (hidden initially) -->
-  <div id="profileCard" class="hidden bg-zinc-900 rounded-xl p-8 w-full max-w-md shadow-2xl text-center border border-red-700">
-    <img id="avatar" src="" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-red-600 mx-auto shadow-lg mb-4"/>
-
-    <h1 id="username" class="text-2xl font-bold text-red-500">@username</h1>
-
-    <p id="bio" class="text-zinc-300 mt-2 mb-4 hidden"></p>
-
-    <!-- Badges -->
-    <div id="badges" class="flex gap-2 justify-center mb-4">
-      <span class="bg-red-700 px-3 py-1 rounded-full text-xs">🔥 Verified</span>
+  <!-- Main Content -->
+  <main class="pt-20 pb-10 flex items-center justify-center min-h-screen">
+    <!-- Loading State -->
+    <div id="loading" class="flex flex-col items-center justify-center space-y-4">
+      <div class="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+      <p class="text-red-500 text-xl animate-pulse">Loading profile...</p>
     </div>
 
-    <!-- Links -->
-    <div id="links" class="flex flex-col items-center mt-4 space-y-3 w-full">
-      <!-- User links inserted here -->
+    <!-- Profile Card (hidden initially) -->
+    <div id="profileCard" class="hidden transform transition-all duration-500 opacity-0 translate-y-10">
+      <div class="relative bg-gradient-dark rounded-xl p-8 w-full max-w-md shadow-2xl text-center border border-red-700/50 hover-glow transition-transform hover-scale">
+        <!-- Decorative elements -->
+        <div class="absolute -top-3 -left-3 w-6 h-6 bg-red-600 rounded-full animate-pulse"></div>
+        <div class="absolute -bottom-3 -right-3 w-6 h-6 bg-red-600 rounded-full animate-pulse"></div>
+        <div class="absolute -top-3 -right-3 w-4 h-4 bg-red-400 rounded-full"></div>
+        <div class="absolute -bottom-3 -left-3 w-4 h-4 bg-red-400 rounded-full"></div>
+        
+        <!-- Avatar -->
+        <div class="relative floating">
+          <img id="avatar" src="" alt="Avatar" class="w-28 h-28 rounded-full border-4 border-red-600 mx-auto shadow-lg mb-4 object-cover transition-transform hover:scale-110"/>
+          <div class="absolute -bottom-2 -right-2 bg-red-600 rounded-full p-1 border-2 border-zinc-900">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Username -->
+        <h1 id="username" class="text-3xl font-bold text-red-500 mb-2 glow-red">@username</h1>
+
+        <!-- Bio -->
+        <p id="bio" class="text-zinc-300 mt-2 mb-4 hidden animate__animated animate__fadeIn"></p>
+
+        <!-- Badges -->
+        <div id="badges" class="flex gap-2 justify-center mb-6 animate__animated animate__fadeInUp">
+          <span class="bg-red-700 px-3 py-1 rounded-full text-xs flex items-center gap-1 hover-glow transition-transform hover:scale-105">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+            Verified
+          </span>
+          <span class="bg-zinc-800 px-3 py-1 rounded-full text-xs flex items-center gap-1 hover-glow transition-transform hover:scale-105">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M11 17a1 1 0 001.447.894l4-2A1 1 0 0017 15V9.236a1 1 0 00-1.447-.894l-4 2a1 1 0 00-.553.894V17zM15.211 6.276a1 1 0 000-1.788l-4.764-2.382a1 1 0 00-.894 0L4.789 4.488a1 1 0 000 1.788l4.764 2.382a1 1 0 00.894 0l4.764-2.382zM4.447 8.342A1 1 0 003 9.236V15a1 1 0 00.553.894l4 2A1 1 0 009 17v-5.764a1 1 0 00-.553-.894l-4-2z" />
+            </svg>
+            Premium
+          </span>
+        </div>
+
+        <!-- Links -->
+        <div id="links" class="flex flex-col items-center mt-4 space-y-3 w-full animate__animated animate__fadeInUp">
+          <!-- User links inserted here -->
+        </div>
+      </div>
     </div>
-  </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="fixed bottom-0 left-0 right-0 py-3 bg-zinc-900/80 backdrop-blur-sm border-t border-red-900/50 text-center text-zinc-400 text-sm animate__animated animate__fadeInUp">
+    <div class="container mx-auto px-4">
+      <p>© 2023 BloodRage Network. All rights reserved.</p>
+    </div>
+  </footer>
 
   <!-- Profile Script -->
   <script type="module">
@@ -38,6 +118,9 @@
     const usernameSlug = window.location.pathname.replace('/', '').toLowerCase();
 
     async function loadProfile() {
+      // Simulate loading for demo purposes
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -49,31 +132,61 @@
 
       if (error || !data) {
         document.body.innerHTML = `
-          <div class="text-red-500 text-xl font-semibold">User not found.</div>`;
+          <div class="flex items-center justify-center min-h-screen">
+            <div class="text-center animate__animated animate__shakeX">
+              <div class="text-red-500 text-4xl mb-2">⚠️</div>
+              <h2 class="text-red-500 text-xl font-semibold">User not found</h2>
+              <p class="text-zinc-400 mt-2">The profile you're looking for doesn't exist</p>
+              <a href="/" class="mt-4 inline-block bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
+                Go Home
+              </a>
+            </div>
+          </div>`;
         return;
       }
 
-      // Show profile card
-      document.getElementById("profileCard").classList.remove("hidden");
+      // Show profile card with animation
+      const profileCard = document.getElementById("profileCard");
+      profileCard.classList.remove("hidden");
+      setTimeout(() => {
+        profileCard.classList.remove("opacity-0", "translate-y-10");
+        profileCard.classList.add("opacity-100", "translate-y-0");
+      }, 100);
 
       // Populate profile
       document.getElementById("username").textContent = '@' + data.username;
-      document.getElementById("avatar").src = data.avatar_url || 'https://via.placeholder.com/100';
+      document.getElementById("avatar").src = data.avatar_url || 'https://via.placeholder.com/150/111827/FFFFFF/?text=BR';
 
       if (data.bio) {
         const bio = document.getElementById("bio");
         bio.textContent = data.bio;
         bio.classList.remove("hidden");
+        bio.classList.add("animate__fadeIn");
       }
 
       if (data.links) {
+        const linksContainer = document.getElementById("links");
         for (const [label, url] of Object.entries(data.links)) {
           const a = document.createElement('a');
           a.href = url;
           a.target = '_blank';
           a.textContent = label;
-          a.className = 'bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg w-full text-center';
-          document.getElementById("links").appendChild(a);
+          a.className = 'bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg w-full text-center transition-all-slow hover-glow hover:translate-y-1 flex items-center justify-center gap-2';
+          
+          // Add icon based on link type
+          const icon = document.createElement('span');
+          if (url.includes('twitter.com') || url.includes('x.com')) {
+            icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>`;
+          } else if (url.includes('github.com')) {
+            icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>`;
+          } else if (url.includes('youtube.com')) {
+            icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>`;
+          } else {
+            icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>`;
+          }
+          
+          a.prepend(icon);
+          linksContainer.appendChild(a);
         }
       }
     }
