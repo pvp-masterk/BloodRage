@@ -5,50 +5,235 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BloodRage</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <script src="https://unpkg.com/scrollreveal@4.0.9/dist/scrollreveal.js"></script>
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
     const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
 
     window.onload = async () => {
+      // Initialize animations
+      initAnimations();
+      
+      // Check user auth
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        document.getElementById("authPopup").classList.remove("hidden");
+        setTimeout(() => {
+          document.getElementById("authPopup").classList.remove("hidden");
+          document.getElementById("authPopup").classList.add("animate__fadeIn");
+        }, 1000);
       } else {
-        window.location.href = "/create-account.html"; // already logged in
+        window.location.href = "/create-account.html";
       }
     };
 
     window.loginWithProvider = async (provider) => {
+      // Add button loading animation
+      const buttons = document.querySelectorAll(`button[onclick="loginWithProvider('${provider}')"]`);
+      buttons.forEach(btn => {
+        btn.innerHTML = `
+          <div class="flex items-center justify-center">
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Signing in...
+          </div>
+        `;
+        btn.disabled = true;
+      });
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
           redirectTo: location.origin + "/create-account.html",
         }
       });
-      if (error) alert("Error logging in");
+      
+      if (error) {
+        alert("Error logging in");
+        buttons.forEach(btn => {
+          btn.innerHTML = provider === 'google' 
+            ? '<img src="google-icon.svg" alt="Google" class="w-5 h-5 mr-2" /> Sign in with Google'
+            : '<img src="discord-icon.svg" alt="Discord" class="w-5 h-5 mr-2" /> Sign in with Discord';
+          btn.disabled = false;
+        });
+      }
     };
+
+    function initAnimations() {
+      // Initialize ScrollReveal
+      ScrollReveal().reveal('h1', {
+        delay: 200,
+        distance: '20px',
+        origin: 'top',
+        easing: 'ease-in-out',
+        duration: 800
+      });
+
+      ScrollReveal().reveal('p', {
+        delay: 400,
+        distance: '20px',
+        origin: 'bottom',
+        easing: 'ease-in-out',
+        duration: 800
+      });
+
+      // Blood droplet animation
+      createBloodDroplets();
+    }
+
+    function createBloodDroplets() {
+      const colors = ['#ef4444', '#dc2626', '#b91c1c', '#991b1b'];
+      const container = document.querySelector('main');
+      
+      for (let i = 0; i < 15; i++) {
+        const droplet = document.createElement('div');
+        droplet.className = 'absolute rounded-full opacity-70';
+        droplet.style.width = `${Math.random() * 10 + 5}px`;
+        droplet.style.height = `${Math.random() * 15 + 10}px`;
+        droplet.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        droplet.style.left = `${Math.random() * 100}%`;
+        droplet.style.top = `${Math.random() * 100}%`;
+        droplet.style.transform = 'rotate(45deg)';
+        droplet.style.animation = `fall ${Math.random() * 5 + 3}s linear infinite`;
+        droplet.style.animationDelay = `${Math.random() * 2}s`;
+        container.appendChild(droplet);
+      }
+    }
   </script>
+  <style>
+    @keyframes fall {
+      0% {
+        transform: translateY(-100vh) rotate(45deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.7;
+      }
+      90% {
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateY(100vh) rotate(45deg);
+        opacity: 0;
+      }
+    }
+    
+    .bg-pulse {
+      animation: pulse 6s infinite;
+    }
+    
+    @keyframes pulse {
+      0% {
+        background-color: rgba(0, 0, 0, 0.9);
+      }
+      50% {
+        background-color: rgba(20, 0, 0, 0.9);
+      }
+      100% {
+        background-color: rgba(0, 0, 0, 0.9);
+      }
+    }
+    
+    .btn-hover {
+      transition: all 0.3s ease;
+    }
+    
+    .btn-hover:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn-hover:active {
+      transform: translateY(1px);
+    }
+    
+    .popup-entrance {
+      animation: popupEntrance 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    
+    @keyframes popupEntrance {
+      0% {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+  </style>
 </head>
-<body class="bg-black text-white font-sans flex flex-col min-h-screen justify-between">
+<body class="bg-black text-white font-sans flex flex-col min-h-screen justify-between overflow-hidden bg-pulse">
+
+  <!-- Animated background elements -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 z-10"></div>
+    <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMSI+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIi8+PC9nPjwvc3ZnPg==');"></div>
+  </div>
 
   <!-- Landing page content -->
-  <main class="flex-1 flex flex-col items-center justify-center">
-    <h1 class="text-5xl font-bold text-red-500 mb-6">BloodRage</h1>
-    <p class="text-gray-300 mb-4">Create your identity</p>
+  <main class="flex-1 flex flex-col items-center justify-center relative z-20">
+    <div class="text-center px-4">
+      <h1 class="text-5xl md:text-7xl font-bold text-red-500 mb-6 animate__animated animate__fadeInDown">
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-800">Blood</span>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-900">Rage</span>
+      </h1>
+      <p class="text-gray-300 mb-8 text-lg md:text-xl max-w-md mx-auto animate__animated animate__fadeIn animate__delay-1s">
+        Inspired by guns.lol
+      </p>
+      
+      <div class="animate__animated animate__fadeInUp animate__delay-2s">
+        <button 
+          onclick="document.getElementById('authPopup').classList.remove('hidden'); document.getElementById('authPopup').classList.add('popup-entrance')" 
+          class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-red-900/50 mb-4"
+        >
+          Begin Your Journey
+        </button>
+        <p class="text-sm text-gray-500">The best of all</p>
+      </div>
+    </div>
+    
+    <!-- Animated decorative elements -->
+    <div class="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-black to-transparent z-10"></div>
   </main>
 
   <!-- Auth popup -->
-  <div id="authPopup" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
-    <div class="bg-zinc-900 p-6 rounded-2xl text-center space-y-4 w-80">
-      <h2 class="text-xl font-semibold">Sign in to continue</h2>
-      <button onclick="loginWithProvider('google')" class="flex items-center justify-center w-full bg-white text-black py-2 rounded-lg font-semibold">
-        <img src="google-icon.svg" alt="Google" class="w-5 h-5 mr-2" />
-        Sign in with Google
-      </button>
-      <button onclick="loginWithProvider('discord')" class="flex items-center justify-center w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold">
-        <img src="discord-icon.svg" alt="Discord" class="w-5 h-5 mr-2" />
-        Sign in with Discord
-      </button>
+  <div id="authPopup" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden backdrop-blur-sm">
+    <div class="bg-zinc-900 p-8 rounded-2xl text-center space-y-6 w-full max-w-sm border border-red-900/30 shadow-xl transform transition-all duration-300">
+      <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-700">Continue Your Path</h2>
+        <button 
+          onclick="document.getElementById('authPopup').classList.add('hidden')" 
+          class="text-gray-400 hover:text-white transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      
+      <p class="text-gray-400 mb-6">Choose your auth method</p>
+      
+      <div class="space-y-4">
+        <button 
+          onclick="loginWithProvider('google')" 
+          class="flex items-center justify-center w-full bg-white text-black py-3 rounded-lg font-semibold btn-hover hover:bg-gray-100 transition-all"
+        >
+          <img src="google-icon.svg" alt="Google" class="w-5 h-5 mr-2" />
+          Sign in with Google
+        </button>
+        <button 
+          onclick="loginWithProvider('discord')" 
+          class="flex items-center justify-center w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold btn-hover hover:bg-indigo-700 transition-all"
+        >
+          <img src="discord-icon.svg" alt="Discord" class="w-5 h-5 mr-2" />
+          Sign in with Discord
+        </button>
+      </div>
+      
+      <p class="text-xs text-gray-600 mt-6">By continuing, you agree to our <a href="#" class="text-red-500 hover:underline">Terms</a> and <a href="#" class="text-red-500 hover:underline">Privacy Policy</a></p>
     </div>
   </div>
 </body>
