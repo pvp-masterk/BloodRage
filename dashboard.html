@@ -1,18 +1,72 @@
-<body class="flex">
-  <!-- Sidebar -->
-  <aside class="w-64 bg-zinc-900 p-6">
-    <a href="#" onclick="loadPage('account.html')" class="block text-white">Account</a>
-    <a href="#" onclick="loadPage('customize.html')" class="block text-white">Customize</a>
-  </aside>
-
-  <!-- Content iframe -->
-  <main class="flex-1">
-    <iframe id="contentFrame" src="account.html" class="w-full h-screen border-none"></iframe>
-  </main>
-
-  <script>
-    function loadPage(page) {
-      document.getElementById('contentFrame').src = page;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BloodRage Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .active-link {
+      background-color: #b91c1c;
     }
+  </style>
+</head>
+<body class="bg-black text-white font-sans">
+
+  <div class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-zinc-900 p-6 space-y-4">
+      <h1 class="text-2xl font-bold text-red-500 mb-6">BloodRage</h1>
+      <nav class="space-y-3">
+        <a href="#" id="nav-account" class="block px-3 py-2 rounded active-link">Account</a>
+        <a href="customize.html" class="block px-3 py-2 rounded hover:bg-zinc-800">Customize</a>
+        <a href="links.html" class="block px-3 py-2 rounded hover:bg-zinc-800">Links</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8">
+      <h2 class="text-3xl font-bold text-red-500 mb-6">Account Info</h2>
+
+      <div id="loading" class="text-red-400 animate-pulse">Loading account data...</div>
+
+      <div id="account-info" class="hidden space-y-4">
+        <div><strong>User ID:</strong> <span id="user-id"></span></div>
+        <div><strong>Email:</strong> <span id="email"></span></div>
+        <div><strong>Provider:</strong> <span id="provider"></span></div>
+        <div><strong>Username:</strong> <span id="username"></span></div>
+        <div><strong>Account Created:</strong> <span id="created-at"></span></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Supabase Account Script -->
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+    const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      window.location.href = "/";
+    }
+
+    // Get profile
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    // Display
+    document.getElementById("user-id").textContent = user.id;
+    document.getElementById("email").textContent = user.email;
+    document.getElementById("provider").textContent = user.app_metadata?.provider || 'unknown';
+    document.getElementById("created-at").textContent = new Date(user.created_at).toLocaleString();
+    document.getElementById("username").textContent = profile?.username || 'Not set';
+
+    document.getElementById("loading").style.display = 'none';
+    document.getElementById("account-info").classList.remove("hidden");
   </script>
 </body>
+</html>
