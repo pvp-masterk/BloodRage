@@ -3,451 +3,807 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BloodRage</title>
+    <title>BloodRage | Unleash the Rage</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #ff2e2e;
-            --primary-dark: #d10000;
-            --primary-light: #ff5e5e;
-            --text: #ffffff;
-            --bg: #0a0a0a;
-            --card-bg: #1a1a1a;
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --primary: #ff0000;
+            --primary-dark: #cc0000;
+            --primary-light: #ff3333;
+            --primary-transparent: rgba(255, 0, 0, 0.2);
+            --dark: #0a0a0a;
+            --darker: #050505;
+            --dark-transparent: rgba(10, 10, 10, 0.8);
+            --light: #f0f0f0;
+            --gray: #333333;
+            --gray-light: #555555;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--darker);
+            color: var(--light);
             overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 25% 25%, rgba(255, 46, 46, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(255, 46, 46, 0.1) 0%, transparent 50%);
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        h1, h2, h3, h4, .logo, .cta, .nav-link {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .logo {
-            font-size: 4rem;
-            font-weight: 800;
-            margin-bottom: 2rem;
-            background: linear-gradient(45deg, var(--primary), var(--primary-light));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 0 20px rgba(255, 46, 46, 0.3);
-            animation: pulse 2s infinite alternate;
-        }
-
-        @keyframes pulse {
-            0% {
-                text-shadow: 0 0 20px rgba(255, 46, 46, 0.3);
-            }
-            100% {
-                text-shadow: 0 0 30px rgba(255, 46, 46, 0.6);
-            }
-        }
-
-        .tagline {
-            font-size: 1.2rem;
-            margin-bottom: 3rem;
-            opacity: 0.8;
-            text-align: center;
-            max-width: 600px;
-        }
-
-        .auth-card {
-            background-color: var(--card-bg);
-            border-radius: 1rem;
-            padding: 2rem;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            transition: var(--transition);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-        }
-
-        .auth-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .auth-title {
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            color: var(--primary-light);
-        }
-
-        .auth-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .auth-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.8rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            border: none;
-            color: white;
-            font-size: 1rem;
-        }
-
-        .auth-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .auth-btn i {
-            margin-right: 0.8rem;
-            font-size: 1.2rem;
-        }
-
-        .google-btn {
-            background-color: #4285F4;
-        }
-
-        .google-btn:hover {
-            background-color: #3367D6;
-        }
-
-        .discord-btn {
-            background-color: #5865F2;
-        }
-
-        .discord-btn:hover {
-            background-color: #4752C4;
-        }
-
-        .username-modal {
+        /* Header/Navbar */
+        header {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
+            padding: 1.5rem 5%;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
             z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            transition: var(--transition);
+            background-color: var(--dark-transparent);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--primary-transparent);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+            transition: all 0.3s ease;
         }
 
-        .username-modal.active {
-            opacity: 1;
-            pointer-events: all;
+        header.scrolled {
+            padding: 1rem 5%;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
         }
 
-        .username-card {
-            background-color: var(--card-bg);
-            border-radius: 1rem;
-            padding: 2rem;
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            transform: translateY(20px);
-            transition: var(--transition);
-        }
-
-        .username-modal.active .username-card {
-            transform: translateY(0);
-        }
-
-        .username-title {
+        .logo {
             font-size: 1.8rem;
-            margin-bottom: 1rem;
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 900;
+            text-shadow: 0 0 10px var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .logo span {
             color: var(--primary);
-            text-align: center;
         }
 
-        .username-subtitle {
-            margin-bottom: 2rem;
-            text-align: center;
-            opacity: 0.8;
+        .nav-links {
+            display: flex;
+            gap: 2rem;
         }
 
-        .username-form {
+        .nav-link {
+            color: var(--light);
+            text-decoration: none;
+            font-size: 1rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--light);
+            padding: 0.6rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px var(--primary-transparent);
+            text-decoration: none;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 25px var(--primary-transparent);
+        }
+
+        .cta-button:active {
+            transform: translateY(1px);
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .hamburger div {
+            width: 25px;
+            height: 3px;
+            background-color: var(--light);
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
-        }
-
-        .username-input {
-            padding: 1rem;
-            border-radius: 0.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background-color: rgba(0, 0, 0, 0.3);
-            color: white;
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-
-        .username-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(255, 46, 46, 0.3);
-        }
-
-        .username-submit {
-            padding: 1rem;
-            border-radius: 0.5rem;
-            background-color: var(--primary);
-            color: white;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 1rem;
-        }
-
-        .username-submit:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        .username-error {
-            color: var(--primary);
+            justify-content: center;
+            align-items: center;
             text-align: center;
-            margin-top: 0.5rem;
-            height: 1.2rem;
+            padding: 0 5%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent, var(--darker));
+            z-index: -1;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 20px var(--primary);
+            animation: glow 2s infinite alternate;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            margin-bottom: 3rem;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+        }
+
+        .hero-buttons .cta-button {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        .hero-buttons .cta-button.secondary {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .hero-buttons .cta-button.secondary:hover {
+            background: var(--primary-transparent);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 8rem 5%;
+            background-color: var(--dark);
+            position: relative;
+        }
+
+        .features::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="%23ff0000" opacity="0.03" d="M0,0 L100,0 L100,100 L0,100 Z"></path></svg>');
+            background-size: cover;
+            z-index: 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 5rem;
+            position: relative;
+        }
+
+        .section-title h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px var(--primary);
+        }
+
+        .section-title p {
+            font-size: 1.2rem;
+            color: var(--gray-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card {
+            background: rgba(20, 20, 20, 0.7);
+            border-radius: 15px;
+            padding: 2.5rem 2rem;
+            transition: all 0.5s ease;
+            border: 1px solid var(--gray);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            transform: translateY(50px);
+            opacity: 0;
+        }
+
+        .feature-card.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 30px var(--primary-transparent);
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--light);
+        }
+
+        .feature-card p {
+            color: var(--gray-light);
+            line-height: 1.6;
+        }
+
+        /* Dashboard Section */
+        .dashboard {
+            padding: 8rem 5%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .dashboard-mockup {
+            background: rgba(20, 20, 20, 0.7);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 50px var(--primary-transparent);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .dashboard-mockup::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, var(--primary-transparent), transparent 70%);
+            animation: rotate 20s linear infinite;
+            z-index: -1;
+        }
+
+        .mockup-placeholder {
+            width: 100%;
+            height: 500px;
+            background-color: var(--gray);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--gray-light);
+            font-size: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mockup-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, rgba(255, 0, 0, 0.1) 50%, transparent 100%);
+            animation: shine 3s infinite;
+        }
+
+        .ui-cards {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .ui-card {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            padding: 1rem;
+            width: 150px;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+            transition: all 0.5s ease;
+            opacity: 0;
+        }
+
+        .ui-card.visible {
+            opacity: 1;
+        }
+
+        .ui-card:nth-child(1) {
+            top: 10%;
+            left: -5%;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        .ui-card:nth-child(2) {
+            top: 30%;
+            right: -5%;
+            animation: float 8s infinite ease-in-out 1s;
+        }
+
+        .ui-card:nth-child(3) {
+            bottom: 20%;
+            left: -5%;
+            animation: float 7s infinite ease-in-out 0.5s;
+        }
+
+        .ui-card h4 {
+            color: var(--primary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .ui-card p {
+            font-size: 0.8rem;
+            color: var(--light);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            padding: 3rem 5%;
+            text-align: center;
+            border-top: 1px solid var(--gray);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .social-link {
+            color: var(--light);
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            color: var(--primary);
+            transform: translateY(-3px);
+            text-shadow: 0 0 10px var(--primary);
+        }
+
+        .copyright {
+            color: var(--gray-light);
             font-size: 0.9rem;
         }
 
-        .loading {
-            display: inline-block;
-            width: 1rem;
-            height: 1rem;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 0.5rem;
+        /* Animations */
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary-transparent);
+            }
+            to {
+                text-shadow: 0 0 20px var(--primary), 0 0 40px var(--primary-transparent), 0 0 60px var(--primary-transparent);
+            }
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
+        }
+
+        /* Particles */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background-color: var(--primary);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float infinite linear;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .hero h1 {
+                font-size: 3.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.2rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                position: absolute;
+                top: 0;
+                right: -100%;
+                height: 100vh;
+                width: 70%;
+                background-color: var(--dark);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                transition: right 0.5s ease;
+                border-left: 1px solid var(--primary-transparent);
+            }
+            
+            .nav-links.active {
+                right: 0;
+            }
+            
+            .hamburger {
+                display: block;
+            }
+            
+            .hamburger.active div:nth-child(1) {
+                transform: rotate(-45deg) translate(-5px, 6px);
+            }
+            
+            .hamburger.active div:nth-child(2) {
+                opacity: 0;
+            }
+            
+            .hamburger.active div:nth-child(3) {
+                transform: rotate(45deg) translate(-5px, -6px);
+            }
         }
 
         @media (max-width: 768px) {
-            .logo {
-                font-size: 3rem;
+            .hero h1 {
+                font-size: 2.5rem;
             }
             
-            .tagline {
-                font-size: 1rem;
+            .section-title h2 {
+                font-size: 2rem;
             }
             
-            .auth-card {
+            .feature-card {
                 padding: 1.5rem;
             }
         }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 1rem;
-            }
-            
-            .logo {
-                font-size: 2.5rem;
-                margin-bottom: 1.5rem;
-            }
-            
-            .tagline {
-                margin-bottom: 2rem;
-            }
-        }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <h1 class="logo">BloodRage V1.0</h1>
-        <p class="tagline">Claim your unique username and showcase your profile with a modern red theme</p>
-        
-        <div class="auth-card">
-            <h2 class="auth-title">Sign In</h2>
-            <div class="auth-buttons">
-                <button class="auth-btn google-btn" id="googleLogin">
-                    <i class="fab fa-google"></i> Continue with Google
-                </button>
-                <button class="auth-btn discord-btn" id="discordLogin">
-                    <i class="fab fa-discord"></i> Continue with Discord
-                </button>
+    <!-- Header/Navbar -->
+    <header id="header">
+        <a href="#" class="logo">Blood<span>Rage</span></a>
+        <div class="hamburger">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <nav class="nav-links">
+            <a href="#" class="nav-link">Home</a>
+            <a href="#features" class="nav-link">Features</a>
+            <a href="#dashboard" class="nav-link">Dashboard</a>
+            <a href="#" class="nav-link">About</a>
+            <a href="#" class="cta-button">Launch App</a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="particles" id="particles"></div>
+        <div class="hero-content">
+            <h1>Unleash the Rage</h1>
+            <p>BloodRage is your gateway to the underground utility layer.</p>
+            <div class="hero-buttons">
+                <a href="#" class="cta-button">Launch Now</a>
+                <a href="#" class="cta-button secondary">Join the Horde</a>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="username-modal" id="usernameModal">
-        <div class="username-card">
-            <h2 class="username-title">Claim Your Username</h2>
-            <p class="username-subtitle">This will be your unique identifier on guns.lol</p>
-            
-            <form class="username-form" id="usernameForm">
-                <input type="text" class="username-input" id="usernameInput" placeholder="coolusername" required minlength="3" maxlength="20" pattern="[a-zA-Z0-9_]+" title="Only letters, numbers, and underscores">
-                <button type="submit" class="username-submit" id="usernameSubmit">
-                    Claim Username
-                </button>
-                <div class="username-error" id="usernameError"></div>
-            </form>
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-title">
+            <h2>Rage Features</h2>
+            <p>Discover the power beneath the surface with BloodRage's cutting-edge technology</p>
         </div>
-    </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script>
-  const client = supabase.createClient(
-    'https://smcteblolwhfxcpngmvd.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s'
-  );
-        
-        // Check auth state
-        client.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_IN' && session?.user) {
-                await checkUsername(session.user.id);
-            }
-        });
-        
-        // Google login
-        document.getElementById('googleLogin').addEventListener('click', async () => {
-            const { error } = await client.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: window.location.origin + '/dashboard.html'
-                }
-            });
-            
-            if (error) {
-                console.error('Google login error:', error);
-                alert('Failed to login with Google');
-            }
-        });
-        
-        // Discord login
-        document.getElementById('discordLogin').addEventListener('click', async () => {
-            const { error } = await client.auth.signInWithOAuth({
-                provider: 'discord',
-                options: {
-                    redirectTo: window.location.origin + '/dashboard.html'
-                }
-            });
-            
-            if (error) {
-                console.error('Discord login error:', error);
-                alert('Failed to login with Discord');
-            }
-        });
-        
-        // Check if user has a username
-        async function checkUsername(userId) {
-            const { data, error } = await client
-                .from('profiles')
-                .select('username')
-                .eq('id', userId)
-                .single();
-            
-            if (error || !data?.username) {
-                // Show username modal
-                document.getElementById('usernameModal').classList.add('active');
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3>Lightning Fast</h3>
+                <p>Experience unprecedented speed with our optimized network layer that reduces latency to near zero.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Ironclad Security</h3>
+                <p>Military-grade encryption ensures your data remains private and protected at all times.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-network-wired"></i>
+                </div>
+                <h3>Decentralized Network</h3>
+                <p>Built on a distributed node system that guarantees 100% uptime and resistance to censorship.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Real-time Analytics</h3>
+                <p>Comprehensive dashboard with live metrics and customizable reporting tools.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <h3>Custom Integrations</h3>
+                <p>Seamlessly connect with your existing tools through our powerful API ecosystem.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>Community Driven</h3>
+                <p>Join a passionate community of developers and power users shaping the future.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section class="dashboard" id="dashboard">
+        <div class="section-title">
+            <h2>Command Center</h2>
+            <p>Take control with our intuitive yet powerful dashboard interface</p>
+        </div>
+        <div class="dashboard-container">
+            <div class="dashboard-mockup">
+                <div class="mockup-placeholder">
+                    BloodRage Dashboard Preview
+                    <div class="ui-cards">
+                        <div class="ui-card">
+                            <h4>Network Status</h4>
+                            <p>All systems operational</p>
+                        </div>
+                        <div class="ui-card">
+                            <h4>Live Metrics</h4>
+                            <p>24,543 active nodes</p>
+                        </div>
+                        <div class="ui-card">
+                            <h4>Alerts</h4>
+                            <p>No critical issues</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="social-links">
+            <a href="#" class="social-link"><i class="fab fa-discord"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-telegram"></i></a>
+        </div>
+        <p class="copyright">© 2025 BloodRage. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
             } else {
-                // Redirect to profile
-                window.location.href = `profile.html?username=${data.username}`;
+                header.classList.remove('scrolled');
             }
-        }
-        
-        // Username form submission
-        document.getElementById('usernameForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const usernameInput = document.getElementById('usernameInput');
-            const usernameSubmit = document.getElementById('usernameSubmit');
-            const usernameError = document.getElementById('usernameError');
-            
-            const username = usernameInput.value.trim();
-            
-            if (!username.match(/^[a-zA-Z0-9_]{3,20}$/)) {
-                usernameError.textContent = 'Username must be 3-20 characters (letters, numbers, _)';
-                return;
-            }
-            
-            usernameSubmit.disabled = true;
-            usernameSubmit.innerHTML = '<span class="loading"></span> Checking username...';
-            usernameError.textContent = '';
-            
-            // Check if username exists
-            const { data: usernameCheck, error: checkError } = await client
-                .from('profiles')
-                .select('username')
-                .eq('username', username)
-                .single();
-            
-            if (checkError || usernameCheck) {
-                usernameSubmit.disabled = false;
-                usernameSubmit.textContent = 'Claim Username';
-                usernameError.textContent = 'Username is already taken';
-                return;
-            }
-            
-            // Get current user
-            const { data: { user } } = await client.auth.getUser();
-            
-            if (!user) {
-                usernameSubmit.disabled = false;
-                usernameSubmit.textContent = 'Claim Username';
-                usernameError.textContent = 'User not authenticated';
-                return;
-            }
-            
-            // Update profile with username
-            const { error: updateError } = await client
-                .from('profiles')
-                .upsert({
-                    id: user.id,
-                    username: username,
-                    updated_at: new Date().toISOString()
-                });
-            
-            if (updateError) {
-                usernameSubmit.disabled = false;
-                usernameSubmit.textContent = 'Claim Username';
-                usernameError.textContent = 'Failed to save username';
-                console.error('Update error:', updateError);
-                return;
-            }
-            
-            // Success - redirect to profile
-            window.location.href = `profile.html?username=${username}`;
         });
-        
-        // Check if user is already logged in on page load
-        document.addEventListener('DOMContentLoaded', async () => {
-            const { data: { user } } = await client.auth.getUser();
+
+        // Hamburger menu
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+
+        hamburger.addEventListener('click', function() {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+
+        // Animate features on scroll
+        const featureCards = document.querySelectorAll('.feature-card');
+        const uiCards = document.querySelectorAll('.ui-card');
+
+        function checkVisibility() {
+            featureCards.forEach((card, index) => {
+                const cardPosition = card.getBoundingClientRect().top;
+                const screenPosition = window.innerHeight / 1.3;
+
+                if (cardPosition < screenPosition) {
+                    setTimeout(() => {
+                        card.classList.add('visible');
+                    }, index * 150);
+                }
+            });
+
+            uiCards.forEach((card, index) => {
+                const cardPosition = card.getBoundingClientRect().top;
+                const screenPosition = window.innerHeight / 1.3;
+
+                if (cardPosition < screenPosition) {
+                    setTimeout(() => {
+                        card.classList.add('visible');
+                    }, index * 300);
+                }
+            });
+        }
+
+        window.addEventListener('scroll', checkVisibility);
+        window.addEventListener('load', checkVisibility);
+
+        // Create particles
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = 50;
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
             
-            if (user) {
-                await checkUsername(user.id);
-            }
+            // Random size between 1px and 5px
+            const size = Math.random() * 4 + 1;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            
+            // Random position
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            
+            // Random animation duration and delay
+            const duration = Math.random() * 10 + 5;
+            const delay = Math.random() * 5;
+            particle.style.animation = `float ${duration}s infinite ease-in-out ${delay}s`;
+            
+            particlesContainer.appendChild(particle);
+        }
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
         });
     </script>
 </body>
