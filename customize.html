@@ -17,6 +17,25 @@
 </head>
 <body class="bg-black text-white font-sans p-8">
 
+  <!-- Sidebar -->
+<aside class="w-64 bg-zinc-900 p-6 border-r border-red-800 min-h-screen fixed left-0 top-0 pt-20 space-y-4">
+  <nav class="flex flex-col space-y-3 text-lg font-medium">
+    <a href="/dashboard.html" class="sidebar-link text-zinc-300 hover:text-white">Dashboard</a>
+    <a href="/account.html" class="sidebar-link text-zinc-300 hover:text-white">Account</a>
+    <a href="/customize.html" class="sidebar-link text-zinc-300 hover:text-white">Customize</a>
+  </nav>
+</aside>
+
+<script>
+  const path = window.location.pathname;
+  document.querySelectorAll(".sidebar-link").forEach(link => {
+    if (path.endsWith(link.getAttribute("href"))) {
+      link.classList.add("text-red-500", "font-semibold");
+    }
+  });
+</script>
+
+
   <h2 class="text-3xl font-bold text-red-500 mb-6">Customize Your Profile</h2>
 
   <!-- Avatar Preview -->
