@@ -5,74 +5,64 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Customize Profile - BloodRage</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    #upload-status {
-      animation: pulse 1s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 0.5; }
-      50% { opacity: 1; }
-    }
-  </style>
 </head>
-<body class="bg-black text-white font-sans p-8">
+<body class="bg-black text-white font-sans">
 
-  <!-- Sidebar -->
-<aside class="w-64 bg-zinc-900 p-6 border-r border-red-800 min-h-screen fixed left-0 top-0 pt-20 space-y-4">
-  <nav class="flex flex-col space-y-3 text-lg font-medium">
-    <a href="/dashboard.html" class="sidebar-link text-zinc-300 hover:text-white">Dashboard</a>
-    <a href="/account.html" class="sidebar-link text-zinc-300 hover:text-white">Account</a>
-    <a href="/customize.html" class="sidebar-link text-zinc-300 hover:text-white">Customize</a>
-  </nav>
-</aside>
+  <div class="flex min-h-screen">
 
-<script>
-  const path = window.location.pathname;
-  document.querySelectorAll(".sidebar-link").forEach(link => {
-    if (path.endsWith(link.getAttribute("href"))) {
-      link.classList.add("text-red-500", "font-semibold");
-    }
-  });
-</script>
+    <!-- Sidebar -->
+    <aside class="w-64 bg-zinc-900 p-6 space-y-4">
+      <h1 class="text-2xl font-bold text-red-500 mb-6">BloodRage</h1>
+      <nav class="space-y-3">
+        <a href="/dashboard/account.html" class="block px-3 py-2 rounded hover:bg-zinc-800">Account</a>
+        <a href="/dashboard/customize.html" class="block px-3 py-2 rounded bg-red-700">Customize</a>
+        <a href="/dashboard/links.html" class="block px-3 py-2 rounded hover:bg-zinc-800">Links</a>
+      </nav>
+    </aside>
 
+    <!-- Main Content -->
+    <main class="flex-1 p-8">
 
-  <h2 class="text-3xl font-bold text-red-500 mb-6">Customize Your Profile</h2>
+      <h2 class="text-3xl font-bold text-red-500 mb-6">Customize Your Profile</h2>
 
-  <!-- Avatar Preview -->
-  <div class="relative w-32 h-32 mb-6">
-    <img id="avatar-preview" src="" alt="Avatar"
-         class="w-full h-full object-cover rounded-full border-4 border-red-600">
-    <label for="avatar-upload" class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 transition cursor-pointer">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6-6m2 2l-6 6M5 13l4 4L20 6" />
-      </svg>
-      <input id="avatar-upload" type="file" accept="image/*" class="hidden">
-    </label>
+      <!-- Avatar Upload -->
+      <div class="relative w-32 h-32 mb-6">
+        <img id="avatar-preview" src="" alt="Avatar"
+             class="w-full h-full object-cover rounded-full border-4 border-red-600">
+        <label for="avatar-upload" class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 transition cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6-6m2 2l-6 6M5 13l4 4L20 6" />
+          </svg>
+          <input id="avatar-upload" type="file" accept="image/*" class="hidden">
+        </label>
+      </div>
+
+      <!-- Uploading -->
+      <div id="upload-status" class="text-sm text-red-400 hidden mb-4">Uploading avatar...</div>
+
+      <!-- Form -->
+      <form id="profileForm" class="space-y-4 max-w-xl">
+        <textarea id="bio" placeholder="Bio" class="w-full px-4 py-2 rounded bg-zinc-800 text-white" rows="2"></textarea>
+        <textarea id="links" placeholder='Links as JSON e.g. {"Twitter":"https://x.com/you"}'
+          class="w-full px-4 py-2 rounded bg-zinc-800 text-white h-32"></textarea>
+        <button type="submit" class="bg-red-600 hover:bg-red-700 w-full py-2 rounded font-semibold">Save Profile</button>
+      </form>
+      <p id="saved" class="text-green-400 mt-4 hidden">Profile saved!</p>
+    </main>
   </div>
 
-  <!-- Uploading bar -->
-  <div id="upload-status" class="text-sm text-red-400 hidden mb-4">Uploading avatar...</div>
-
-  <form id="profileForm" class="space-y-4 max-w-xl">
-    <textarea id="bio" placeholder="Bio" class="w-full px-4 py-2 rounded bg-zinc-800 text-white" rows="2"></textarea>
-    <textarea id="links" placeholder='Links as JSON e.g. {"Twitter":"https://x.com/you"}'
-      class="w-full px-4 py-2 rounded bg-zinc-800 text-white h-32"></textarea>
-    <button type="submit" class="bg-red-600 hover:bg-red-700 w-full py-2 rounded font-semibold">Save Profile</button>
-  </form>
-  <p id="saved" class="text-green-400 mt-4 hidden">Profile saved!</p>
-
+  <!-- Supabase Script -->
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-    // 🔴 Replace with your actual Supabase project URL and anon key
     const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
 
     const userRes = await supabase.auth.getUser();
     const user = userRes.data.user;
 
     if (!user) {
-      alert("You must be logged in to view this page.");
-      window.location.href = "/"; // redirect to login or landing
+      alert("You must be logged in.");
+      window.location.href = "/";
     }
 
     const id = user.id;
@@ -86,21 +76,18 @@
     document.getElementById("bio").value = profile?.bio || '';
     document.getElementById("links").value = JSON.stringify(profile?.links || {}, null, 2);
 
-    // Avatar Upload Handler
-    const avatarUpload = document.getElementById("avatar-upload");
-
-    avatarUpload.addEventListener("change", async (e) => {
+    document.getElementById("avatar-upload").addEventListener("change", async (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
       uploadStatus.classList.remove("hidden");
 
-      const fileExt = file.name.split('.').pop();
-      const filePath = `avatars/${id}-${Date.now()}.${fileExt}`;
+      const ext = file.name.split('.').pop();
+      const path = `avatars/${id}-${Date.now()}.${ext}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file, { upsert: true });
+        .upload(path, file, { upsert: true });
 
       if (uploadError) {
         alert("Upload failed.");
@@ -108,41 +95,27 @@
         return;
       }
 
-      const { data: urlData } = supabase
-        .storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-
+      const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
       const avatarUrl = urlData.publicUrl;
 
-      // Update avatar in profile
       await supabase.from("profiles").update({ avatar_url: avatarUrl }).eq("id", id);
-
       avatarPreview.src = avatarUrl;
       uploadStatus.classList.add("hidden");
     });
 
-    // Save Profile Handler
     document.getElementById("profileForm").onsubmit = async (e) => {
       e.preventDefault();
-
       const bio = document.getElementById("bio").value;
       let links = {};
       try {
         links = JSON.parse(document.getElementById("links").value);
       } catch (err) {
-        alert("Invalid JSON in links field.");
+        alert("Invalid JSON in links.");
         return;
       }
 
-      const { error } = await supabase
-        .from("profiles")
-        .update({ bio, links })
-        .eq("id", id);
-
-      if (!error) {
-        document.getElementById("saved").classList.remove("hidden");
-      }
+      const { error } = await supabase.from("profiles").update({ bio, links }).eq("id", id);
+      if (!error) document.getElementById("saved").classList.remove("hidden");
     };
   </script>
 </body>
