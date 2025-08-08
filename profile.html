@@ -136,7 +136,7 @@ if (!username) {
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
-      .eq('username', username.toLowerCase())
+      .eq('username', username)
       .single();
 
     // Hide loading state
