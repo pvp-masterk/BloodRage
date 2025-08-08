@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customize Profile - BloodRage</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white font-sans">
+
+ <!-- Sidebar -->
+<aside class="w-64 bg-zinc-900 p-6 border-r border-red-800 min-h-screen fixed left-0 top-0 pt-20 space-y-4">
+  <nav class="flex flex-col space-y-3 text-lg font-medium">
+    <a href="/dashboard.html" class="sidebar-link text-zinc-300 hover:text-white">Dashboard</a>
+    <a href="/account.html" class="sidebar-link text-zinc-300 hover:text-white">Account</a>
+    <a href="/customize.html" class="sidebar-link text-zinc-300 hover:text-white">Customize</a>
+  </nav>
+</aside>
+
+<script>
+  const path = window.location.pathname;
+  document.querySelectorAll(".sidebar-link").forEach(link => {
+    if (path.endsWith(link.getAttribute("href"))) {
+      link.classList.add("text-red-500", "font-semibold");
+    }
+  });
+</script>
+
+
+  <!-- Main Content -->
+  <div class="ml-64 p-10 pt-20 max-w-xl">
+    <h2 class="text-3xl font-bold text-red-500 mb-6">Customize Your Profile</h2>
+    <form id="profileForm" class="space-y-4">
+      <input id="bio" type="text" placeholder="Bio" class="w-full px-4 py-2 rounded bg-zinc-800 text-white">
+      <input id="avatar_url" type="text" placeholder="Avatar URL" class="w-full px-4 py-2 rounded bg-zinc-800 text-white">
+      <textarea id="links" placeholder='Links as JSON e.g. {"Twitter":"https://t.co"}'
+        class="w-full px-4 py-2 rounded bg-zinc-800 text-white h-32"></textarea>
+      <button type="submit" class="bg-red-600 hover:bg-red-700 w-full py-2 rounded font-semibold">Save</button>
+    </form>
+    <p id="saved" class="text-green-400 mt-4 hidden">Profile saved!</p>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+    const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
+
+    const user = await supabase.auth.getUser();
+    const id = user.data.user.id;
+
+    // Load profile
+    const { data } = await supabase.from("profiles").select("*").eq("id", id).single();
+    document.getElementById("bio").value = data.bio || '';
+    document.getElementById("avatar_url").value = data.avatar_url || '';
+    document.getElementById("links").value = JSON.stringify(data.links || {}, null, 2);
+
+    document.getElementById("profileForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const bio = document.getElementById("bio").value;
+      const avatar_url = document.getElementById("avatar_url").value;
+      const links = JSON.parse(document.getElementById("links").value);
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({ bio, avatar_url, links })
+        .eq("id", id);
+
+      if (!error) document.getElementById("saved").classList.remove("hidden");
+    };
+  </script>
+</body>
+</html>
