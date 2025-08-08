@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BloodRage</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+    const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
+
+    window.onload = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        document.getElementById("authPopup").classList.remove("hidden");
+      } else {
+        window.location.href = "/create-account.html"; // already logged in
+      }
+    };
+
+    window.loginWithProvider = async (provider) => {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: location.origin + "/create-account.html",
+        }
+      });
+      if (error) alert("Error logging in");
+    };
+  </script>
+</head>
+<body class="bg-black text-white font-sans flex flex-col min-h-screen justify-between">
+
+  <!-- Landing page content -->
+  <main class="flex-1 flex flex-col items-center justify-center">
+    <h1 class="text-5xl font-bold text-red-500 mb-6">BloodRage</h1>
+    <p class="text-gray-300 mb-4">Create your identity</p>
+  </main>
+
+  <!-- Auth popup -->
+  <div id="authPopup" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="bg-zinc-900 p-6 rounded-2xl text-center space-y-4 w-80">
+      <h2 class="text-xl font-semibold">Sign in to continue</h2>
+      <button onclick="loginWithProvider('google')" class="flex items-center justify-center w-full bg-white text-black py-2 rounded-lg font-semibold">
+        <img src="google-icon.svg" alt="Google" class="w-5 h-5 mr-2" />
+        Sign in with Google
+      </button>
+      <button onclick="loginWithProvider('discord')" class="flex items-center justify-center w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold">
+        <img src="discord-icon.svg" alt="Discord" class="w-5 h-5 mr-2" />
+        Sign in with Discord
+      </button>
+    </div>
+  </div>
+</body>
+</html>
