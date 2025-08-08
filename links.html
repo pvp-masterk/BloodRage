@@ -5,42 +5,143 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Manage Links - BloodRage</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- ✅ Include this inside <head> -->
-<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <style>
+    .app-icon {
+      transition: all 0.3s ease;
+      transform-style: preserve-3d;
+    }
+    
+    .app-icon:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.3);
+    }
+    
+    .app-icon.has-link {
+      position: relative;
+    }
+    
+    .app-icon.has-link::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 10px;
+      height: 10px;
+      background-color: #ef4444;
+      border-radius: 50%;
+      transform: translate(-30%, 30%);
+    }
+    
+    .sidebar-link {
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .sidebar-link::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 2px;
+      background-color: #ef4444;
+      transition: width 0.3s ease;
+    }
+    
+    .sidebar-link:hover::after {
+      width: 100%;
+    }
+    
+    .active-link {
+      background-color: rgba(239, 68, 68, 0.2);
+    }
+    
+    .active-link::after {
+      width: 100%;
+    }
+    
+    .modal-content {
+      animation: modalFadeIn 0.3s ease-out;
+    }
+    
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .saving-notification {
+      animation: slideIn 0.3s ease-out, slideOut 0.3s ease-out 2s forwards;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    @keyframes slideOut {
+      from { transform: translateY(0); opacity: 1; }
+      to { transform: translateY(20px); opacity: 0; }
+    }
+  </style>
 </head>
 <body class="bg-black text-white font-sans">
 
   <div class="flex min-h-screen">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-zinc-900 p-6 space-y-4">
-      <h1 class="text-2xl font-bold text-red-500 mb-6">BloodRage</h1>
+    <aside class="w-64 bg-zinc-900 p-6 space-y-4 border-r border-zinc-800">
+      <h1 class="text-2xl font-bold text-red-500 mb-6 animate__animated animate__fadeInLeft">BloodRage</h1>
       <nav class="space-y-3">
-        <a href="dashboard.html" class="block px-3 py-2 rounded hover:bg-zinc-800">Account</a>
-        <a href="customize.html" class="block px-3 py-2 rounded hover:bg-zinc-800">Customize</a>
-        <a href="links.html" class="block px-3 py-2 rounded bg-red-700">Links</a>
+        <a href="dashboard.html" class="block px-3 py-2 rounded sidebar-link animate__animated animate__fadeInLeft animate__delay-1s">Account</a>
+        <a href="customize.html" class="block px-3 py-2 rounded sidebar-link animate__animated animate__fadeInLeft animate__delay-1s">Customize</a>
+        <a href="links.html" class="block px-3 py-2 rounded sidebar-link active-link animate__animated animate__fadeInLeft animate__delay-1s">Links</a>
       </nav>
     </aside>
 
     <!-- Main Content -->
     <main class="flex-1 p-8">
-      <h2 class="text-3xl font-bold text-red-500 mb-6">Manage Profile Links</h2>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="app-icons">
+      <h2 class="text-3xl font-bold text-red-500 mb-6 animate__animated animate__fadeIn">Manage Profile Links</h2>
+      
+      <div class="mb-6 animate__animated animate__fadeIn animate__delay-1s">
+        <p class="text-zinc-400">Add links to your social profiles below. Click on an icon to add or edit a link.</p>
+      </div>
+      
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 animate__animated animate__fadeIn animate__delay-1s" id="app-icons">
         <!-- App icons rendered here -->
       </div>
 
-      <div id="saving" class="mt-6 text-green-400 hidden">Link saved!</div>
+      <div id="saving" class="mt-6 bg-green-900/50 text-green-400 px-4 py-3 rounded-lg hidden saving-notification flex items-center space-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+        </svg>
+        <span>Link saved successfully!</span>
+      </div>
     </main>
   </div>
 
   <!-- Link Modal -->
   <div id="modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center hidden z-50">
-    <div class="bg-zinc-900 p-6 rounded-lg max-w-sm w-full">
-      <h3 class="text-xl font-bold mb-4 text-red-500" id="modalTitle">Enter your link</h3>
-      <input id="linkInput" type="text" class="w-full p-2 rounded bg-zinc-800 text-white mb-4" placeholder="https://..." />
-      <div class="flex justify-end space-x-2">
-        <button onclick="closeModal()" class="bg-zinc-700 hover:bg-zinc-600 px-4 py-2 rounded">Cancel</button>
-        <button onclick="saveLink()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">Save</button>
+    <div class="bg-zinc-900 p-6 rounded-lg max-w-sm w-full border border-zinc-800 modal-content">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold text-red-500" id="modalTitle">Enter your link</h3>
+        <button onclick="closeModal()" class="text-zinc-400 hover:text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <input id="linkInput" type="text" class="w-full p-3 rounded-lg bg-zinc-800 text-white mb-4 border border-zinc-700 focus:border-red-500 focus:ring-1 focus:ring-red-500 transition" placeholder="https://..." />
+      <div class="flex justify-end space-x-3">
+        <button onclick="closeModal()" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg transition">Cancel</button>
+        <button onclick="saveLink()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition flex items-center space-x-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+          <span>Save</span>
+        </button>
       </div>
     </div>
   </div>
@@ -50,66 +151,120 @@
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
     const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
 
-   const apps = [
-  { name: "Discord", icon: "bxl-discord", base: "https://discord.gg/" },
-  { name: "X", icon: "bxl-twitter", base: "https://x.com/" },
-  { name: "YouTube", icon: "bxl-youtube", base: "https://youtube.com/" },
-  { name: "GitHub", icon: "bxl-github", base: "https://github.com/" }
-];
+    const apps = [
+      { name: "Discord", icon: "bxl-discord-alt", base: "https://discord.gg/" },
+      { name: "X", icon: "bxl-twitter", base: "https://x.com/" },
+      { name: "YouTube", icon: "bxl-youtube", base: "https://youtube.com/" },
+      { name: "GitHub", icon: "bxl-github", base: "https://github.com/" },
+      { name: "Twitch", icon: "bxl-twitch", base: "https://twitch.tv/" },
+      { name: "Instagram", icon: "bxl-instagram", base: "https://instagram.com/" },
+      { name: "Steam", icon: "bxl-steam", base: "https://steamcommunity.com/id/" },
+      { name: "Spotify", icon: "bxl-spotify", base: "https://open.spotify.com/user/" }
+    ];
 
     let selectedApp = null;
     let profile = null;
-    const user = (await supabase.auth.getUser()).data.user;
-    if (!user) window.location.href = '/';
 
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
-    profile = data;
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) window.location.href = '/';
 
-    if (!user) {
-  console.error("No Supabase user found.");
-  window.location.href = '/';
-}
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+      profile = data;
 
-console.log("Logged in as:", user.email);
-console.log("Profile data:", profile);
+      const appIconsDiv = document.getElementById("app-icons");
 
+      apps.forEach((app, index) => {
+        const btn = document.createElement("button");
+        btn.className = `flex flex-col items-center p-6 bg-zinc-800 rounded-xl hover:bg-zinc-700 transition app-icon animate__animated animate__fadeIn`;
+        btn.style.animationDelay = `${index * 0.1}s`;
+        
+        const icon = document.createElement("i");
+        icon.className = `bx ${app.icon} text-3xl mb-2`;
+        
+        const label = document.createElement("span");
+        label.className = "text-sm";
+        label.innerText = app.name;
 
-    const appIconsDiv = document.getElementById("app-icons");
+        // Check if user already has this link set
+        const link = profile?.links?.[app.name];
+        if (link) {
+          btn.classList.add("has-link", "border", "border-red-500/30");
+          btn.title = `Current: ${link}`;
+          btn.onclick = () => window.open(link, "_blank");
+        } else {
+          btn.onclick = () => openModal(app);
+        }
 
-    apps.forEach(app => {
-      const btn = document.createElement("button");
-      btn.className = "flex flex-col items-center p-4 bg-zinc-800 rounded hover:bg-zinc-700 transition";
-      btn.onclick = () => openModal(app);
-
-      const icon = document.createElement("box-icon");
-      icon.setAttribute("type", "logo");
-      icon.setAttribute("name", app.icon.split('-')[1]);
-      icon.setAttribute("color", "white");
-      icon.setAttribute("size", "lg");
-
-      const label = document.createElement("span");
-      label.className = "mt-2 text-sm";
-      label.innerText = app.name;
-
-      // Check if user already has this link set
-      const link = profile?.links?.[app.name];
-      if (link) {
-        btn.classList.add("border", "border-red-500");
-        btn.title = `Current: ${link}`;
-        btn.onclick = () => window.open(link, "_blank");
-      } else {
-        btn.onclick = () => openModal(app);
-      }
-
-      btn.appendChild(icon);
-      btn.appendChild(label);
-      appIconsDiv.appendChild(btn);
+        btn.appendChild(icon);
+        btn.appendChild(label);
+        appIconsDiv.appendChild(btn);
+      });
     });
 
     window.openModal = function (app) {
       selectedApp = app;
-      document.getElementById("modalTitle").innerText = `Your ${app.name} username or U
+      const modal = document.getElementById("modal");
+      modal.classList.remove("hidden");
+      document.getElementById("modalTitle").innerText = `Your ${app.name} link`;
+      document.getElementById("linkInput").value = app.base;
+      document.getElementById("linkInput").focus();
+    };
+
+    window.closeModal = function () {
+      document.getElementById("modal").classList.add("hidden");
+    };
+
+    window.saveLink = async function () {
+      const linkInput = document.getElementById("linkInput");
+      const link = linkInput.value.trim();
+      
+      if (!link) return;
+      
+      const savingBtn = document.querySelector('#modal button[onclick="saveLink()"]');
+      savingBtn.disabled = true;
+      savingBtn.innerHTML = `
+        <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Saving...
+      `;
+      
+      // Update links object
+      const links = profile.links || {};
+      links[selectedApp.name] = link;
+      
+      const { error } = await supabase
+        .from("profiles")
+        .update({ links })
+        .eq("id", profile.id);
+      
+      savingBtn.disabled = false;
+      savingBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+        </svg>
+        <span>Save</span>
+      `;
+      
+      if (!error) {
+        closeModal();
+        
+        // Show success message
+        const savingMsg = document.getElementById("saving");
+        savingMsg.classList.remove("hidden");
+        
+        // Reload the icons to show the new link
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      }
+    };
+  </script>
+</body>
+</html>
