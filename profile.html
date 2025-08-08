@@ -6,35 +6,35 @@
   <title>BloodRage Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-black text-white font-sans">
+<body class="bg-black text-white font-sans flex items-center justify-center min-h-screen p-4">
 
-  <main class="flex flex-col items-center justify-center min-h-screen p-6">
-    <!-- Avatar -->
-    <img id="avatar" src="" alt="Avatar" class="w-28 h-28 rounded-full border-4 border-red-600 shadow-xl mb-4"/>
+  <!-- Loading State -->
+  <div id="loading" class="text-red-500 text-xl animate-pulse">Loading profile...</div>
 
-    <!-- Username -->
-    <h1 id="username" class="text-3xl font-bold text-red-500">@username</h1>
+  <!-- Profile Card (hidden initially) -->
+  <div id="profileCard" class="hidden bg-zinc-900 rounded-xl p-8 w-full max-w-md shadow-2xl text-center border border-red-700">
+    <img id="avatar" src="" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-red-600 mx-auto shadow-lg mb-4"/>
 
-    <!-- Bio (conditionally hidden if empty) -->
-    <p id="bio" class="text-center text-zinc-300 mt-2 max-w-md hidden"></p>
+    <h1 id="username" class="text-2xl font-bold text-red-500">@username</h1>
+
+    <p id="bio" class="text-zinc-300 mt-2 mb-4 hidden"></p>
 
     <!-- Badges -->
-    <div id="badges" class="flex gap-2 mt-4">
-      <!-- Example static badge -->
+    <div id="badges" class="flex gap-2 justify-center mb-4">
       <span class="bg-red-700 px-3 py-1 rounded-full text-xs">🔥 Verified</span>
     </div>
 
     <!-- Links -->
-    <div id="links" class="flex flex-col items-center mt-6 space-y-3 w-full max-w-xs">
-      <!-- Dynamically inserted user links -->
+    <div id="links" class="flex flex-col items-center mt-4 space-y-3 w-full">
+      <!-- User links inserted here -->
     </div>
-  </main>
+  </div>
 
+  <!-- Profile Script -->
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-    const supabase = createClient('https://smcteblolwhfxcpngmvd.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s');
-
+    const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
     const usernameSlug = window.location.pathname.replace('/', '').toLowerCase();
 
     async function loadProfile() {
@@ -44,33 +44,38 @@
         .eq('username', usernameSlug)
         .single();
 
+      // Remove loading text
+      document.getElementById("loading").remove();
+
       if (error || !data) {
-        document.body.innerHTML = '<p class="text-center text-red-500 mt-20 text-lg">User not found.</p>';
+        document.body.innerHTML = `
+          <div class="text-red-500 text-xl font-semibold">User not found.</div>`;
         return;
       }
 
-      // Set avatar, username, bio
+      // Show profile card
+      document.getElementById("profileCard").classList.remove("hidden");
+
+      // Populate profile
+      document.getElementById("username").textContent = '@' + data.username;
       document.getElementById("avatar").src = data.avatar_url || 'https://via.placeholder.com/100';
-      document.getElementById("username").textContent = "@" + data.username;
 
       if (data.bio) {
-        document.getElementById("bio").textContent = data.bio;
-        document.getElementById("bio").classList.remove("hidden");
+        const bio = document.getElementById("bio");
+        bio.textContent = data.bio;
+        bio.classList.remove("hidden");
       }
 
-      // Populate links
       if (data.links) {
-        Object.entries(data.links).forEach(([label, url]) => {
-          const link = document.createElement("a");
-          link.href = url;
-          link.target = "_blank";
-          link.textContent = label;
-          link.className = "bg-red-600 text-white w-full text-center px-4 py-2 rounded-lg hover:bg-red-700";
-          document.getElementById("links").appendChild(link);
-        });
+        for (const [label, url] of Object.entries(data.links)) {
+          const a = document.createElement('a');
+          a.href = url;
+          a.target = '_blank';
+          a.textContent = label;
+          a.className = 'bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg w-full text-center';
+          document.getElementById("links").appendChild(a);
+        }
       }
-
-      // TODO: Render badges if dynamic
     }
 
     loadProfile();
