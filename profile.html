@@ -122,10 +122,9 @@
   const username = urlParams.get('user');
 
   // If no username parameter, redirect to home
-  if (!username) {
-    window.location.href = '/';
-    return;
-  }
+if (!username) {
+  window.location.href = '/';
+} else {
 
   async function loadProfile() {
     // Show loading state
