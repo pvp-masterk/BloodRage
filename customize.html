@@ -1259,9 +1259,11 @@ async function setupAssetUploads() {
       progressInner.style.width = "100%";
 
       // update UI placeholder for audio
+            // update UI placeholder for audio
       const audioBtn = document.getElementById("audioManagerBtn");
+      const audioExt = currentProfile.audio_url ? getFileExtFromUrl(currentProfile.audio_url) : '';
       audioBtn.innerHTML = `
-        <div class="upload-preview" title="${currentProfile.audio_url ? getFileExtFromUrl(currentProfile.audio_url) : ''}">
+        <div class="upload-preview" title="${audioExt}">
           <div class="flex items-center justify-center h-full">
             <i class="fas fa-music text-2xl text-zinc-400 mr-3"></i>
             <div class="text-left">
@@ -1269,10 +1271,10 @@ async function setupAssetUploads() {
               <div class="text-xs text-zinc-400">${currentProfile.audio_artist || ''}</div>
             </div>
           </div>
-          <div class="file-badge">${currentProfile.audio_url ? getFileExtFromUrl(currentProfile.audio_url) : ''}</div>
+          ${currentProfile.audio_url ? `<div class="file-badge">${audioExt}</div>` : ''}
         </div>`;
       const tooltip = audioBtn.parentElement.querySelector('.ext-tooltip');
-      if (tooltip && currentProfile.audio_url) tooltip.textContent = getFileExtFromUrl(currentProfile.audio_url);
+      if (tooltip) tooltip.textContent = audioExt;
 
       // close modal after short delay so user sees 100%
       setTimeout(() => {
