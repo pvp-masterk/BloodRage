@@ -424,10 +424,11 @@ async function saveChanges() {
     
     if (Object.keys(updates).length > 0) {
       // Show loading state
-      const saveBtn = document.getElementById('saveBtn');
-      const originalText = saveBtn.innerHTML;
-      saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-      saveBtn.disabled = true;
+      const saveBtnFinal = document.getElementById('saveBtn');
+if (saveBtnFinal) {
+  saveBtnFinal.innerHTML = 'Save Changes';
+  saveBtnFinal.disabled = false;
+}
       
       const { error } = await supabase.from("profiles").update(updates).eq("id", currentProfile.id);
       
