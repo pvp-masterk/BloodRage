@@ -7,8 +7,38 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <style>
+    .upload-preview {
+      position: relative;
+      display: inline-block;
+    }
+    .remove-btn {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: #dc2626;
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 2px solid white;
+    }
+  </style>
 </head>
 <body class="bg-black text-white font-sans">
+
+<!-- Save Changes Notification -->
+<div id="saveNotification" class="fixed top-4 right-4 bg-zinc-800 border border-zinc-700 text-white px-4 py-3 rounded-lg shadow-lg hidden animate__animated animate__fadeIn z-50">
+  <div class="flex items-center space-x-2">
+    <span>You have unsaved changes!</span>
+    <button id="resetBtn" class="px-3 py-1 bg-zinc-700 hover:bg-zinc-600 rounded">Reset</button>
+    <button id="saveBtn" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded">Save Changes</button>
+  </div>
+</div>
 
 <div class="flex min-h-screen">
   <!-- Sidebar -->
@@ -23,15 +53,6 @@
 
   <!-- Main Content -->
   <main class="flex-1 p-8 space-y-8">
-    <!-- Save Changes Notification -->
-    <div id="saveNotification" class="fixed top-4 right-4 bg-zinc-800 border border-zinc-700 text-white px-4 py-3 rounded-lg shadow-lg hidden animate__animated animate__fadeIn">
-      <div class="flex items-center space-x-2">
-        <span>You have unsaved changes!</span>
-        <button id="resetBtn" class="px-3 py-1 bg-zinc-700 hover:bg-zinc-600 rounded">Reset</button>
-        <button id="saveBtn" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded">Save Changes</button>
-      </div>
-    </div>
-
     <h2 class="text-3xl font-bold text-red-500 mb-6">Customize Your Profile</h2>
 
     <!-- Profile Preview -->
@@ -48,34 +69,6 @@
       <textarea id="bioInput" class="mt-2 p-2 w-full rounded bg-zinc-800 border border-zinc-700 text-white" rows="2" placeholder="Write your bio..."></textarea>
     </div>
 
-    <!-- Toggles -->
-    <div class="space-y-4">
-      <label class="flex items-center space-x-3">
-        <input type="checkbox" id="gradientToggle" class="w-5 h-5 text-red-600 rounded"/>
-        <span>Enable Gradient</span>
-      </label>
-      <label class="flex items-center space-x-3">
-        <input type="checkbox" id="discordAvatarToggle" class="w-5 h-5 text-red-600 rounded"/>
-        <span>Use Discord Avatar</span>
-      </label>
-      <label class="flex items-center space-x-3">
-        <input type="checkbox" id="enterButtonToggle" class="w-5 h-5 text-red-600 rounded"/>
-        <span>Enter Button</span>
-      </label>
-    </div>
-
-    <!-- Gradient Pickers -->
-    <div id="gradientPickers" class="space-y-4 mt-6">
-      <div>
-        <label>Primary Color</label>
-        <input type="color" id="primaryColor" class="ml-2" value="#991b1b"/>
-      </div>
-      <div>
-        <label>Secondary Color</label>
-        <input type="color" id="secondaryColor" class="ml-2" value="#1e1b4b"/>
-      </div>
-    </div>
-
     <!-- Asset Uploader Section -->
     <div class="mt-8 border-t border-zinc-800 pt-8">
       <h3 class="text-2xl font-bold text-red-500 mb-6">Assets Uploader</h3>
@@ -86,9 +79,19 @@
         <div class="flex flex-wrap gap-4">
           <div class="flex-1 min-w-[200px] bg-zinc-800 rounded-lg p-4">
             <h5 class="text-sm font-medium text-zinc-300 mb-2">Image</h5>
-            <div class="relative group">
-              <img id="backgroundPreview" src="" class="w-full h-32 object-cover rounded-lg mb-2" style="display: none;"/>
-              <label for="backgroundUpload" class="block w-full h-32 bg-zinc-700/50 rounded-lg border-2 border-dashed border-zinc-600 flex items-center justify-center cursor-pointer hover:border-red-500 transition-colors">
+            <div class="relative">
+              <!-- Preview Container -->
+              <div id="backgroundPreviewContainer" class="mb-2 hidden">
+                <div class="upload-preview">
+                  <img id="backgroundPreview" src="" class="w-full h-32 object-cover rounded-lg"/>
+                  <div id="removeBackground" class="remove-btn">
+                    <i class="fas fa-times text-xs"></i>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Upload Area -->
+              <label for="backgroundUpload" id="backgroundUploadLabel" class="block w-full h-32 bg-zinc-700/50 rounded-lg border-2 border-dashed border-zinc-600 flex items-center justify-center cursor-pointer hover:border-red-500 transition-colors">
                 <div class="text-center">
                   <i class="fas fa-image text-2xl text-zinc-400 mb-1"></i>
                   <p class="text-sm text-zinc-400">Click to upload background</p>
@@ -96,44 +99,8 @@
               </label>
               <input type="file" id="backgroundUpload" class="hidden" accept="image/*"/>
             </div>
-            <button id="removeBackground" class="mt-2 px-3 py-1 text-sm bg-red-600 hover:bg-red-700 rounded hidden">Remove Background</button>
-          </div>
-          
-          <div class="flex-1 min-w-[200px] bg-zinc-800 rounded-lg p-4">
-            <h5 class="text-sm font-medium text-zinc-300 mb-2">Audio</h5>
-            <div class="relative group">
-              <audio id="audioPreview" controls class="w-full mb-2 hidden"></audio>
-              <label for="audioUpload" class="block w-full h-32 bg-zinc-700/50 rounded-lg border-2 border-dashed border-zinc-600 flex items-center justify-center cursor-pointer hover:border-red-500 transition-colors">
-                <div class="text-center">
-                  <i class="fas fa-music text-2xl text-zinc-400 mb-1"></i>
-                  <p class="text-sm text-zinc-400">Click to upload audio</p>
-                  <p class="text-xs text-zinc-500 mt-1">MP3, WAV</p>
-                </div>
-              </label>
-              <input type="file" id="audioUpload" class="hidden" accept="audio/*"/>
-            </div>
-            <button id="removeAudio" class="mt-2 px-3 py-1 text-sm bg-red-600 hover:bg-red-700 rounded hidden">Remove Audio</button>
           </div>
         </div>
-      </div>
-      
-      <!-- Custom Cursor -->
-      <div class="bg-zinc-900 rounded-lg p-4">
-        <h4 class="text-lg font-semibold mb-3">Custom Cursor</h4>
-        <div class="relative group">
-          <img id="cursorPreview" src="" class="w-16 h-16 object-contain mb-2" style="display: none;"/>
-          <label for="cursorUpload" class="block w-full bg-zinc-800 rounded-lg border-2 border-dashed border-zinc-600 p-4 cursor-pointer hover:border-red-500 transition-colors">
-            <div class="flex items-center space-x-3">
-              <i class="fas fa-arrow-pointer text-2xl text-zinc-400"></i>
-              <div>
-                <p class="text-sm text-zinc-300">Click to upload a custom cursor</p>
-                <p class="text-xs text-zinc-500">PNG, WEBP (32x32 recommended)</p>
-              </div>
-            </div>
-          </label>
-          <input type="file" id="cursorUpload" class="hidden" accept="image/*"/>
-        </div>
-        <button id="removeCursor" class="mt-2 px-3 py-1 text-sm bg-red-600 hover:bg-red-700 rounded hidden">Remove Cursor</button>
       </div>
     </div>
   </main>
@@ -158,14 +125,9 @@ function debounce(fn, delay) {
 }
 
 async function uploadFile(bucket, path, file) {
-  // Get the current session
   const { data: { session } } = await supabase.auth.getSession();
-  
-  if (!session) {
-    throw new Error("Not authenticated");
-  }
+  if (!session) throw new Error("Not authenticated");
 
-  // Upload the file with the proper authentication headers
   const { data: uploadData, error } = await supabase.storage
     .from(bucket)
     .upload(path, file, {
@@ -181,12 +143,8 @@ async function uploadFile(bucket, path, file) {
 }
 
 async function deleteFile(bucket, path) {
-  // Get the current session
   const { data: { session } } = await supabase.auth.getSession();
-  
-  if (!session) {
-    throw new Error("Not authenticated");
-  }
+  if (!session) throw new Error("Not authenticated");
 
   const { error } = await supabase.storage.from(bucket).remove([path]);
   if (error) throw error;
@@ -216,7 +174,16 @@ async function saveChanges() {
     }
     
     if (Object.keys(updates).length > 0) {
-      await supabase.from("profiles").update(updates).eq("id", currentProfile.id);
+      // Show loading state
+      const saveBtn = document.getElementById('saveBtn');
+      const originalText = saveBtn.innerHTML;
+      saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+      saveBtn.disabled = true;
+      
+      const { error } = await supabase.from("profiles").update(updates).eq("id", currentProfile.id);
+      
+      if (error) throw error;
+      
       originalProfile = JSON.parse(JSON.stringify(currentProfile));
       hideSaveNotification();
       
@@ -235,6 +202,10 @@ async function saveChanges() {
     setTimeout(() => {
       notification.innerHTML = '<div class="flex items-center space-x-2"><span>You have unsaved changes!</span><button id="resetBtn" class="px-3 py-1 bg-zinc-700 hover:bg-zinc-600 rounded">Reset</button><button id="saveBtn" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded">Save Changes</button></div>';
     }, 2000);
+  } finally {
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.innerHTML = 'Save Changes';
+    saveBtn.disabled = false;
   }
 }
 
@@ -245,11 +216,6 @@ async function resetChanges() {
   
   // Update UI with original values
   document.getElementById("bioInput").value = profile.bio || "";
-  document.getElementById("gradientToggle").checked = !!profile.gradient_enabled;
-  document.getElementById("discordAvatarToggle").checked = !!profile.use_discord_avatar;
-  document.getElementById("enterButtonToggle").checked = !!profile.show_enter_button;
-  document.getElementById("primaryColor").value = profile.primary_color || "#991b1b";
-  document.getElementById("secondaryColor").value = profile.secondary_color || "#1e1b4b";
   
   // Update preview
   document.getElementById("profile-preview").style.background = `linear-gradient(to right, ${profile.primary_color || "#991b1b"}, ${profile.secondary_color || "#1e1b4b"})`;
@@ -258,11 +224,25 @@ async function resetChanges() {
   currentProfile = JSON.parse(JSON.stringify(profile));
   originalProfile = JSON.parse(JSON.stringify(profile));
   hideSaveNotification();
+  
+  // Reset background image
+  if (profile.background_url) {
+    document.getElementById("backgroundPreview").src = profile.background_url;
+    document.getElementById("backgroundPreviewContainer").classList.remove("hidden");
+    document.getElementById("backgroundUploadLabel").classList.add("hidden");
+  } else {
+    document.getElementById("backgroundPreviewContainer").classList.add("hidden");
+    document.getElementById("backgroundUploadLabel").classList.remove("hidden");
+  }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const user = (await supabase.auth.getUser()).data.user;
-  if (!user) window.location.href = '/';
+  // Check authentication
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    window.location.href = '/';
+    return;
+  }
 
   let { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
   if (!profile) return;
@@ -275,27 +255,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById("username").textContent = profile.username;
   document.getElementById("bioInput").value = profile.bio || "";
   document.getElementById("avatar").src = profile.avatar_url || "https://via.placeholder.com/100";
-  document.getElementById("gradientToggle").checked = !!profile.gradient_enabled;
-  document.getElementById("discordAvatarToggle").checked = !!profile.use_discord_avatar;
-  document.getElementById("enterButtonToggle").checked = !!profile.show_enter_button;
-  document.getElementById("primaryColor").value = profile.primary_color || "#991b1b";
-  document.getElementById("secondaryColor").value = profile.secondary_color || "#1e1b4b";
+  document.getElementById("profile-preview").style.background = `linear-gradient(to right, ${profile.primary_color || "#991b1b"}, ${profile.secondary_color || "#1e1b4b"})`;
 
-  // Load assets if they exist
+  // Load background if exists
   if (profile.background_url) {
     document.getElementById("backgroundPreview").src = profile.background_url;
-    document.getElementById("backgroundPreview").style.display = "block";
-    document.getElementById("removeBackground").classList.remove("hidden");
-  }
-  if (profile.audio_url) {
-    document.getElementById("audioPreview").src = profile.audio_url;
-    document.getElementById("audioPreview").style.display = "block";
-    document.getElementById("removeAudio").classList.remove("hidden");
-  }
-  if (profile.cursor_url) {
-    document.getElementById("cursorPreview").src = profile.cursor_url;
-    document.getElementById("cursorPreview").style.display = "block";
-    document.getElementById("removeCursor").classList.remove("hidden");
+    document.getElementById("backgroundPreviewContainer").classList.remove("hidden");
+    document.getElementById("backgroundUploadLabel").classList.add("hidden");
   }
 
   // Set up event listeners for save/reset
@@ -308,56 +274,42 @@ document.addEventListener('DOMContentLoaded', async () => {
     showSaveNotification();
   }, 500));
 
-  // Live avatar upload
-  document.getElementById("avatarUpload").addEventListener("change", async (e) => {
+  // Background upload
+  document.getElementById("backgroundUpload").addEventListener("change", async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    
     try {
-      const filePath = `avatars/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
-      const { data: uploadData, error } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
-      if (!error) {
-        const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
-        document.getElementById("avatar").src = urlData.publicUrl;
-        currentProfile.avatar_url = urlData.publicUrl;
-        showSaveNotification();
-      }
+      // Show loading state
+      const uploadLabel = document.getElementById("backgroundUploadLabel");
+      uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin text-2xl mb-1"></i><p class="text-sm">Uploading...</p></div>';
+      
+      const filePath = `backgrounds/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
+      const publicUrl = await uploadFile("backgrounds", filePath, file);
+      
+      // Update UI
+      document.getElementById("backgroundPreview").src = publicUrl;
+      document.getElementById("backgroundPreviewContainer").classList.remove("hidden");
+      uploadLabel.classList.add("hidden");
+      
+      // Reset upload label
+      uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-image text-2xl text-zinc-400 mb-1"></i><p class="text-sm text-zinc-400">Click to upload background</p></div>';
+      
+      // Update profile and show save button
+      currentProfile.background_url = publicUrl;
+      showSaveNotification();
     } catch (error) {
-      console.error("Error uploading avatar:", error);
+      console.error("Error uploading background:", error);
+      // Show error state
+      const uploadLabel = document.getElementById("backgroundUploadLabel");
+      uploadLabel.innerHTML = '<div class="text-center text-red-400"><i class="fas fa-exclamation-circle text-2xl mb-1"></i><p class="text-sm">Upload failed</p></div>';
+      
+      // Reset after 2 seconds
+      setTimeout(() => {
+        uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-image text-2xl text-zinc-400 mb-1"></i><p class="text-sm text-zinc-400">Click to upload background</p></div>';
+      }, 2000);
     }
   });
-
-  // Background upload
-  // Background upload
-document.getElementById("backgroundUpload").addEventListener("change", async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  
-  try {
-    // Show loading state
-    const uploadLabel = document.querySelector('label[for="backgroundUpload"]');
-    uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin text-2xl mb-1"></i><p class="text-sm">Uploading...</p></div>';
-    
-    const filePath = `backgrounds/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
-    const publicUrl = await uploadFile("backgrounds", filePath, file);
-    
-    document.getElementById("backgroundPreview").src = publicUrl;
-    document.getElementById("backgroundPreview").style.display = "block";
-    document.getElementById("removeBackground").classList.remove("hidden");
-    
-    currentProfile.background_url = publicUrl;
-    showSaveNotification();
-  } catch (error) {
-    console.error("Error uploading background:", error);
-    // Show error state
-    const uploadLabel = document.querySelector('label[for="backgroundUpload"]');
-    uploadLabel.innerHTML = '<div class="text-center text-red-400"><i class="fas fa-exclamation-circle text-2xl mb-1"></i><p class="text-sm">Upload failed</p></div>';
-    
-    // Reset after 2 seconds
-    setTimeout(() => {
-      uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-image text-2xl text-zinc-400 mb-1"></i><p class="text-sm text-zinc-400">Click to upload background</p></div>';
-    }, 2000);
-  }
-});
 
   // Remove background
   document.getElementById("removeBackground").addEventListener("click", async () => {
@@ -367,9 +319,11 @@ document.getElementById("backgroundUpload").addEventListener("change", async (e)
         await deleteFile("backgrounds", path);
       }
       
-      document.getElementById("backgroundPreview").style.display = "none";
-      document.getElementById("removeBackground").classList.add("hidden");
+      // Update UI
+      document.getElementById("backgroundPreviewContainer").classList.add("hidden");
+      document.getElementById("backgroundUploadLabel").classList.remove("hidden");
       
+      // Update profile and show save button
       currentProfile.background_url = null;
       showSaveNotification();
     } catch (error) {
@@ -377,105 +331,21 @@ document.getElementById("backgroundUpload").addEventListener("change", async (e)
     }
   });
 
-  // Audio upload
-  document.getElementById("audioUpload").addEventListener("change", async (e) => {
+  // Live avatar upload
+  document.getElementById("avatarUpload").addEventListener("change", async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     try {
-      const filePath = `audio/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
-      const publicUrl = await uploadFile("audio", filePath, file);
+      const filePath = `avatars/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
+      const publicUrl = await uploadFile("avatars", filePath, file);
       
-      document.getElementById("audioPreview").src = publicUrl;
-      document.getElementById("audioPreview").style.display = "block";
-      document.getElementById("removeAudio").classList.remove("hidden");
-      
-      currentProfile.audio_url = publicUrl;
+      document.getElementById("avatar").src = publicUrl;
+      currentProfile.avatar_url = publicUrl;
       showSaveNotification();
     } catch (error) {
-      console.error("Error uploading audio:", error);
+      console.error("Error uploading avatar:", error);
     }
   });
-
-  // Remove audio
-  document.getElementById("removeAudio").addEventListener("click", async () => {
-    try {
-      if (currentProfile.audio_url) {
-        const path = currentProfile.audio_url.split('/').pop();
-        await deleteFile("audio", path);
-      }
-      
-      document.getElementById("audioPreview").style.display = "none";
-      document.getElementById("removeAudio").classList.add("hidden");
-      
-      currentProfile.audio_url = null;
-      showSaveNotification();
-    } catch (error) {
-      console.error("Error removing audio:", error);
-    }
-  });
-
-  // Cursor upload
-  document.getElementById("cursorUpload").addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    try {
-      const filePath = `cursors/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
-      const publicUrl = await uploadFile("cursors", filePath, file);
-      
-      document.getElementById("cursorPreview").src = publicUrl;
-      document.getElementById("cursorPreview").style.display = "block";
-      document.getElementById("removeCursor").classList.remove("hidden");
-      
-      currentProfile.cursor_url = publicUrl;
-      showSaveNotification();
-    } catch (error) {
-      console.error("Error uploading cursor:", error);
-    }
-  });
-
-  // Remove cursor
-  document.getElementById("removeCursor").addEventListener("click", async () => {
-    try {
-      if (currentProfile.cursor_url) {
-        const path = currentProfile.cursor_url.split('/').pop();
-        await deleteFile("cursors", path);
-      }
-      
-      document.getElementById("cursorPreview").style.display = "none";
-      document.getElementById("removeCursor").classList.add("hidden");
-      
-      currentProfile.cursor_url = null;
-      showSaveNotification();
-    } catch (error) {
-      console.error("Error removing cursor:", error);
-    }
-  });
-
-  // Toggles live update
-  const toggleFields = {
-    gradientToggle: "gradient_enabled",
-    discordAvatarToggle: "use_discord_avatar",
-    enterButtonToggle: "show_enter_button"
-  };
-  for (let [id, field] of Object.entries(toggleFields)) {
-    document.getElementById(id).addEventListener("change", (e) => {
-      currentProfile[field] = e.target.checked;
-      showSaveNotification();
-    });
-  }
-
-  // Gradient pickers live update
-  const colorInputs = ["primaryColor", "secondaryColor"];
-  for (let id of colorInputs) {
-    document.getElementById(id).addEventListener("input", () => {
-      const primary = document.getElementById("primaryColor").value;
-      const secondary = document.getElementById("secondaryColor").value;
-      document.getElementById("profile-preview").style.background = `linear-gradient(to right, ${primary}, ${secondary})`;
-      currentProfile.primary_color = primary;
-      currentProfile.secondary_color = secondary;
-      showSaveNotification();
-    });
-  }
 });
 </script>
 </body>
