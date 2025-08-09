@@ -6,6 +6,7 @@
   <title>Customize - BloodRage</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 </head>
 <body class="bg-black text-white font-sans">
 
@@ -22,6 +23,15 @@
 
   <!-- Main Content -->
   <main class="flex-1 p-8 space-y-8">
+    <!-- Save Changes Notification -->
+    <div id="saveNotification" class="fixed top-4 right-4 bg-zinc-800 border border-zinc-700 text-white px-4 py-3 rounded-lg shadow-lg hidden animate__animated animate__fadeIn">
+      <div class="flex items-center space-x-2">
+        <span>You have unsaved changes!</span>
+        <button id="resetBtn" class="px-3 py-1 bg-zinc-700 hover:bg-zinc-600 rounded">Reset</button>
+        <button id="saveBtn" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded">Save Changes</button>
+      </div>
+    </div>
+
     <h2 class="text-3xl font-bold text-red-500 mb-6">Customize Your Profile</h2>
 
     <!-- Profile Preview -->
@@ -58,11 +68,11 @@
     <div id="gradientPickers" class="space-y-4 mt-6">
       <div>
         <label>Primary Color</label>
-        <input type="color" id="primaryColor" class="ml-2"/>
+        <input type="color" id="primaryColor" class="ml-2" value="#991b1b"/>
       </div>
       <div>
         <label>Secondary Color</label>
-        <input type="color" id="secondaryColor" class="ml-2"/>
+        <input type="color" id="secondaryColor" class="ml-2" value="#1e1b4b"/>
       </div>
     </div>
 
@@ -86,7 +96,7 @@
               </label>
               <input type="file" id="backgroundUpload" class="hidden" accept="image/*"/>
             </div>
-            <button id="removeBackground" class="mt-2 text-sm text-red-500 hover:text-red-400 hidden">Remove Background</button>
+            <button id="removeBackground" class="mt-2 px-3 py-1 text-sm bg-red-600 hover:bg-red-700 rounded hidden">Remove Background</button>
           </div>
           
           <div class="flex-1 min-w-[200px] bg-zinc-800 rounded-lg p-4">
@@ -102,7 +112,7 @@
               </label>
               <input type="file" id="audioUpload" class="hidden" accept="audio/*"/>
             </div>
-            <button id="removeAudio" class="mt-2 text-sm text-red-500 hover:text-red-400 hidden">Remove Audio</button>
+            <button id="removeAudio" class="mt-2 px-3 py-1 text-sm bg-red-600 hover:bg-red-700 rounded hidden">Remove Audio</button>
           </div>
         </div>
       </div>
@@ -123,7 +133,7 @@
           </label>
           <input type="file" id="cursorUpload" class="hidden" accept="image/*"/>
         </div>
-        <button id="removeCursor" class="mt-2 text-sm text-red-500 hover:text-red-400 hidden">Remove Cursor</button>
+        <button id="removeCursor" class="mt-2 px-3 py-1 text-sm bg-red-600 hover:bg-red-700 rounded hidden">Remove Cursor</button>
       </div>
     </div>
   </main>
@@ -133,6 +143,11 @@
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
+
+// Track changes
+let hasChanges = false;
+let originalProfile = {};
+let currentProfile = {};
 
 function debounce(fn, delay) {
   let t;
@@ -154,12 +169,84 @@ async function deleteFile(bucket, path) {
   if (error) throw error;
 }
 
+function showSaveNotification() {
+  if (!hasChanges) {
+    hasChanges = true;
+    document.getElementById('saveNotification').classList.remove('hidden');
+  }
+}
+
+function hideSaveNotification() {
+  hasChanges = false;
+  document.getElementById('saveNotification').classList.add('hidden');
+}
+
+async function saveChanges() {
+  try {
+    const updates = {};
+    
+    // Check which fields have changed
+    for (const key in currentProfile) {
+      if (JSON.stringify(currentProfile[key]) !== JSON.stringify(originalProfile[key])) {
+        updates[key] = currentProfile[key];
+      }
+    }
+    
+    if (Object.keys(updates).length > 0) {
+      await supabase.from("profiles").update(updates).eq("id", currentProfile.id);
+      originalProfile = JSON.parse(JSON.stringify(currentProfile));
+      hideSaveNotification();
+      
+      // Show success message
+      const notification = document.getElementById('saveNotification');
+      notification.innerHTML = '<div class="flex items-center space-x-2 text-green-400"><i class="fas fa-check-circle"></i><span>Changes saved successfully!</span></div>';
+      setTimeout(() => {
+        notification.classList.add('hidden');
+        notification.innerHTML = '<div class="flex items-center space-x-2"><span>You have unsaved changes!</span><button id="resetBtn" class="px-3 py-1 bg-zinc-700 hover:bg-zinc-600 rounded">Reset</button><button id="saveBtn" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded">Save Changes</button></div>';
+      }, 2000);
+    }
+  } catch (error) {
+    console.error("Error saving changes:", error);
+    const notification = document.getElementById('saveNotification');
+    notification.innerHTML = '<div class="flex items-center space-x-2 text-red-400"><i class="fas fa-exclamation-circle"></i><span>Error saving changes!</span></div>';
+    setTimeout(() => {
+      notification.innerHTML = '<div class="flex items-center space-x-2"><span>You have unsaved changes!</span><button id="resetBtn" class="px-3 py-1 bg-zinc-700 hover:bg-zinc-600 rounded">Reset</button><button id="saveBtn" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded">Save Changes</button></div>';
+    }, 2000);
+  }
+}
+
+async function resetChanges() {
+  // Reload the original profile
+  const { data: profile } = await supabase.from("profiles").select("*").eq("id", currentProfile.id).single();
+  if (!profile) return;
+  
+  // Update UI with original values
+  document.getElementById("bioInput").value = profile.bio || "";
+  document.getElementById("gradientToggle").checked = !!profile.gradient_enabled;
+  document.getElementById("discordAvatarToggle").checked = !!profile.use_discord_avatar;
+  document.getElementById("enterButtonToggle").checked = !!profile.show_enter_button;
+  document.getElementById("primaryColor").value = profile.primary_color || "#991b1b";
+  document.getElementById("secondaryColor").value = profile.secondary_color || "#1e1b4b";
+  
+  // Update preview
+  document.getElementById("profile-preview").style.background = `linear-gradient(to right, ${profile.primary_color || "#991b1b"}, ${profile.secondary_color || "#1e1b4b"})`;
+  
+  // Update current profile
+  currentProfile = JSON.parse(JSON.stringify(profile));
+  originalProfile = JSON.parse(JSON.stringify(profile));
+  hideSaveNotification();
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   const user = (await supabase.auth.getUser()).data.user;
   if (!user) window.location.href = '/';
 
   let { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
   if (!profile) return;
+
+  // Store original profile
+  originalProfile = JSON.parse(JSON.stringify(profile));
+  currentProfile = JSON.parse(JSON.stringify(profile));
 
   // Populate UI
   document.getElementById("username").textContent = profile.username;
@@ -188,21 +275,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById("removeCursor").classList.remove("hidden");
   }
 
+  // Set up event listeners for save/reset
+  document.getElementById('saveBtn').addEventListener('click', saveChanges);
+  document.getElementById('resetBtn').addEventListener('click', resetChanges);
+
   // Live bio update
   document.getElementById("bioInput").addEventListener("input", debounce(async (e) => {
-    await supabase.from("profiles").update({ bio: e.target.value }).eq("id", user.id);
+    currentProfile.bio = e.target.value;
+    showSaveNotification();
   }, 500));
 
   // Live avatar upload
   document.getElementById("avatarUpload").addEventListener("change", async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const filePath = `avatars/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
-    const { data: uploadData, error } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
-    if (!error) {
-      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
-      document.getElementById("avatar").src = urlData.publicUrl;
-      await supabase.from("profiles").update({ avatar_url: urlData.publicUrl }).eq("id", user.id);
+    try {
+      const filePath = `avatars/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
+      const { data: uploadData, error } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
+      if (!error) {
+        const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
+        document.getElementById("avatar").src = urlData.publicUrl;
+        currentProfile.avatar_url = urlData.publicUrl;
+        showSaveNotification();
+      }
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
     }
   });
 
@@ -218,7 +315,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById("backgroundPreview").style.display = "block";
       document.getElementById("removeBackground").classList.remove("hidden");
       
-      await supabase.from("profiles").update({ background_url: publicUrl }).eq("id", user.id);
+      currentProfile.background_url = publicUrl;
+      showSaveNotification();
     } catch (error) {
       console.error("Error uploading background:", error);
     }
@@ -227,14 +325,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Remove background
   document.getElementById("removeBackground").addEventListener("click", async () => {
     try {
-      const path = profile.background_url.split('/').pop();
-      await deleteFile("backgrounds", path);
+      if (currentProfile.background_url) {
+        const path = currentProfile.background_url.split('/').pop();
+        await deleteFile("backgrounds", path);
+      }
       
       document.getElementById("backgroundPreview").style.display = "none";
       document.getElementById("removeBackground").classList.add("hidden");
       
-      await supabase.from("profiles").update({ background_url: null }).eq("id", user.id);
-      profile.background_url = null;
+      currentProfile.background_url = null;
+      showSaveNotification();
     } catch (error) {
       console.error("Error removing background:", error);
     }
@@ -252,7 +352,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById("audioPreview").style.display = "block";
       document.getElementById("removeAudio").classList.remove("hidden");
       
-      await supabase.from("profiles").update({ audio_url: publicUrl }).eq("id", user.id);
+      currentProfile.audio_url = publicUrl;
+      showSaveNotification();
     } catch (error) {
       console.error("Error uploading audio:", error);
     }
@@ -261,14 +362,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Remove audio
   document.getElementById("removeAudio").addEventListener("click", async () => {
     try {
-      const path = profile.audio_url.split('/').pop();
-      await deleteFile("audio", path);
+      if (currentProfile.audio_url) {
+        const path = currentProfile.audio_url.split('/').pop();
+        await deleteFile("audio", path);
+      }
       
       document.getElementById("audioPreview").style.display = "none";
       document.getElementById("removeAudio").classList.add("hidden");
       
-      await supabase.from("profiles").update({ audio_url: null }).eq("id", user.id);
-      profile.audio_url = null;
+      currentProfile.audio_url = null;
+      showSaveNotification();
     } catch (error) {
       console.error("Error removing audio:", error);
     }
@@ -286,7 +389,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById("cursorPreview").style.display = "block";
       document.getElementById("removeCursor").classList.remove("hidden");
       
-      await supabase.from("profiles").update({ cursor_url: publicUrl }).eq("id", user.id);
+      currentProfile.cursor_url = publicUrl;
+      showSaveNotification();
     } catch (error) {
       console.error("Error uploading cursor:", error);
     }
@@ -295,14 +399,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Remove cursor
   document.getElementById("removeCursor").addEventListener("click", async () => {
     try {
-      const path = profile.cursor_url.split('/').pop();
-      await deleteFile("cursors", path);
+      if (currentProfile.cursor_url) {
+        const path = currentProfile.cursor_url.split('/').pop();
+        await deleteFile("cursors", path);
+      }
       
       document.getElementById("cursorPreview").style.display = "none";
       document.getElementById("removeCursor").classList.add("hidden");
       
-      await supabase.from("profiles").update({ cursor_url: null }).eq("id", user.id);
-      profile.cursor_url = null;
+      currentProfile.cursor_url = null;
+      showSaveNotification();
     } catch (error) {
       console.error("Error removing cursor:", error);
     }
@@ -315,22 +421,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     enterButtonToggle: "show_enter_button"
   };
   for (let [id, field] of Object.entries(toggleFields)) {
-    document.getElementById(id).addEventListener("change", async (e) => {
-      await supabase.from("profiles").update({ [field]: e.target.checked }).eq("id", user.id);
+    document.getElementById(id).addEventListener("change", (e) => {
+      currentProfile[field] = e.target.checked;
+      showSaveNotification();
     });
   }
 
   // Gradient pickers live update
   const colorInputs = ["primaryColor", "secondaryColor"];
   for (let id of colorInputs) {
-    document.getElementById(id).addEventListener("input", async () => {
+    document.getElementById(id).addEventListener("input", () => {
       const primary = document.getElementById("primaryColor").value;
       const secondary = document.getElementById("secondaryColor").value;
       document.getElementById("profile-preview").style.background = `linear-gradient(to right, ${primary}, ${secondary})`;
-      await supabase.from("profiles").update({
-        primary_color: primary,
-        secondary_color: secondary
-      }).eq("id", user.id);
+      currentProfile.primary_color = primary;
+      currentProfile.secondary_color = secondary;
+      showSaveNotification();
     });
   }
 });
