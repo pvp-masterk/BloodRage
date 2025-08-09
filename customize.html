@@ -238,6 +238,19 @@
           </div>
         </div>
       </div>
+      <!-- Add this to your HTML, perhaps in the Assets Uploader section -->
+<div class="bg-zinc-900 rounded-lg p-4 mb-6">
+  <h4 class="text-lg font-semibold mb-3">Avatar</h4>
+  <div class="flex items-center space-x-4">
+    <div class="upload-preview">
+      <img id="avatarPreview" src="" class="w-24 h-24 rounded-full object-cover"/>
+    </div>
+    <label for="avatarUpload" class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg cursor-pointer">
+      <i class="fas fa-upload mr-2"></i>Upload Avatar
+    </label>
+    <input type="file" id="avatarUpload" class="hidden" accept="image/*"/>
+  </div>
+</div>
     </div>
   </main>
 </div>
