@@ -11,61 +11,34 @@
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     .floating { animation: float 4s ease-in-out infinite; }
     .glow-red { text-shadow: 0 0 8px rgba(239, 68, 68, 0.7); }
-    .transition-all-slow { transition: all 0.5s ease; }
-    .transition-transform { transition: transform 0.3s ease; }
-    .hover-scale:hover { transform: scale(1.03); }
-    .hover-glow:hover { box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
-    .pulse-slow { animation: pulse 3s infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
-    .bg-gradient-dark { background: linear-gradient(135deg, #111827 0%, #1f2937 100%); }
   </style>
 </head>
-<body class="bg-black text-white font-sans min-h-screen p-4 relative overflow-x-hidden">
+<body class="bg-black text-white font-sans min-h-screen flex items-center justify-center">
 
-  <!-- Header -->
-  <header class="fixed top-0 left-0 right-0 bg-zinc-900/80 backdrop-blur-sm z-50 border-b border-red-900/50 shadow-lg animate__animated animate__fadeInDown">
-    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center space-x-2">
-        <div class="w-8 h-8 bg-red-600 rounded-full animate-pulse"></div>
-        <span class="font-bold text-red-500 glow-red">BLOODRAGE</span>
-      </div>
-      <nav class="hidden md:flex space-x-6">
-        <a href="/" class="text-zinc-300 hover:text-red-500 transition-colors">Home</a>
-        <a href="#" class="text-zinc-300 hover:text-red-500 transition-colors">Profiles</a>
-        <a href="#" class="text-zinc-300 hover:text-red-500 transition-colors">About</a>
-      </nav>
-      <button class="bg-red-600 hover:bg-red-700 px-4 py-1 rounded-full text-sm transition-all-slow hover-glow">Join</button>
-    </div>
-  </header>
-
-  <!-- Main -->
-  <main class="pt-20 pb-10 flex items-center justify-center min-h-screen">
-    <!-- Loading -->
-    <div id="loading" class="flex flex-col items-center justify-center space-y-4">
-      <div class="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-      <p class="text-red-500 text-xl animate-pulse">Loading profile...</p>
-    </div>
-
-    <!-- Profile Card -->
-    <div id="profileCard" class="hidden transform transition-all duration-500 opacity-0 translate-y-10">
-  <div class="profile-inner relative rounded-xl p-12 w-full max-w-2xl shadow-2xl text-center border border-red-700/50 hover-glow transition-transform hover-scale">
-    <div class="relative floating">
-      <img id="avatar" src="" alt="Avatar" class="w-40 h-40 rounded-full border-4 border-red-600 mx-auto shadow-lg mb-6 object-cover transition-transform hover:scale-110"/>
-    </div>
-    <h1 id="username" class="text-5xl font-bold text-red-500 mb-4 glow-red">@username</h1>
-    <p id="bio" class="text-lg text-zinc-300 mt-2 mb-6 hidden animate__animated animate__fadeIn"></p>
-    <div id="badges" class="flex gap-2 justify-center mb-8 animate__animated animate__fadeInUp"></div>
-    <div id="links" class="flex flex-wrap justify-center gap-6 mt-4 animate__animated animate__fadeInUp"></div>
+  <!-- Loading -->
+  <div id="loading" class="flex flex-col items-center justify-center space-y-4 absolute inset-0 bg-black">
+    <div class="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+    <p class="text-red-500 text-xl animate-pulse">Loading profile...</p>
   </div>
-</div>
-  </main>
 
-  <!-- Footer -->
-  <footer class="fixed bottom-0 left-0 right-0 py-3 bg-zinc-900/80 backdrop-blur-sm border-t border-red-900/50 text-center text-zinc-400 text-sm animate__animated animate__fadeInUp">
-    <div class="container mx-auto px-4">
-      <p>© 2023 BloodRage Network. All rights reserved.</p>
+  <!-- Profile Full Screen -->
+  <div id="profileCard" class="hidden w-full h-full flex items-center justify-center p-4">
+    <div id="profileContainer" class="rounded-2xl p-10 w-full max-w-4xl text-center shadow-2xl animate__animated animate__fadeIn">
+      <!-- Avatar -->
+      <div class="relative floating w-48 h-48 mx-auto mb-6 rounded-full p-[6px]" id="avatarRing">
+        <img id="avatar" src="" alt="Avatar" class="w-full h-full rounded-full object-cover"/>
+      </div>
+
+      <!-- Username -->
+      <h1 id="username" class="text-6xl font-bold mb-4">@username</h1>
+
+      <!-- Bio -->
+      <p id="bio" class="text-lg text-gray-200 max-w-2xl mx-auto mb-8 hidden"></p>
+
+      <!-- Social Links -->
+      <div id="links" class="flex flex-wrap justify-center gap-6 mt-4"></div>
     </div>
-  </footer>
+  </div>
 
   <!-- Script -->
   <script type="module">
@@ -76,23 +49,17 @@
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s"
     );
 
-    // Get username from path (supports @username)
-    // Get username from path, clean it for DB query
-let username = window.location.pathname
-  .replace(/^\/+|\/+$/g, '') // remove leading/trailing slashes
-  .trim();
+    // Extract username from /@username or /username
+    let username = window.location.pathname.replace(/^\/+|\/+$/g, '').trim();
+    if (username.startsWith('@')) {
+      username = username.substring(1);
+    }
+    username = decodeURIComponent(username);
 
-if (username.startsWith('@')) {
-  username = username.substring(1);
-}
-
-username = decodeURIComponent(username); // handle %20 etc.
-
-if (!username) {
-  window.location.href = '/';
-}
+    if (!username) {
+      window.location.href = '/';
+    } else {
       async function loadProfile() {
-        document.getElementById("loading").classList.remove("hidden");
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
@@ -102,81 +69,76 @@ if (!username) {
         document.getElementById("loading").classList.add("hidden");
 
         if (error || !data) {
-          showNotFoundError(username);
+          document.body.innerHTML = `
+            <div class="flex items-center justify-center min-h-screen">
+              <div class="text-center animate__animated animate__shakeX">
+                <div class="text-red-500 text-4xl mb-2">⚠️</div>
+                <h2 class="text-red-500 text-xl font-semibold">User not found</h2>
+                <p class="text-zinc-400 mt-2">The profile @${username} doesn't exist</p>
+                <a href="/" class="mt-4 inline-block bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
+                  Go Home
+                </a>
+              </div>
+            </div>`;
           return;
         }
 
         displayProfile(data);
       }
 
-      function showNotFoundError(username) {
-        document.body.innerHTML = `
-          <div class="flex items-center justify-center min-h-screen">
-            <div class="text-center animate__animated animate__shakeX">
-              <div class="text-red-500 text-4xl mb-2">⚠️</div>
-              <h2 class="text-red-500 text-xl font-semibold">User not found</h2>
-              <p class="text-zinc-400 mt-2">The profile @${username} doesn't exist</p>
-              <a href="/" class="mt-4 inline-block bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
-                Go Home
-              </a>
-            </div>
-          </div>`;
-      }
-
       function displayProfile(data) {
-  const profileCard = document.getElementById("profileCard");
+        const profileCard = document.getElementById("profileCard");
+        const container = document.getElementById("profileContainer");
+        const avatarRing = document.getElementById("avatarRing");
 
-  // Apply gradient if user has custom colors
-  const cardInner = profileCard.querySelector(".profile-inner");
-  if (data.primary_color && data.secondary_color) {
-    cardInner.style.background = `linear-gradient(to right, ${data.primary_color}, ${data.secondary_color})`;
-  }
+        // Apply gradient background if available
+        if (data.primary_color && data.secondary_color) {
+          container.style.background = `linear-gradient(to right, ${data.primary_color}, ${data.secondary_color})`;
+          avatarRing.style.background = `linear-gradient(to right, ${data.primary_color}, ${data.secondary_color})`;
+        } else {
+          container.style.background = `linear-gradient(135deg, #111827, #1f2937)`;
+          avatarRing.style.background = `linear-gradient(135deg, #ef4444, #991b1b)`;
+        }
 
-  document.getElementById("username").textContent = '@' + data.username;
-  document.getElementById("avatar").src = data.avatar_url || 'https://via.placeholder.com/150/111827/FFFFFF/?text=BR';
+        document.getElementById("username").textContent = '@' + data.username;
+        document.getElementById("avatar").src = data.avatar_url || 'https://via.placeholder.com/150/111827/FFFFFF/?text=BR';
 
-  if (data.bio) {
-    const bio = document.getElementById("bio");
-    bio.textContent = data.bio;
-    bio.classList.remove("hidden");
-    bio.classList.add("animate__fadeIn");
-  }
+        if (data.bio) {
+          const bio = document.getElementById("bio");
+          bio.textContent = data.bio;
+          bio.classList.remove("hidden");
+        }
 
-  if (data.links) {
-    const linksContainer = document.getElementById("links");
-    linksContainer.innerHTML = '';
-    for (const [label, url] of Object.entries(data.links)) {
-      linksContainer.appendChild(createLinkElement(url));
-    }
-  }
+        if (data.links) {
+          const linksContainer = document.getElementById("links");
+          linksContainer.innerHTML = '';
+          for (const url of Object.values(data.links)) {
+            linksContainer.appendChild(createLinkElement(url));
+          }
+        }
 
-  profileCard.classList.remove("hidden");
-  setTimeout(() => {
-    profileCard.classList.remove("opacity-0", "translate-y-10");
-    profileCard.classList.add("opacity-100", "translate-y-0");
-  }, 100);
-}
-
+        profileCard.classList.remove("hidden");
+      }
 
       function createLinkElement(url) {
         const a = document.createElement('a');
         a.href = url;
         a.target = '_blank';
-        a.className = 'text-red-500 hover:text-red-400 transition-transform transform hover:scale-125';
+        a.className = 'text-white text-3xl hover:scale-125 transition-transform';
         a.innerHTML = getIconForUrl(url);
         return a;
       }
 
       function getIconForUrl(url) {
-        if (url.includes("twitter.com")) return `<i class="fab fa-twitter fa-lg"></i>`;
-        if (url.includes("github.com")) return `<i class="fab fa-github fa-lg"></i>`;
-        if (url.includes("instagram.com")) return `<i class="fab fa-instagram fa-lg"></i>`;
-        if (url.includes("youtube.com")) return `<i class="fab fa-youtube fa-lg"></i>`;
-        return `<i class="fas fa-link fa-lg"></i>`;
+        if (url.includes("twitter.com")) return `<i class="fab fa-twitter"></i>`;
+        if (url.includes("github.com")) return `<i class="fab fa-github"></i>`;
+        if (url.includes("instagram.com")) return `<i class="fab fa-instagram"></i>`;
+        if (url.includes("youtube.com")) return `<i class="fab fa-youtube"></i>`;
+        return `<i class="fas fa-link"></i>`;
       }
 
       loadProfile();
-    
+    }
   </script>
 </body>
 </html>
