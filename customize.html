@@ -410,52 +410,76 @@ function hideSaveNotification() {
 async function saveChanges() {
   try {
     const updates = {};
-    
+
     // Check which fields have changed
     for (const key in currentProfile) {
       if (JSON.stringify(currentProfile[key]) !== JSON.stringify(originalProfile[key])) {
         updates[key] = currentProfile[key];
       }
     }
-    
+
     // Add card style preferences
     updates.card_3d_enabled = is3dEnabled;
     updates.card_transparent_mode = isTransparentMode;
-    
+
     if (Object.keys(updates).length > 0) {
-      // Show loading state
-      const saveBtnFinal = document.getElementById('saveBtn');
-if (saveBtnFinal) {
-  saveBtnFinal.innerHTML = 'Save Changes';
-  saveBtnFinal.disabled = false;
-}
-      
-      const { error } = await supabase.from("profiles").update(updates).eq("id", currentProfile.id);
-      
+      // Get save button safely
+      const saveBtn = document.getElementById('saveBtn');
+      if (saveBtn) {
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        saveBtn.disabled = true;
+      }
+
+      const { error } = await supabase.from("profiles")
+        .update(updates)
+        .eq("id", currentProfile.id);
+
       if (error) throw error;
-      
+
+      // Update local copies
       originalProfile = JSON.parse(JSON.stringify(currentProfile));
       hideSaveNotification();
-      
+
       // Show success message
       const notification = document.getElementById('saveNotification');
-      notification.innerHTML = '<div class="flex items-center space-x-2 text-green-400"><i class="fas fa-check-circle"></i><span>Changes saved successfully!</span></div>';
+      notification.innerHTML = `
+        <div class="flex items-center space-x-2 text-green-400">
+          <i class="fas fa-check-circle"></i>
+          <span>Changes saved successfully!</span>
+        </div>`;
       setTimeout(() => {
         notification.classList.add('hidden');
-        notification.innerHTML = '<div class="flex items-center space-x-2"><span>You have unsaved changes!</span><button id="resetBtn" class="px-3 py-1 bg-zinc-700 hover:bg-zinc-600 rounded">Reset</button><button id="saveBtn" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded">Save Changes</button></div>';
+        notification.innerHTML = `
+          <div class="flex items-center space-x-2">
+            <span>You have unsaved changes!</span>
+            <button id="resetBtn" class="px-3 py-1 bg-zinc-700 hover:bg-zinc-600 rounded">Reset</button>
+            <button id="saveBtn" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded">Save Changes</button>
+          </div>`;
       }, 2000);
     }
   } catch (error) {
     console.error("Error saving changes:", error);
     const notification = document.getElementById('saveNotification');
-    notification.innerHTML = '<div class="flex items-center space-x-2 text-red-400"><i class="fas fa-exclamation-circle"></i><span>Error saving changes!</span></div>';
+    notification.innerHTML = `
+      <div class="flex items-center space-x-2 text-red-400">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>Error saving changes!</span>
+      </div>`;
     setTimeout(() => {
-      notification.innerHTML = '<div class="flex items-center space-x-2"><span>You have unsaved changes!</span><button id="resetBtn" class="px-3 py-1 bg-zinc-700 hover:bg-zinc-600 rounded">Reset</button><button id="saveBtn" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded">Save Changes</button></div>';
+      notification.innerHTML = `
+        <div class="flex items-center space-x-2">
+          <span>You have unsaved changes!</span>
+          <button id="resetBtn" class="px-3 py-1 bg-zinc-700 hover:bg-zinc-600 rounded">Reset</button>
+          <button id="saveBtn" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded">Save Changes</button>
+        </div>`;
     }, 2000);
   } finally {
-    const saveBtn = document.getElementById('saveBtn');
-    saveBtn.innerHTML = 'Save Changes';
-    saveBtn.disabled = false;
+    // Restore save button if it exists
+    const saveBtnFinal = document.getElementById('saveBtn');
+    if (saveBtnFinal) {
+      saveBtnFinal.innerHTML = 'Save Changes';
+      saveBtnFinal.disabled = false;
+    }
   }
 }
 
