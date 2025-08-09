@@ -1,43 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Profile</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
     const supabase = supabase.createClient(
       "https://smcteblolwhfxcpngmvd.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s"
     );
   </script>
-  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-zinc-900 text-white">
 
-  <!-- Your existing profile card HTML goes here -->
+  <!-- Original Profile Card -->
   <main class="max-w-4xl mx-auto px-4 py-8">
-    <!-- Example placeholder -->
     <div class="bg-zinc-800 p-6 rounded-xl shadow-lg">
       <h1 class="text-2xl font-bold mb-2" id="profileName">Profile Name</h1>
       <p class="text-zinc-400" id="profileBio">Profile bio here...</p>
     </div>
   </main>
 
-  <!-- Floating Audio Player -->
-  <div id="customAudioPlayer" class="hidden fixed bottom-4 left-1/2 transform -translate-x-1/2 
-    bg-zinc-900/80 backdrop-blur-xl border border-zinc-700 rounded-xl shadow-lg 
-    p-3 flex items-center gap-3 max-w-md w-[90%] md:w-[420px]">
+  <!-- Floating Music Player -->
+  <div id="customAudioPlayer" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 
+      bg-zinc-900 border border-zinc-800 rounded-xl shadow-lg p-3 
+      flex items-center gap-3 max-w-md w-[90%] md:w-[420px] backdrop-blur-lg">
     
     <!-- Cover -->
     <div class="w-16 h-16 bg-zinc-800 rounded overflow-hidden flex-shrink-0">
       <img id="audioCover" src="" alt="Cover" class="w-full h-full object-cover">
     </div>
 
-    <!-- Info + Controls -->
+    <!-- Info -->
     <div class="flex-1 min-w-0">
-      <div id="audioTitle" class="font-bold truncate">Unknown Title</div>
+      <div id="audioTitle" class="font-bold truncate text-white">Unknown Title</div>
       <div id="audioArtist" class="text-sm text-zinc-400 truncate">Unknown Artist</div>
       <div id="audioDuration" class="text-xs text-zinc-500 mt-0.5">0:00</div>
     </div>
@@ -55,7 +54,7 @@
   <audio id="profileAudio" preload="metadata"></audio>
 
   <script>
-    async function loadProfile() {
+    document.addEventListener("DOMContentLoaded", async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
@@ -70,42 +69,36 @@
         return;
       }
 
-      // Fill main profile info
       document.getElementById("profileName").textContent = data.username || "No Name";
       document.getElementById("profileBio").textContent = data.bio || "";
 
-      // Setup audio player if audio_url exists
       if (data.audio_url) {
         const player = document.getElementById("customAudioPlayer");
         const audio = document.getElementById("profileAudio");
         const playBtn = document.getElementById("playPauseBtn");
         const volSlider = document.getElementById("volumeSlider");
 
-        // Set cover
-        if (data.audio_cover_url) {
-          document.getElementById("audioCover").src = data.audio_cover_url;
-        } else {
-          document.getElementById("audioCover").src = "";
-        }
+        // Cover
+        document.getElementById("audioCover").src = data.audio_cover_url || "";
 
-        // Set title & artist
+        // Info
         document.getElementById("audioTitle").textContent = data.audio_title || "Unknown Title";
         document.getElementById("audioArtist").textContent = data.audio_artist || "Unknown Artist";
 
-        // Load audio
+        // Audio
         audio.src = data.audio_url;
         audio.volume = 0.5;
 
-        // Show duration when ready
+        // Duration
         audio.addEventListener("loadedmetadata", () => {
           const dur = Math.floor(audio.duration);
           const min = Math.floor(dur / 60);
           const sec = dur % 60;
-          document.getElementById("audioDuration").textContent =
+          document.getElementById("audioDuration").textContent = 
             `${min}:${sec.toString().padStart(2, '0')}`;
         });
 
-        // Play / Pause
+        // Play/Pause
         playBtn.addEventListener("click", () => {
           if (audio.paused) {
             audio.play();
@@ -116,7 +109,7 @@
           }
         });
 
-        // Volume control
+        // Volume
         if (data.audio_volume_enabled) {
           volSlider.classList.remove("hidden");
           volSlider.value = audio.volume;
@@ -134,9 +127,7 @@
 
         player.classList.remove("hidden");
       }
-    }
-
-    loadProfile();
+    });
   </script>
 
 </body>
