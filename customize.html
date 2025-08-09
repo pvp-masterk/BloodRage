@@ -65,6 +65,67 @@
         <input type="color" id="secondaryColor" class="ml-2"/>
       </div>
     </div>
+
+    <!-- Asset Uploader Section -->
+    <div class="mt-8 border-t border-zinc-800 pt-8">
+      <h3 class="text-2xl font-bold text-red-500 mb-6">Assets Uploader</h3>
+      
+      <!-- Background Image -->
+      <div class="bg-zinc-900 rounded-lg p-4 mb-6">
+        <h4 class="text-lg font-semibold mb-3">Background</h4>
+        <div class="flex flex-wrap gap-4">
+          <div class="flex-1 min-w-[200px] bg-zinc-800 rounded-lg p-4">
+            <h5 class="text-sm font-medium text-zinc-300 mb-2">Image</h5>
+            <div class="relative group">
+              <img id="backgroundPreview" src="" class="w-full h-32 object-cover rounded-lg mb-2" style="display: none;"/>
+              <label for="backgroundUpload" class="block w-full h-32 bg-zinc-700/50 rounded-lg border-2 border-dashed border-zinc-600 flex items-center justify-center cursor-pointer hover:border-red-500 transition-colors">
+                <div class="text-center">
+                  <i class="fas fa-image text-2xl text-zinc-400 mb-1"></i>
+                  <p class="text-sm text-zinc-400">Click to upload background</p>
+                </div>
+              </label>
+              <input type="file" id="backgroundUpload" class="hidden" accept="image/*"/>
+            </div>
+            <button id="removeBackground" class="mt-2 text-sm text-red-500 hover:text-red-400 hidden">Remove Background</button>
+          </div>
+          
+          <div class="flex-1 min-w-[200px] bg-zinc-800 rounded-lg p-4">
+            <h5 class="text-sm font-medium text-zinc-300 mb-2">Audio</h5>
+            <div class="relative group">
+              <audio id="audioPreview" controls class="w-full mb-2 hidden"></audio>
+              <label for="audioUpload" class="block w-full h-32 bg-zinc-700/50 rounded-lg border-2 border-dashed border-zinc-600 flex items-center justify-center cursor-pointer hover:border-red-500 transition-colors">
+                <div class="text-center">
+                  <i class="fas fa-music text-2xl text-zinc-400 mb-1"></i>
+                  <p class="text-sm text-zinc-400">Click to upload audio</p>
+                  <p class="text-xs text-zinc-500 mt-1">MP3, WAV</p>
+                </div>
+              </label>
+              <input type="file" id="audioUpload" class="hidden" accept="audio/*"/>
+            </div>
+            <button id="removeAudio" class="mt-2 text-sm text-red-500 hover:text-red-400 hidden">Remove Audio</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Custom Cursor -->
+      <div class="bg-zinc-900 rounded-lg p-4">
+        <h4 class="text-lg font-semibold mb-3">Custom Cursor</h4>
+        <div class="relative group">
+          <img id="cursorPreview" src="" class="w-16 h-16 object-contain mb-2" style="display: none;"/>
+          <label for="cursorUpload" class="block w-full bg-zinc-800 rounded-lg border-2 border-dashed border-zinc-600 p-4 cursor-pointer hover:border-red-500 transition-colors">
+            <div class="flex items-center space-x-3">
+              <i class="fas fa-arrow-pointer text-2xl text-zinc-400"></i>
+              <div>
+                <p class="text-sm text-zinc-300">Click to upload a custom cursor</p>
+                <p class="text-xs text-zinc-500">PNG, WEBP (32x32 recommended)</p>
+              </div>
+            </div>
+          </label>
+          <input type="file" id="cursorUpload" class="hidden" accept="image/*"/>
+        </div>
+        <button id="removeCursor" class="mt-2 text-sm text-red-500 hover:text-red-400 hidden">Remove Cursor</button>
+      </div>
+    </div>
   </main>
 </div>
 
@@ -79,6 +140,18 @@ function debounce(fn, delay) {
     clearTimeout(t);
     t = setTimeout(() => fn(...args), delay);
   };
+}
+
+async function uploadFile(bucket, path, file) {
+  const { data: uploadData, error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true });
+  if (error) throw error;
+  const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(path);
+  return urlData.publicUrl;
+}
+
+async function deleteFile(bucket, path) {
+  const { error } = await supabase.storage.from(bucket).remove([path]);
+  if (error) throw error;
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -98,6 +171,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById("primaryColor").value = profile.primary_color || "#991b1b";
   document.getElementById("secondaryColor").value = profile.secondary_color || "#1e1b4b";
 
+  // Load assets if they exist
+  if (profile.background_url) {
+    document.getElementById("backgroundPreview").src = profile.background_url;
+    document.getElementById("backgroundPreview").style.display = "block";
+    document.getElementById("removeBackground").classList.remove("hidden");
+  }
+  if (profile.audio_url) {
+    document.getElementById("audioPreview").src = profile.audio_url;
+    document.getElementById("audioPreview").style.display = "block";
+    document.getElementById("removeAudio").classList.remove("hidden");
+  }
+  if (profile.cursor_url) {
+    document.getElementById("cursorPreview").src = profile.cursor_url;
+    document.getElementById("cursorPreview").style.display = "block";
+    document.getElementById("removeCursor").classList.remove("hidden");
+  }
+
   // Live bio update
   document.getElementById("bioInput").addEventListener("input", debounce(async (e) => {
     await supabase.from("profiles").update({ bio: e.target.value }).eq("id", user.id);
@@ -113,6 +203,108 @@ document.addEventListener('DOMContentLoaded', async () => {
       const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
       document.getElementById("avatar").src = urlData.publicUrl;
       await supabase.from("profiles").update({ avatar_url: urlData.publicUrl }).eq("id", user.id);
+    }
+  });
+
+  // Background upload
+  document.getElementById("backgroundUpload").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const filePath = `backgrounds/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
+      const publicUrl = await uploadFile("backgrounds", filePath, file);
+      
+      document.getElementById("backgroundPreview").src = publicUrl;
+      document.getElementById("backgroundPreview").style.display = "block";
+      document.getElementById("removeBackground").classList.remove("hidden");
+      
+      await supabase.from("profiles").update({ background_url: publicUrl }).eq("id", user.id);
+    } catch (error) {
+      console.error("Error uploading background:", error);
+    }
+  });
+
+  // Remove background
+  document.getElementById("removeBackground").addEventListener("click", async () => {
+    try {
+      const path = profile.background_url.split('/').pop();
+      await deleteFile("backgrounds", path);
+      
+      document.getElementById("backgroundPreview").style.display = "none";
+      document.getElementById("removeBackground").classList.add("hidden");
+      
+      await supabase.from("profiles").update({ background_url: null }).eq("id", user.id);
+      profile.background_url = null;
+    } catch (error) {
+      console.error("Error removing background:", error);
+    }
+  });
+
+  // Audio upload
+  document.getElementById("audioUpload").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const filePath = `audio/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
+      const publicUrl = await uploadFile("audio", filePath, file);
+      
+      document.getElementById("audioPreview").src = publicUrl;
+      document.getElementById("audioPreview").style.display = "block";
+      document.getElementById("removeAudio").classList.remove("hidden");
+      
+      await supabase.from("profiles").update({ audio_url: publicUrl }).eq("id", user.id);
+    } catch (error) {
+      console.error("Error uploading audio:", error);
+    }
+  });
+
+  // Remove audio
+  document.getElementById("removeAudio").addEventListener("click", async () => {
+    try {
+      const path = profile.audio_url.split('/').pop();
+      await deleteFile("audio", path);
+      
+      document.getElementById("audioPreview").style.display = "none";
+      document.getElementById("removeAudio").classList.add("hidden");
+      
+      await supabase.from("profiles").update({ audio_url: null }).eq("id", user.id);
+      profile.audio_url = null;
+    } catch (error) {
+      console.error("Error removing audio:", error);
+    }
+  });
+
+  // Cursor upload
+  document.getElementById("cursorUpload").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const filePath = `cursors/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
+      const publicUrl = await uploadFile("cursors", filePath, file);
+      
+      document.getElementById("cursorPreview").src = publicUrl;
+      document.getElementById("cursorPreview").style.display = "block";
+      document.getElementById("removeCursor").classList.remove("hidden");
+      
+      await supabase.from("profiles").update({ cursor_url: publicUrl }).eq("id", user.id);
+    } catch (error) {
+      console.error("Error uploading cursor:", error);
+    }
+  });
+
+  // Remove cursor
+  document.getElementById("removeCursor").addEventListener("click", async () => {
+    try {
+      const path = profile.cursor_url.split('/').pop();
+      await deleteFile("cursors", path);
+      
+      document.getElementById("cursorPreview").style.display = "none";
+      document.getElementById("removeCursor").classList.add("hidden");
+      
+      await supabase.from("profiles").update({ cursor_url: null }).eq("id", user.id);
+      profile.cursor_url = null;
+    } catch (error) {
+      console.error("Error removing cursor:", error);
     }
   });
 
