@@ -23,6 +23,107 @@
       background-repeat: no-repeat;
       background-attachment: fixed;
     }
+    
+    /* Glass Card Styles */
+    .glass-card {
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      background: rgba(20, 20, 20, 0.65);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 100%
+      );
+      transform: rotate(45deg);
+      animation: shine 3s infinite;
+    }
+    
+    .glass-card.transparent-mode {
+      background: rgba(0, 0, 0, 0.3) !important;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .glass-card.no-gradient {
+      background: rgba(20, 20, 20, 0.65) !important;
+    }
+    
+    @keyframes shine {
+      0% { transform: translateX(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) rotate(45deg); }
+    }
+    
+    .avatar-ring {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      padding: 8px;
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out;
+    }
+    
+    /* Toggle Switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #4b5563;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: #dc2626;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
   </style>
 </head>
 <body class="bg-black text-white font-sans min-h-screen flex items-center justify-center">
@@ -39,11 +140,31 @@
   </div>
 
   <!-- Profile Full Screen -->
-  <div id="profileCard" class="hidden w-full h-full flex items-center justify-center p-4">
-    <div id="profileContainer" class="rounded-2xl p-10 w-full max-w-4xl text-center shadow-2xl animate__animated animate__fadeIn backdrop-blur-sm bg-black/60">
+  <div id="profileContainer" class="hidden w-full h-full flex flex-col items-center justify-center p-4">
+    <!-- Profile Card Controls -->
+    <div class="flex space-x-4 mb-6 bg-zinc-900/80 p-3 rounded-lg">
+      <label class="flex items-center space-x-2">
+        <span>3D Card:</span>
+        <label class="switch">
+          <input type="checkbox" id="toggle3d" checked>
+          <span class="slider"></span>
+        </label>
+      </label>
+      
+      <label class="flex items-center space-x-2">
+        <span>Transparent:</span>
+        <label class="switch">
+          <input type="checkbox" id="toggleTransparent">
+          <span class="slider"></span>
+        </label>
+      </label>
+    </div>
+    
+    <!-- Profile Card -->
+    <div id="profileCard" class="glass-card rounded-2xl p-10 w-full max-w-4xl text-center shadow-2xl animate__animated animate__fadeIn">
       <!-- Avatar -->
-      <div class="relative floating w-48 h-48 mx-auto mb-6 rounded-full p-[6px]" id="avatarRing">
-        <img id="avatar" src="" alt="Avatar" class="w-full h-full rounded-full object-cover"/>
+      <div id="avatarRing" class="avatar-ring floating mx-auto mb-6">
+        <img id="avatar" src="" alt="Avatar" class="w-full h-full rounded-full object-cover border-2 border-white/30"/>
       </div>
 
       <!-- Username -->
@@ -69,7 +190,56 @@
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s"
     );
 
-    // Get username from /@username or /username
+    // 3D Effect Variables
+    let mouseX = 0;
+    let mouseY = 0;
+    let card = null;
+    let avatarRing = null;
+    let is3dEnabled = true;
+    let isTransparentMode = false;
+
+    // Handle mouse movement for 3D effect
+    function handleMouseMove(e) {
+      if (!is3dEnabled || !card || !avatarRing) return;
+      
+      const rect = card.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+      
+      const rotateY = (mouseX / rect.width - 0.5) * 15;
+      const rotateX = (0.5 - mouseY / rect.height) * 15;
+      
+      card.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+      avatarRing.style.transform = `rotateY(${rotateY * 1.5}deg) rotateX(${rotateX * 1.5}deg)`;
+    }
+
+    // Reset card position
+    function resetCardPosition() {
+      if (card) card.style.transform = "rotateY(0) rotateX(0)";
+      if (avatarRing) avatarRing.style.transform = "rotateY(0) rotateX(0)";
+    }
+
+    // Toggle 3D effect
+    document.getElementById('toggle3d').addEventListener('change', function(e) {
+      is3dEnabled = e.target.checked;
+      if (!is3dEnabled) resetCardPosition();
+    });
+
+    // Toggle transparent mode
+    document.getElementById('toggleTransparent').addEventListener('change', function(e) {
+      isTransparentMode = e.target.checked;
+      const card = document.getElementById('profileCard');
+      
+      if (isTransparentMode) {
+        card.classList.add('transparent-mode');
+        card.classList.add('no-gradient');
+      } else {
+        card.classList.remove('transparent-mode');
+        card.classList.remove('no-gradient');
+      }
+    });
+
+    // Get username from URL
     let username = window.location.pathname.replace(/^\/+|\/+$/g, '').trim();
     if (username.startsWith('@')) {
       username = username.substring(1);
@@ -112,7 +282,7 @@
         if (data.audio_url) {
           const audio = document.getElementById("backgroundAudio");
           audio.src = data.audio_url;
-          audio.volume = 0.3; // Lower volume
+          audio.volume = 0.3;
           audio.play().catch(e => console.log("Audio play failed:", e));
         }
 
@@ -120,6 +290,16 @@
         if (data.cursor_url) {
           document.body.style.cursor = `url('${data.cursor_url}'), auto`;
         }
+
+        // Initialize 3D elements
+        card = document.getElementById("profileCard");
+        avatarRing = document.getElementById("avatarRing");
+        
+        // Add mouse move listener
+        document.getElementById("profileContainer").addEventListener("mousemove", handleMouseMove);
+        
+        // Reset rotation when mouse leaves
+        document.getElementById("profileContainer").addEventListener("mouseleave", resetCardPosition);
 
         // If enter button is enabled, show overlay
         if (data.show_enter_button) {
@@ -135,16 +315,16 @@
       }
 
       function displayProfile(data) {
-        const profileCard = document.getElementById("profileCard");
-        const container = document.getElementById("profileContainer");
+        const profileContainer = document.getElementById("profileContainer");
+        const card = document.getElementById("profileCard");
         const avatarRing = document.getElementById("avatarRing");
 
         // Apply gradient if enabled
         if (data.gradient_enabled && data.primary_color && data.secondary_color) {
-          container.style.background = `linear-gradient(to right, ${data.primary_color}, ${data.secondary_color})`;
+          card.style.background = `linear-gradient(to right, ${data.primary_color}, ${data.secondary_color})`;
           avatarRing.style.background = `linear-gradient(to right, ${data.primary_color}, ${data.secondary_color})`;
         } else {
-          container.style.background = `linear-gradient(135deg, #111827, #1f2937)`;
+          card.style.background = `rgba(20, 20, 20, 0.65)`;
           avatarRing.style.background = `linear-gradient(135deg, #ef4444, #991b1b)`;
         }
 
@@ -171,7 +351,7 @@
           }
         }
 
-        profileCard.classList.remove("hidden");
+        profileContainer.classList.remove("hidden");
       }
 
       function createLinkElement(url) {
