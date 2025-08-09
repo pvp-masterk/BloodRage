@@ -181,6 +181,13 @@ async function uploadFile(bucket, path, file) {
 }
 
 async function deleteFile(bucket, path) {
+  // Get the current session
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (!session) {
+    throw new Error("Not authenticated");
+  }
+
   const { error } = await supabase.storage.from(bucket).remove([path]);
   if (error) throw error;
 }
