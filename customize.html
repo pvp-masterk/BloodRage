@@ -6,272 +6,142 @@
   <title>Customize - BloodRage</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-  <style>
-    @keyframes gradientPulse {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    
-    #profile-preview {
-      transition: all 0.5s ease;
-      background-size: 200% 200%;
-    }
-    
-    .color-picker {
-      transition: transform 0.3s ease;
-    }
-    
-    .color-picker:hover {
-      transform: scale(1.05);
-    }
-    
-    .save-btn {
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .save-btn::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: left 0.7s;
-    }
-    
-    .save-btn:hover::after {
-      left: 100%;
-    }
-    
-    .sidebar-link {
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .sidebar-link::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 0;
-      height: 2px;
-      background-color: #ef4444;
-      transition: width 0.3s ease;
-    }
-    
-    .sidebar-link:hover::after {
-      width: 100%;
-    }
-    
-    .active-link {
-      background-color: rgba(239, 68, 68, 0.2);
-    }
-    
-    .active-link::after {
-      width: 100%;
-    }
-  </style>
 </head>
 <body class="bg-black text-white font-sans">
 
-  <div class="flex min-h-screen">
+<div class="flex min-h-screen">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-zinc-900 p-6 space-y-4 border-r border-zinc-800">
+    <h1 class="text-2xl font-bold text-red-500 mb-6">BloodRage</h1>
+    <nav class="space-y-3">
+      <a href="dashboard.html" class="block px-3 py-2 rounded hover:bg-red-600/20">Account</a>
+      <a href="customize.html" class="block px-3 py-2 rounded bg-red-600/20">Customize</a>
+      <a href="links.html" class="block px-3 py-2 rounded hover:bg-red-600/20">Links</a>
+    </nav>
+  </aside>
 
-    <!-- Sidebar -->
-    <aside class="w-64 bg-zinc-900 p-6 space-y-4 border-r border-zinc-800">
-      <h1 class="text-2xl font-bold text-red-500 mb-6 animate__animated animate__fadeInLeft">BloodRage</h1>
-      <nav class="space-y-3">
-        <a href="dashboard.html" class="block px-3 py-2 rounded sidebar-link animate__animated animate__fadeInLeft animate__delay-1s">Account</a>
-        <a href="customize.html" class="block px-3 py-2 rounded sidebar-link active-link animate__animated animate__fadeInLeft animate__delay-1s">Customize</a>
-        <a href="links.html" class="block px-3 py-2 rounded sidebar-link animate__animated animate__fadeInLeft animate__delay-1s">Links</a>
-      </nav>
-    </aside>
+  <!-- Main Content -->
+  <main class="flex-1 p-8 space-y-8">
+    <h2 class="text-3xl font-bold text-red-500 mb-6">Customize Your Profile</h2>
 
-    <!-- Main Content -->
-    <main class="flex-1 p-8">
-      <h2 class="text-3xl font-bold text-red-500 mb-6 animate__animated animate__fadeIn">Customize Your Profile</h2>
-
-      <!-- Profile Preview -->
-      <div id="profile-preview" class="rounded-xl p-8 text-center text-white shadow-lg mb-8 animate__animated animate__fadeIn"
-           style="background: linear-gradient(to right, #991b1b, #1e1b4b);">
-        <div class="animate__animated animate__fadeIn animate__delay-1s">
-          <div class="relative group w-24 h-24 mx-auto mb-4">
-  <img id="avatar" src="" class="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover" alt="Avatar" />
-  <label for="avatarUpload" class="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
-    <i class="fas fa-pencil-alt text-white"></i>
-  </label>
-  <input type="file" id="avatarUpload" class="hidden" accept="image/*" />
-  <div id="uploadProgress" class="absolute -bottom-4 left-0 w-full h-1 bg-red-900 rounded hidden">
-    <div class="h-1 bg-red-500 rounded" style="width: 0%"></div>
-  </div>
-</div>
-          <div class="mt-4 max-w-md mx-auto">
-  <label class="block text-sm text-red-400 mb-1">Bio</label>
-  <textarea id="bioInput" class="w-full p-2 rounded bg-zinc-800 border border-zinc-700 text-white" rows="3"></textarea>
-  <button id="saveBio" class="mt-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-white">Save Bio</button>
-</div>
-
-          <h3 id="username" class="text-2xl font-bold tracking-wide"></h3>
-          <p id="bio" class="text-sm mt-2 text-gray-200 max-w-md mx-auto"></p>
-        </div>
+    <!-- Profile Preview -->
+    <div id="profile-preview" class="rounded-xl p-8 text-center shadow-lg mb-8"
+         style="background: linear-gradient(to right, #991b1b, #1e1b4b);">
+      <div class="relative group w-24 h-24 mx-auto mb-4">
+        <img id="avatar" src="" class="w-24 h-24 rounded-full border-4 border-white object-cover"/>
+        <label for="avatarUpload" class="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer">
+          <i class="fas fa-pencil-alt text-white"></i>
+        </label>
+        <input type="file" id="avatarUpload" class="hidden" accept="image/*"/>
       </div>
+      <h3 id="username" class="text-2xl font-bold"></h3>
+      <textarea id="bioInput" class="mt-2 p-2 w-full rounded bg-zinc-800 border border-zinc-700 text-white" rows="2" placeholder="Write your bio..."></textarea>
+    </div>
 
-      <!-- Color Pickers -->
-      <div class="space-y-6 max-w-md animate__animated animate__fadeIn animate__delay-1s">
-        <div class="color-picker">
-          <label class="block mb-2 text-sm font-medium text-red-400">Primary Color</label>
-          <div class="flex items-center space-x-4">
-            <input type="color" id="primaryColor" class="w-16 h-16 rounded-full cursor-pointer shadow-lg border-2 border-zinc-700 hover:border-red-500 transition" />
-            <span id="primaryHex" class="text-sm bg-zinc-800 px-3 py-1 rounded">#991b1b</span>
-          </div>
-        </div>
+    <!-- Toggles -->
+    <div class="space-y-4">
+      <label class="flex items-center space-x-3">
+        <input type="checkbox" id="gradientToggle" class="w-5 h-5 text-red-600 rounded"/>
+        <span>Enable Gradient</span>
+      </label>
+      <label class="flex items-center space-x-3">
+        <input type="checkbox" id="discordAvatarToggle" class="w-5 h-5 text-red-600 rounded"/>
+        <span>Use Discord Avatar</span>
+      </label>
+      <label class="flex items-center space-x-3">
+        <input type="checkbox" id="enterButtonToggle" class="w-5 h-5 text-red-600 rounded"/>
+        <span>Enter Button</span>
+      </label>
+    </div>
 
-        <div class="color-picker">
-          <label class="block mb-2 text-sm font-medium text-red-400">Secondary Color</label>
-          <div class="flex items-center space-x-4">
-            <input type="color" id="secondaryColor" class="w-16 h-16 rounded-full cursor-pointer shadow-lg border-2 border-zinc-700 hover:border-red-500 transition" />
-            <span id="secondaryHex" class="text-sm bg-zinc-800 px-3 py-1 rounded">#1e1b4b</span>
-          </div>
-        </div>
-
-        <button id="saveColors" class="mt-6 bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg text-white font-semibold save-btn animate__animated animate__pulse animate__infinite">
-          Save Colors
-        </button>
-
-        <div id="savedMsg" class="text-green-400 mt-4 hidden flex items-center space-x-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-          </svg>
-          <span>Saved successfully!</span>
-        </div>
+    <!-- Gradient Pickers -->
+    <div id="gradientPickers" class="space-y-4 mt-6">
+      <div>
+        <label>Primary Color</label>
+        <input type="color" id="primaryColor" class="ml-2"/>
       </div>
-    </main>
-  </div>
+      <div>
+        <label>Secondary Color</label>
+        <input type="color" id="secondaryColor" class="ml-2"/>
+      </div>
+    </div>
+  </main>
+</div>
 
-  <!-- Supabase Script -->
-  <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-    const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      const user = (await supabase.auth.getUser()).data.user;
-      if (!user) window.location.href = '/';
+function debounce(fn, delay) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), delay);
+  };
+}
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
+document.addEventListener('DOMContentLoaded', async () => {
+  const user = (await supabase.auth.getUser()).data.user;
+  if (!user) window.location.href = '/';
 
-      // Set preview data
-      document.getElementById("username").textContent = profile.username;
-      document.getElementById("bio").textContent = profile.bio || "No bio yet";
-      document.getElementById("avatar").src = profile.avatar_url || "https://via.placeholder.com/100";
+  let { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+  if (!profile) return;
 
-      // Set default or saved colors
-      const primaryColorInput = document.getElementById("primaryColor");
-      const secondaryColorInput = document.getElementById("secondaryColor");
-      const primaryHex = document.getElementById("primaryHex");
-      const secondaryHex = document.getElementById("secondaryHex");
+  // Populate UI
+  document.getElementById("username").textContent = profile.username;
+  document.getElementById("bioInput").value = profile.bio || "";
+  document.getElementById("avatar").src = profile.avatar_url || "https://via.placeholder.com/100";
+  document.getElementById("gradientToggle").checked = !!profile.gradient_enabled;
+  document.getElementById("discordAvatarToggle").checked = !!profile.use_discord_avatar;
+  document.getElementById("enterButtonToggle").checked = !!profile.show_enter_button;
+  document.getElementById("primaryColor").value = profile.primary_color || "#991b1b";
+  document.getElementById("secondaryColor").value = profile.secondary_color || "#1e1b4b";
 
-      primaryColorInput.value = profile.primary_color || "#991b1b";
-      secondaryColorInput.value = profile.secondary_color || "#1e1b4b";
-      primaryHex.textContent = profile.primary_color || "#991b1b";
-      secondaryHex.textContent = profile.secondary_color || "#1e1b4b";
+  // Live bio update
+  document.getElementById("bioInput").addEventListener("input", debounce(async (e) => {
+    await supabase.from("profiles").update({ bio: e.target.value }).eq("id", user.id);
+  }, 500));
 
-      const updatePreview = () => {
-        const primary = primaryColorInput.value;
-        const secondary = secondaryColorInput.value;
-        document.getElementById("profile-preview").style.background = `linear-gradient(to right, ${primary}, ${secondary})`;
-        primaryHex.textContent = primary;
-        secondaryHex.textContent = secondary;
-      };
-
-      primaryColorInput.addEventListener("input", updatePreview);
-      secondaryColorInput.addEventListener("input", updatePreview);
-      updatePreview();
-
-      // Save handler
-      document.getElementById("saveColors").onclick = async () => {
-        const primary = primaryColorInput.value;
-        const secondary = secondaryColorInput.value;
-
-        const saveBtn = document.getElementById("saveColors");
-        saveBtn.disabled = true;
-        saveBtn.innerHTML = `
-          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          Saving...
-        `;
-
-        const { error } = await supabase
-          .from("profiles")
-          .update({
-            primary_color: primary,
-            secondary_color: secondary
-          })
-          .eq("id", user.id);
-
-        saveBtn.disabled = false;
-        saveBtn.textContent = "Save Colors";
-
-        // Bio edit
-document.getElementById("bioInput").value = profile.bio || "";
-document.getElementById("saveBio").onclick = async () => {
-  const bio = document.getElementById("bioInput").value;
-  await supabase.from("profiles").update({ bio }).eq("id", user.id);
-  document.getElementById("bio").textContent = bio;
-};
-
-// Avatar upload
-document.getElementById("avatarUpload").addEventListener("change", async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const filePath = `avatars/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
-  const { data, error } = await supabase.storage.from("avatars").upload(filePath, file, {
-    cacheControl: "3600",
-    upsert: true,
-    onUploadProgress: (progress) => {
-      const percent = (progress.loaded / progress.total) * 100;
-      const bar = document.querySelector("#uploadProgress div");
-      document.getElementById("uploadProgress").classList.remove("hidden");
-      bar.style.width = percent + "%";
+  // Live avatar upload
+  document.getElementById("avatarUpload").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const filePath = `avatars/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
+    const { data: uploadData, error } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
+    if (!error) {
+      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      document.getElementById("avatar").src = urlData.publicUrl;
+      await supabase.from("profiles").update({ avatar_url: urlData.publicUrl }).eq("id", user.id);
     }
   });
 
-  if (!error) {
-    const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
-    await supabase.from("profiles").update({ avatar_url: urlData.publicUrl }).eq("id", user.id);
-    document.getElementById("avatar").src = urlData.publicUrl;
-    setTimeout(() => document.getElementById("uploadProgress").classList.add("hidden"), 1000);
+  // Toggles live update
+  const toggleFields = {
+    gradientToggle: "gradient_enabled",
+    discordAvatarToggle: "use_discord_avatar",
+    enterButtonToggle: "show_enter_button"
+  };
+  for (let [id, field] of Object.entries(toggleFields)) {
+    document.getElementById(id).addEventListener("change", async (e) => {
+      await supabase.from("profiles").update({ [field]: e.target.checked }).eq("id", user.id);
+    });
+  }
+
+  // Gradient pickers live update
+  const colorInputs = ["primaryColor", "secondaryColor"];
+  for (let id of colorInputs) {
+    document.getElementById(id).addEventListener("input", async () => {
+      const primary = document.getElementById("primaryColor").value;
+      const secondary = document.getElementById("secondaryColor").value;
+      document.getElementById("profile-preview").style.background = `linear-gradient(to right, ${primary}, ${secondary})`;
+      await supabase.from("profiles").update({
+        primary_color: primary,
+        secondary_color: secondary
+      }).eq("id", user.id);
+    });
   }
 });
-
-
-        if (!error) {
-          const savedMsg = document.getElementById("savedMsg");
-          savedMsg.classList.remove("hidden");
-          savedMsg.classList.add("animate__animated", "animate__fadeIn");
-          
-          setTimeout(() => {
-            savedMsg.classList.add("animate__fadeOut");
-            setTimeout(() => {
-              savedMsg.classList.add("hidden");
-              savedMsg.classList.remove("animate__fadeIn", "animate__fadeOut");
-            }, 500);
-          }, 2000);
-          
-          updatePreview();
-        }
-      };
-    });
-  </script>
+</script>
 </body>
 </html>
