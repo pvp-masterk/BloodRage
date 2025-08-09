@@ -27,6 +27,61 @@
       cursor: pointer;
       border: 2px solid white;
     }
+    
+    /* Glass Morphism Profile Card */
+    .glass-card {
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      background: rgba(20, 20, 20, 0.65);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 100%
+      );
+      transform: rotate(45deg);
+      animation: shine 3s infinite;
+    }
+    
+    @keyframes shine {
+      0% { transform: translateX(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) rotate(45deg); }
+    }
+    
+    .avatar-ring {
+      position: relative;
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      padding: 6px;
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out;
+    }
+    
+    .floating {
+      animation: float 4s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
   </style>
 </head>
 <body class="bg-black text-white font-sans">
@@ -55,18 +110,44 @@
   <main class="flex-1 p-8 space-y-8">
     <h2 class="text-3xl font-bold text-red-500 mb-6">Customize Your Profile</h2>
 
-    <!-- Profile Preview -->
-    <div id="profile-preview" class="rounded-xl p-8 text-center shadow-lg mb-8"
-         style="background: linear-gradient(to right, #991b1b, #1e1b4b);">
-      <div class="relative group w-24 h-24 mx-auto mb-4">
-        <img id="avatar" src="" class="w-24 h-24 rounded-full border-4 border-white object-cover"/>
-        <label for="avatarUpload" class="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer">
-          <i class="fas fa-pencil-alt text-white"></i>
-        </label>
-        <input type="file" id="avatarUpload" class="hidden" accept="image/*"/>
+    <!-- 3D Glass Profile Card Preview -->
+    <div id="profile-preview-container" class="flex justify-center mb-8">
+      <div id="profile-preview" class="glass-card w-full max-w-md p-8 text-center">
+        <!-- Avatar -->
+        <div id="avatarRing" class="avatar-ring floating mx-auto mb-6">
+          <img id="avatar" src="" alt="Avatar" class="w-full h-full rounded-full object-cover border-2 border-white/30"/>
+        </div>
+
+        <!-- Username -->
+        <h3 id="username" class="text-2xl font-bold mb-2"></h3>
+
+        <!-- Bio -->
+        <textarea id="bioInput" class="mt-2 p-3 w-full rounded-lg bg-black/30 border border-white/10 text-white backdrop-blur-sm" rows="3" placeholder="Write your bio..."></textarea>
       </div>
-      <h3 id="username" class="text-2xl font-bold"></h3>
-      <textarea id="bioInput" class="mt-2 p-2 w-full rounded bg-zinc-800 border border-zinc-700 text-white" rows="2" placeholder="Write your bio..."></textarea>
+    </div>
+
+    <!-- Gradient Controls -->
+    <div class="bg-zinc-900 rounded-lg p-4 mb-6">
+      <h4 class="text-lg font-semibold mb-3 text-red-500">Gradient Settings</h4>
+      <div class="space-y-4">
+        <label class="flex items-center space-x-3">
+          <input type="checkbox" id="gradientToggle" class="w-5 h-5 text-red-600 rounded"/>
+          <span>Enable Gradient Background</span>
+        </label>
+        
+        <div id="gradientPickers" class="space-y-4">
+          <div class="flex items-center">
+            <label class="w-32">Primary Color</label>
+            <input type="color" id="primaryColor" class="ml-2 h-10 w-16 cursor-pointer" value="#991b1b"/>
+            <span id="primaryHex" class="ml-2 text-zinc-400">#991b1b</span>
+          </div>
+          <div class="flex items-center">
+            <label class="w-32">Secondary Color</label>
+            <input type="color" id="secondaryColor" class="ml-2 h-10 w-16 cursor-pointer" value="#1e1b4b"/>
+            <span id="secondaryHex" class="ml-2 text-zinc-400">#1e1b4b</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Asset Uploader Section -->
@@ -116,12 +197,37 @@ let hasChanges = false;
 let originalProfile = {};
 let currentProfile = {};
 
+// 3D Rotation Variables
+let mouseX = 0;
+let mouseY = 0;
+let card = null;
+let avatarRing = null;
+
 function debounce(fn, delay) {
   let t;
   return (...args) => {
     clearTimeout(t);
     t = setTimeout(() => fn(...args), delay);
   };
+}
+
+function handleMouseMove(e) {
+  if (!card || !avatarRing) return;
+  
+  // Get mouse position relative to card
+  const rect = card.getBoundingClientRect();
+  mouseX = e.clientX - rect.left;
+  mouseY = e.clientY - rect.top;
+  
+  // Calculate rotation angles (limited to 15 degrees)
+  const rotateY = (mouseX / rect.width - 0.5) * 30; // -15 to 15 degrees
+  const rotateX = (0.5 - mouseY / rect.height) * 30; // -15 to 15 degrees
+  
+  // Apply rotation to card
+  card.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+  
+  // Apply stronger rotation to avatar ring
+  avatarRing.style.transform = `rotateY(${rotateY * 1.5}deg) rotateX(${rotateX * 1.5}deg)`;
 }
 
 async function uploadFile(bucket, path, file) {
@@ -216,9 +322,14 @@ async function resetChanges() {
   
   // Update UI with original values
   document.getElementById("bioInput").value = profile.bio || "";
+  document.getElementById("gradientToggle").checked = !!profile.gradient_enabled;
+  document.getElementById("primaryColor").value = profile.primary_color || "#991b1b";
+  document.getElementById("secondaryColor").value = profile.secondary_color || "#1e1b4b";
+  document.getElementById("primaryHex").textContent = profile.primary_color || "#991b1b";
+  document.getElementById("secondaryHex").textContent = profile.secondary_color || "#1e1b4b";
   
   // Update preview
-  document.getElementById("profile-preview").style.background = `linear-gradient(to right, ${profile.primary_color || "#991b1b"}, ${profile.secondary_color || "#1e1b4b"})`;
+  updateProfilePreview(profile);
   
   // Update current profile
   currentProfile = JSON.parse(JSON.stringify(profile));
@@ -236,7 +347,33 @@ async function resetChanges() {
   }
 }
 
+function updateProfilePreview(profile) {
+  const preview = document.getElementById("profile-preview");
+  const avatarRing = document.getElementById("avatarRing");
+  
+  if (profile.gradient_enabled && profile.primary_color && profile.secondary_color) {
+    preview.style.background = `linear-gradient(to right, ${profile.primary_color}, ${profile.secondary_color})`;
+    avatarRing.style.background = `linear-gradient(to right, ${profile.primary_color}, ${profile.secondary_color})`;
+  } else {
+    preview.style.background = `rgba(20, 20, 20, 0.65)`;
+    avatarRing.style.background = `linear-gradient(135deg, #ef4444, #991b1b)`;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+  // Initialize 3D elements
+  card = document.getElementById("profile-preview");
+  avatarRing = document.getElementById("avatarRing");
+  
+  // Add mouse move listener for 3D effect
+  document.getElementById("profile-preview-container").addEventListener("mousemove", handleMouseMove);
+  
+  // Reset rotation when mouse leaves
+  document.getElementById("profile-preview-container").addEventListener("mouseleave", () => {
+    card.style.transform = "rotateY(0) rotateX(0)";
+    avatarRing.style.transform = "rotateY(0) rotateX(0)";
+  });
+
   // Check authentication
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
@@ -255,7 +392,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById("username").textContent = profile.username;
   document.getElementById("bioInput").value = profile.bio || "";
   document.getElementById("avatar").src = profile.avatar_url || "https://via.placeholder.com/100";
-  document.getElementById("profile-preview").style.background = `linear-gradient(to right, ${profile.primary_color || "#991b1b"}, ${profile.secondary_color || "#1e1b4b"})`;
+  document.getElementById("gradientToggle").checked = !!profile.gradient_enabled;
+  document.getElementById("primaryColor").value = profile.primary_color || "#991b1b";
+  document.getElementById("secondaryColor").value = profile.secondary_color || "#1e1b4b";
+  document.getElementById("primaryHex").textContent = profile.primary_color || "#991b1b";
+  document.getElementById("secondaryHex").textContent = profile.secondary_color || "#1e1b4b";
+  
+  // Update preview
+  updateProfilePreview(profile);
 
   // Load background if exists
   if (profile.background_url) {
@@ -273,6 +417,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     currentProfile.bio = e.target.value;
     showSaveNotification();
   }, 500));
+
+  // Gradient toggle
+  document.getElementById("gradientToggle").addEventListener("change", (e) => {
+    currentProfile.gradient_enabled = e.target.checked;
+    updateProfilePreview(currentProfile);
+    showSaveNotification();
+  });
+
+  // Color pickers
+  document.getElementById("primaryColor").addEventListener("input", (e) => {
+    currentProfile.primary_color = e.target.value;
+    document.getElementById("primaryHex").textContent = e.target.value;
+    updateProfilePreview(currentProfile);
+    showSaveNotification();
+  });
+
+  document.getElementById("secondaryColor").addEventListener("input", (e) => {
+    currentProfile.secondary_color = e.target.value;
+    document.getElementById("secondaryHex").textContent = e.target.value;
+    updateProfilePreview(currentProfile);
+    showSaveNotification();
+  });
 
   // Background upload
   document.getElementById("backgroundUpload").addEventListener("change", async (e) => {
