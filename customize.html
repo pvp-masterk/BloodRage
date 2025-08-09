@@ -640,7 +640,7 @@ document.getElementById("saveAudioSettings").addEventListener("click", async () 
     const coverFile = document.getElementById("audioCoverInput").files[0];
     if (coverFile) {
       const filePath = `audio_covers/${user.id}-${Date.now()}.${coverFile.name.split('.').pop()}`;
-      currentProfile.audio_cover_url = await uploadFile("audio_covers", filePath, coverFile);
+      currentProfile.audio_cover_url = await uploadFile("audio-covers", filePath, coverFile);
     }
 
     showSaveNotification();
