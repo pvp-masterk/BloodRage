@@ -3,132 +3,351 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Profile</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <title>BloodRage Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    const supabase = supabase.createClient(
-      "https://smcteblolwhfxcpngmvd.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s"
-    );
-  </script>
-</head>
-<body class="bg-zinc-900 text-white">
-
-  <!-- Original Profile Card -->
-  <main class="max-w-4xl mx-auto px-4 py-8">
-    <div class="bg-zinc-800 p-6 rounded-xl shadow-lg">
-      <h1 class="text-2xl font-bold mb-2" id="profileName">Profile Name</h1>
-      <p class="text-zinc-400" id="profileBio">Profile bio here...</p>
-    </div>
-  </main>
-
-  <!-- Floating Music Player -->
-  <div id="customAudioPlayer" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 
-      bg-zinc-900 border border-zinc-800 rounded-xl shadow-lg p-3 
-      flex items-center gap-3 max-w-md w-[90%] md:w-[420px] backdrop-blur-lg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <style>
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .floating { animation: float 4s ease-in-out infinite; }
+    .enter-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 50;
+      flex-direction: column;
+    }
+    body {
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
     
-    <!-- Cover -->
-    <div class="w-16 h-16 bg-zinc-800 rounded overflow-hidden flex-shrink-0">
-      <img id="audioCover" src="" alt="Cover" class="w-full h-full object-cover">
-    </div>
+    /* Glass Card Styles */
+    .glass-card {
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      background: rgba(20, 20, 20, 0.65);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 100%
+      );
+      transform: rotate(45deg);
+      animation: shine 3s infinite;
+    }
+    
+    .glass-card.transparent-mode {
+      background: rgba(0, 0, 0, 0.3) !important;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .glass-card.no-gradient {
+      background: rgba(20, 20, 20, 0.65) !important;
+    }
+    
+    @keyframes shine {
+      0% { transform: translateX(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) rotate(45deg); }
+    }
+    
+    .avatar-ring {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      padding: 8px;
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out;
+    }
+    
+    /* Toggle Switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #4b5563;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: #dc2626;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+  </style>
+</head>
+<body class="bg-black text-white font-sans min-h-screen flex items-center justify-center">
 
-    <!-- Info -->
-    <div class="flex-1 min-w-0">
-      <div id="audioTitle" class="font-bold truncate text-white">Unknown Title</div>
-      <div id="audioArtist" class="text-sm text-zinc-400 truncate">Unknown Artist</div>
-      <div id="audioDuration" class="text-xs text-zinc-500 mt-0.5">0:00</div>
-    </div>
+  <!-- Enter Button Overlay -->
+  <div id="enterOverlay" class="enter-overlay hidden">
+    <button id="enterBtn" class="px-6 py-3 bg-red-600 rounded-lg text-xl hover:bg-red-700">Click to Enter</button>
+  </div>
 
-    <!-- Controls -->
-    <div class="flex items-center gap-2">
-      <button id="playPauseBtn" class="text-red-500 text-xl">
-        <i class="fas fa-play"></i>
-      </button>
-      <input id="volumeSlider" type="range" min="0" max="1" step="0.01" 
-        class="hidden w-16 accent-red-500">
+  <!-- Loading -->
+  <div id="loading" class="flex flex-col items-center justify-center space-y-4 absolute inset-0 bg-black">
+    <div class="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+    <p class="text-red-500 text-xl animate-pulse">Loading profile...</p>
+  </div>
+
+  <!-- Profile Full Screen -->
+  <div id="profileContainer" class="hidden w-full h-full flex flex-col items-center justify-center p-4">
+    <!-- Profile Card Controls -->
+   
+    
+    <!-- Profile Card -->
+    <div id="profileCard" class="glass-card rounded-2xl p-10 w-full max-w-4xl text-center shadow-2xl animate__animated animate__fadeIn">
+      <!-- Avatar -->
+      <div id="avatarRing" class="avatar-ring floating mx-auto mb-6">
+        <img id="avatar" src="" alt="Avatar" class="w-full h-full rounded-full object-cover border-2 border-white/30"/>
+      </div>
+
+      <!-- Username -->
+      <h1 id="username" class="text-6xl font-bold mb-4">@username</h1>
+
+      <!-- Bio -->
+      <p id="bio" class="text-lg text-gray-200 max-w-2xl mx-auto mb-8 hidden"></p>
+
+      <!-- Social Links -->
+      <div id="links" class="flex flex-wrap justify-center gap-6 mt-4"></div>
     </div>
   </div>
 
-  <audio id="profileAudio" preload="metadata"></audio>
+  <!-- Audio Player -->
+  <audio id="backgroundAudio" loop class="hidden"></audio>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+  <!-- Script -->
+ <script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
+  const supabase = createClient(
+    "https://smcteblolwhfxcpngmvd.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s"
+  );
+
+  // 3D Effect Variables
+  let mouseX = 0;
+  let mouseY = 0;
+  let card = null;
+  let avatarRing = null;
+  let is3dEnabled = true;
+  let isTransparentMode = false;
+
+  // Handle mouse movement for 3D effect
+  function handleMouseMove(e) {
+    if (!is3dEnabled || !card || !avatarRing) return;
+    
+    const rect = card.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
+    
+    const rotateY = (mouseX / rect.width - 0.5) * 15;
+    const rotateX = (0.5 - mouseY / rect.height) * 15;
+    
+    card.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+    avatarRing.style.transform = `rotateY(${rotateY * 1.5}deg) rotateX(${rotateX * 1.5}deg)`;
+  }
+
+  // Reset card position
+  function resetCardPosition() {
+    if (card) card.style.transform = "rotateY(0) rotateX(0)";
+    if (avatarRing) avatarRing.style.transform = "rotateY(0) rotateX(0)";
+  }
+
+  // Get username from URL
+  let username = window.location.pathname.replace(/^\/+|\/+$/g, '').trim();
+  if (username.startsWith('@')) {
+    username = username.substring(1);
+  }
+  username = decodeURIComponent(username);
+
+  if (!username) {
+    window.location.href = '/';
+  } else {
+    async function loadProfile() {
       const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
+        .from('profiles')
+        .select('*')
+        .eq('username', username.toLowerCase())
         .single();
 
-      if (error) {
-        console.error("Error loading profile:", error);
+      document.getElementById("loading").classList.add("hidden");
+
+      if (error || !data) {
+        document.body.innerHTML = `
+          <div class="flex items-center justify-center min-h-screen">
+            <div class="text-center animate__animated animate__shakeX">
+              <div class="text-red-500 text-4xl mb-2">⚠️</div>
+              <h2 class="text-red-500 text-xl font-semibold">User not found</h2>
+              <p class="text-zinc-400 mt-2">The profile @${username} doesn't exist</p>
+              <a href="/" class="mt-4 inline-block bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
+                Go Home
+              </a>
+            </div>
+          </div>`;
         return;
       }
 
-      document.getElementById("profileName").textContent = data.username || "No Name";
-      document.getElementById("profileBio").textContent = data.bio || "";
+      // Set 3D and transparent mode from database
+      is3dEnabled = data.card_3d_enabled !== false;
+      isTransparentMode = data.card_transparent_mode === true;
 
-      if (data.audio_url) {
-        const player = document.getElementById("customAudioPlayer");
-        const audio = document.getElementById("profileAudio");
-        const playBtn = document.getElementById("playPauseBtn");
-        const volSlider = document.getElementById("volumeSlider");
-
-        // Cover
-        document.getElementById("audioCover").src = data.audio_cover_url || "";
-
-        // Info
-        document.getElementById("audioTitle").textContent = data.audio_title || "Unknown Title";
-        document.getElementById("audioArtist").textContent = data.audio_artist || "Unknown Artist";
-
-        // Audio
-        audio.src = data.audio_url;
-        audio.volume = 0.5;
-
-        // Duration
-        audio.addEventListener("loadedmetadata", () => {
-          const dur = Math.floor(audio.duration);
-          const min = Math.floor(dur / 60);
-          const sec = dur % 60;
-          document.getElementById("audioDuration").textContent = 
-            `${min}:${sec.toString().padStart(2, '0')}`;
-        });
-
-        // Play/Pause
-        playBtn.addEventListener("click", () => {
-          if (audio.paused) {
-            audio.play();
-            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-          } else {
-            audio.pause();
-            playBtn.innerHTML = '<i class="fas fa-play"></i>';
-          }
-        });
-
-        // Volume
-        if (data.audio_volume_enabled) {
-          volSlider.classList.remove("hidden");
-          volSlider.value = audio.volume;
-          volSlider.addEventListener("input", () => {
-            audio.volume = volSlider.value;
-          });
-        }
-
-        // Prevent scrubbing
-        audio.addEventListener("seeking", () => {
-          if (!audio.paused && Math.abs(audio.currentTime) > 1) {
-            audio.currentTime = 0;
-          }
-        });
-
-        player.classList.remove("hidden");
+      // Set background image if exists
+      if (data.background_url) {
+        document.body.style.backgroundImage = `url('${data.background_url}')`;
       }
-    });
-  </script>
 
+      // Play background audio if exists
+      if (data.audio_url) {
+        const audio = document.getElementById("backgroundAudio");
+        audio.src = data.audio_url;
+        audio.volume = 0.3;
+        audio.play().catch(e => console.log("Audio play failed:", e));
+      }
+
+      // Apply custom cursor if exists
+      if (data.cursor_url) {
+        document.body.style.cursor = `url('${data.cursor_url}'), auto`;
+      }
+
+      // Initialize 3D elements
+      card = document.getElementById("profileCard");
+      avatarRing = document.getElementById("avatarRing");
+      
+      // Add mouse move listener if 3D is enabled
+      if (is3dEnabled) {
+        document.getElementById("profileContainer").addEventListener("mousemove", handleMouseMove);
+        document.getElementById("profileContainer").addEventListener("mouseleave", resetCardPosition);
+      }
+
+      // If enter button is enabled, show overlay
+      if (data.show_enter_button) {
+        const overlay = document.getElementById("enterOverlay");
+        overlay.classList.remove("hidden");
+        document.getElementById("enterBtn").onclick = () => {
+          overlay.classList.add("hidden");
+          displayProfile(data);
+        };
+      } else {
+        displayProfile(data);
+      }
+    }
+
+    function displayProfile(data) {
+      const profileContainer = document.getElementById("profileContainer");
+      const card = document.getElementById("profileCard");
+      const avatarRing = document.getElementById("avatarRing");
+
+      // Apply transparent mode if enabled
+      if (isTransparentMode) {
+        card.classList.add('transparent-mode');
+        card.classList.add('no-gradient');
+      }
+
+      // Apply gradient if enabled (only to card, not avatar ring)
+      if (data.gradient_enabled && data.primary_color && data.secondary_color && !isTransparentMode) {
+        card.style.background = `linear-gradient(to right, ${data.primary_color}, ${data.secondary_color})`;
+      } else {
+        card.style.background = `rgba(20, 20, 20, 0.65)`;
+      }
+
+      // Set solid color for avatar ring (no gradient)
+      avatarRing.style.background = `rgba(20, 20, 20, 0.65)`;
+
+      // Use Discord avatar if enabled
+      if (data.use_discord_avatar && data.discord_id) {
+        document.getElementById("avatar").src = `https://cdn.discordapp.com/avatars/${data.discord_id}/${data.discord_avatar}.png?size=512`;
+      } else {
+        document.getElementById("avatar").src = data.avatar_url || 'https://via.placeholder.com/150/111827/FFFFFF/?text=BR';
+      }
+
+      document.getElementById("username").textContent = '@' + data.username;
+
+      if (data.bio) {
+        const bio = document.getElementById("bio");
+        bio.textContent = data.bio;
+        bio.classList.remove("hidden");
+      }
+
+      if (data.links) {
+        const linksContainer = document.getElementById("links");
+        linksContainer.innerHTML = '';
+        for (const url of Object.values(data.links)) {
+          linksContainer.appendChild(createLinkElement(url));
+        }
+      }
+
+      profileContainer.classList.remove("hidden");
+    }
+
+    function createLinkElement(url) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.className = 'text-white text-3xl hover:scale-125 transition-transform';
+      a.innerHTML = getIconForUrl(url);
+      return a;
+    }
+
+    function getIconForUrl(url) {
+      if (url.includes("twitter.com")) return `<i class="fab fa-twitter"></i>`;
+      if (url.includes("github.com")) return `<i class="fab fa-github"></i>`;
+      if (url.includes("instagram.com")) return `<i class="fab fa-instagram"></i>`;
+      if (url.includes("youtube.com")) return `<i class="fab fa-youtube"></i>`;
+      return `<i class="fas fa-link"></i>`;
+    }
+
+    loadProfile();
+  }
+</script>
 </body>
 </html>
