@@ -162,8 +162,20 @@
     </div>
   </div>
 
-  <!-- Audio Player -->
-  <audio id="backgroundAudio" loop class="hidden"></audio>
+ <!-- Custom Audio Player -->
+<div id="customAudioPlayer" class="hidden fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex items-center space-x-4 shadow-lg max-w-md w-full">
+  <img id="audioCover" src="" alt="Cover" class="w-16 h-16 rounded object-cover bg-zinc-800">
+  <div class="flex-1">
+    <div id="audioTitle" class="font-bold text-white"></div>
+    <div id="audioArtist" class="text-sm text-zinc-400"></div>
+    <div id="audioDuration" class="text-xs text-zinc-500 mt-1"></div>
+  </div>
+  <button id="playPauseBtn" class="text-red-500 text-2xl"><i class="fas fa-play"></i></button>
+  <input id="volumeSlider" type="range" min="0" max="1" step="0.01" class="hidden w-20">
+</div>
+
+<audio id="profileAudio" preload="metadata"></audio>
+
 
   <!-- Script -->
  <script type="module">
@@ -327,6 +339,56 @@
       }
 
       profileContainer.classList.remove("hidden");
+
+// Audio player logic
+if (data.audio_url) {
+  const player = document.getElementById("customAudioPlayer");
+  const audio = document.getElementById("profileAudio");
+  const playBtn = document.getElementById("playPauseBtn");
+  const volSlider = document.getElementById("volumeSlider");
+
+  document.getElementById("audioCover").src = data.audio_cover_url || "";
+  document.getElementById("audioTitle").textContent = data.audio_title || "Unknown Title";
+  document.getElementById("audioArtist").textContent = data.audio_artist || "Unknown Artist";
+
+  audio.src = data.audio_url;
+  audio.volume = 0.5;
+  audio.addEventListener("loadedmetadata", () => {
+    const dur = Math.floor(audio.duration);
+    const min = Math.floor(dur / 60);
+    const sec = dur % 60;
+    document.getElementById("audioDuration").textContent = `${min}:${sec.toString().padStart(2, '0')}`;
+  });
+
+  playBtn.addEventListener("click", () => {
+    if (audio.paused) {
+      audio.play();
+      playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    } else {
+      audio.pause();
+      playBtn.innerHTML = '<i class="fas fa-play"></i>';
+    }
+  });
+
+  if (data.audio_volume_enabled) {
+    volSlider.classList.remove("hidden");
+    volSlider.value = audio.volume;
+    volSlider.addEventListener("input", () => {
+      audio.volume = volSlider.value;
+    });
+  }
+
+  // Prevent scrubbing
+  audio.addEventListener("seeking", () => {
+    if (Math.abs(audio.currentTime - 0) > 1 && !audio.paused) {
+      audio.currentTime = 0;
+    }
+  });
+
+  player.classList.remove("hidden");
+}
+
+   
     }
 
     function createLinkElement(url) {
