@@ -8,20 +8,49 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
   <style>
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-    .floating { animation: float 4s ease-in-out infinite; }
-    .enter-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.85);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 50;
-      flex-direction: column;
+    @keyframes float { 
+      0%, 100% { transform: translateY(0); } 
+      50% { transform: translateY(-10px); } 
     }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes shine {
+      0% { transform: translateX(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) rotate(45deg); }
+    }
+    
+    .floating { animation: float 4s ease-in-out infinite; }
+    .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    
+    .enter-overlay {
+      position: fixed; 
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      z-index: 9999;
+      flex-direction: column;
+      backdrop-filter: blur(10px);
+    }
+    
     body {
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
       background-attachment: fixed;
+      cursor: url('https://cdn.custom-cursor.com/db/7477/32/arrow2682.png'), auto;
+      transition: all 0.3s ease;
     }
     
     /* Glass Card Styles */
@@ -33,9 +62,13 @@
       border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
       transform-style: preserve-3d;
-      transition: transform 0.1s ease-out;
+      transition: transform 0.1s ease-out, box-shadow 0.3s ease;
       position: relative;
       overflow: hidden;
+    }
+    
+    .glass-card:hover {
+      box-shadow: 0 12px 48px 0 rgba(31, 38, 135, 0.5);
     }
     
     .glass-card::before {
@@ -53,6 +86,12 @@
       );
       transform: rotate(45deg);
       animation: shine 3s infinite;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .glass-card:hover::before {
+      opacity: 1;
     }
     
     .glass-card.transparent-mode {
@@ -64,11 +103,6 @@
       background: rgba(20, 20, 20, 0.65) !important;
     }
     
-    @keyframes shine {
-      0% { transform: translateX(-100%) rotate(45deg); }
-      100% { transform: translateX(100%) rotate(45deg); }
-    }
-    
     .avatar-ring {
       position: relative;
       width: 160px;
@@ -77,277 +111,575 @@
       padding: 8px;
       transform-style: preserve-3d;
       transition: transform 0.1s ease-out;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
     }
     
-    /* Toggle Switch */
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 50px;
-      height: 24px;
-    }
-    
-    .switch input {
+    /* Audio Player Styles */
+    .audio-player {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 300px;
+      background: rgba(20, 20, 20, 0.8);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 1rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      transform: translateY(20px);
       opacity: 0;
-      width: 0;
-      height: 0;
+      transition: all 0.3s ease;
+      z-index: 100;
     }
     
-    .slider {
-      position: absolute;
+    .audio-player.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .audio-cover {
+      width: 64px;
+      height: 64px;
+      border-radius: 8px;
+      object-fit: cover;
+      margin-right: 1rem;
+    }
+    
+    .progress-container {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      margin: 0.5rem 0;
       cursor: pointer;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #dc2626, #f87171);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+    
+    .audio-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+    }
+    
+    .audio-time {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    
+    /* Link Hover Effects */
+    .social-link {
+      transition: all 0.3s ease;
+      transform: scale(1);
+    }
+    
+    .social-link:hover {
+      transform: scale(1.2);
+      filter: drop-shadow(0 0 8px currentColor);
+    }
+    
+    /* Background Video */
+    .bg-video {
+      position: fixed;
       top: 0;
       left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #4b5563;
-      transition: .4s;
-      border-radius: 24px;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 1s ease;
     }
     
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 16px;
-      width: 16px;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
-    }
-    
-    input:checked + .slider {
-      background-color: #dc2626;
-    }
-    
-    input:checked + .slider:before {
-      transform: translateX(26px);
+    .bg-video.show {
+      opacity: 1;
     }
   </style>
 </head>
-<body class="bg-black text-white font-sans min-h-screen flex items-center justify-center">
+<body class="bg-black text-white font-sans min-h-screen flex items-center justify-center p-4">
+
+  <!-- Background Video -->
+  <video id="bgVideo" class="bg-video" muted loop playsinline></video>
 
   <!-- Enter Button Overlay -->
-  <div id="enterOverlay" class="enter-overlay hidden">
-    <button id="enterBtn" class="px-6 py-3 bg-red-600 rounded-lg text-xl hover:bg-red-700">Click to Enter</button>
+  <div id="enterOverlay" class="enter-overlay animate__animated animate__fadeIn">
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-red-500 mb-2 animate__animated animate__pulse">Welcome</h1>
+      <p class="text-zinc-300 max-w-md">You're about to enter <span id="profileUsername" class="font-bold text-white">@username</span>'s profile</p>
+    </div>
+    <button id="enterBtn" class="px-8 py-3 bg-red-600 rounded-lg text-xl hover:bg-red-700 transition-all transform hover:scale-105 shadow-lg animate__animated animate__pulse">
+      <i class="fas fa-arrow-right mr-2"></i> Enter Profile
+    </button>
   </div>
 
-  <!-- Loading -->
-  <div id="loading" class="flex flex-col items-center justify-center space-y-4 absolute inset-0 bg-black">
-    <div class="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+  <!-- Loading Screen -->
+  <div id="loading" class="flex flex-col items-center justify-center space-y-4 fixed inset-0 bg-black z-50">
+    <div class="relative">
+      <div class="w-20 h-20 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <div class="w-12 h-12 bg-red-600 rounded-full pulse"></div>
+      </div>
+    </div>
     <p class="text-red-500 text-xl animate-pulse">Loading profile...</p>
   </div>
 
-  <!-- Profile Full Screen -->
-  <div id="profileContainer" class="hidden w-full h-full flex flex-col items-center justify-center p-4">
-    <!-- Profile Card Controls -->
-   
-    
+  <!-- Profile Container -->
+  <div id="profileContainer" class="hidden w-full max-w-6xl">
     <!-- Profile Card -->
-    <div id="profileCard" class="glass-card rounded-2xl p-10 w-full max-w-4xl text-center shadow-2xl animate__animated animate__fadeIn">
+    <div id="profileCard" class="glass-card rounded-2xl p-8 md:p-12 w-full text-center shadow-2xl transform transition-all duration-300">
       <!-- Avatar -->
-      <div id="avatarRing" class="avatar-ring floating mx-auto mb-6">
-        <img id="avatar" src="" alt="Avatar" class="w-full h-full rounded-full object-cover border-2 border-white/30"/>
+      <div id="avatarRing" class="avatar-ring floating mx-auto mb-8">
+        <img id="avatar" src="" alt="Avatar" class="w-full h-full rounded-full object-cover border-2 border-white/30 transition-transform duration-300 hover:scale-105"/>
       </div>
 
       <!-- Username -->
-      <h1 id="username" class="text-6xl font-bold mb-4">@username</h1>
+      <h1 id="username" class="text-4xl md:text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-pink-500">@username</h1>
 
       <!-- Bio -->
       <p id="bio" class="text-lg text-gray-200 max-w-2xl mx-auto mb-8 hidden"></p>
 
       <!-- Social Links -->
-      <div id="links" class="flex flex-wrap justify-center gap-6 mt-4"></div>
+      <div id="links" class="flex flex-wrap justify-center gap-6 mt-8"></div>
     </div>
   </div>
 
-  <!-- Audio Player -->
-  <audio id="backgroundAudio" loop class="hidden"></audio>
+  <!-- Enhanced Audio Player -->
+  <div id="audioPlayer" class="audio-player">
+    <div class="flex items-center">
+      <img id="audioCover" src="https://via.placeholder.com/64" class="audio-cover" alt="Cover">
+      <div class="flex-1">
+        <div id="audioTitle" class="font-semibold truncate">No audio playing</div>
+        <div id="audioArtist" class="text-sm text-gray-400 truncate">Unknown artist</div>
+      </div>
+      <button id="closeAudioPlayer" class="text-gray-400 hover:text-white ml-2">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="progress-container" id="progressContainer">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="audio-controls">
+      <button id="prevBtn" class="text-gray-300 hover:text-white">
+        <i class="fas fa-step-backward"></i>
+      </button>
+      <button id="playBtn" class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white hover:bg-red-700">
+        <i class="fas fa-play" id="playIcon"></i>
+      </button>
+      <button id="nextBtn" class="text-gray-300 hover:text-white">
+        <i class="fas fa-step-forward"></i>
+      </button>
+      <div class="audio-time">
+        <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+      </div>
+      <button id="volumeBtn" class="text-gray-300 hover:text-white ml-2">
+        <i class="fas fa-volume-up"></i>
+      </button>
+      <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5" class="w-16 ml-2">
+    </div>
+  </div>
 
-  <!-- Script -->
- <script type="module">
-  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+  <!-- Background Audio -->
+  <audio id="backgroundAudio" loop></audio>
 
-  const supabase = createClient(
-    "https://smcteblolwhfxcpngmvd.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s"
-  );
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-  // 3D Effect Variables
-  let mouseX = 0;
-  let mouseY = 0;
-  let card = null;
-  let avatarRing = null;
-  let is3dEnabled = true;
-  let isTransparentMode = false;
+    const supabase = createClient(
+      "https://smcteblolwhfxcpngmvd.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s"
+    );
 
-  // Handle mouse movement for 3D effect
-  function handleMouseMove(e) {
-    if (!is3dEnabled || !card || !avatarRing) return;
-    
-    const rect = card.getBoundingClientRect();
-    mouseX = e.clientX - rect.left;
-    mouseY = e.clientY - rect.top;
-    
-    const rotateY = (mouseX / rect.width - 0.5) * 15;
-    const rotateX = (0.5 - mouseY / rect.height) * 15;
-    
-    card.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
-    avatarRing.style.transform = `rotateY(${rotateY * 1.5}deg) rotateX(${rotateX * 1.5}deg)`;
-  }
+    // 3D Effect Variables
+    let mouseX = 0;
+    let mouseY = 0;
+    let card = null;
+    let avatarRing = null;
+    let is3dEnabled = true;
+    let isTransparentMode = false;
 
-  // Reset card position
-  function resetCardPosition() {
-    if (card) card.style.transform = "rotateY(0) rotateX(0)";
-    if (avatarRing) avatarRing.style.transform = "rotateY(0) rotateX(0)";
-  }
+    // Audio Player Variables
+    let isPlaying = false;
+    let audioProgressInterval;
+    let currentVolume = 0.3;
+    let audioPlaylist = [];
+    let currentAudioIndex = 0;
 
-  // Get username from URL
-  let username = window.location.pathname.replace(/^\/+|\/+$/g, '').trim();
-  if (username.startsWith('@')) {
-    username = username.substring(1);
-  }
-  username = decodeURIComponent(username);
-
-  if (!username) {
-    window.location.href = '/';
-  } else {
-    async function loadProfile() {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('username', username.toLowerCase())
-        .single();
-
-      document.getElementById("loading").classList.add("hidden");
-
-      if (error || !data) {
-        document.body.innerHTML = `
-          <div class="flex items-center justify-center min-h-screen">
-            <div class="text-center animate__animated animate__shakeX">
-              <div class="text-red-500 text-4xl mb-2">⚠️</div>
-              <h2 class="text-red-500 text-xl font-semibold">User not found</h2>
-              <p class="text-zinc-400 mt-2">The profile @${username} doesn't exist</p>
-              <a href="/" class="mt-4 inline-block bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
-                Go Home
-              </a>
-            </div>
-          </div>`;
-        return;
-      }
-
-      // Set 3D and transparent mode from database
-      is3dEnabled = data.card_3d_enabled !== false;
-      isTransparentMode = data.card_transparent_mode === true;
-
-      // Set background image if exists
-      if (data.background_url) {
-        document.body.style.backgroundImage = `url('${data.background_url}')`;
-      }
-
-      // Play background audio if exists
-      if (data.audio_url) {
-        const audio = document.getElementById("backgroundAudio");
-        audio.src = data.audio_url;
-        audio.volume = 0.3;
-        audio.play().catch(e => console.log("Audio play failed:", e));
-      }
-
-      // Apply custom cursor if exists
-      if (data.cursor_url) {
-        document.body.style.cursor = `url('${data.cursor_url}'), auto`;
-      }
-
-      // Initialize 3D elements
-      card = document.getElementById("profileCard");
-      avatarRing = document.getElementById("avatarRing");
+    // Handle mouse movement for 3D effect
+    function handleMouseMove(e) {
+      if (!is3dEnabled || !card || !avatarRing) return;
       
-      // Add mouse move listener if 3D is enabled
-      if (is3dEnabled) {
-        document.getElementById("profileContainer").addEventListener("mousemove", handleMouseMove);
-        document.getElementById("profileContainer").addEventListener("mouseleave", resetCardPosition);
-      }
+      const rect = card.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+      
+      const rotateY = (mouseX / rect.width - 0.5) * 15;
+      const rotateX = (0.5 - mouseY / rect.height) * 15;
+      
+      card.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+      avatarRing.style.transform = `rotateY(${rotateY * 1.5}deg) rotateX(${rotateX * 1.5}deg)`;
+    }
 
-      // If enter button is enabled, show overlay
-      if (data.show_enter_button) {
-        const overlay = document.getElementById("enterOverlay");
-        overlay.classList.remove("hidden");
-        document.getElementById("enterBtn").onclick = () => {
-          overlay.classList.add("hidden");
-          displayProfile(data);
-        };
-      } else {
-        displayProfile(data);
+    // Reset card position
+    function resetCardPosition() {
+      if (card) card.style.transform = "rotateY(0) rotateX(0)";
+      if (avatarRing) avatarRing.style.transform = "rotateY(0) rotateX(0)";
+    }
+
+    // Format time (seconds to MM:SS)
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    // Update audio progress bar
+    function updateAudioProgress() {
+      const audio = document.getElementById("backgroundAudio");
+      const progressBar = document.getElementById("progressBar");
+      const currentTimeEl = document.getElementById("currentTime");
+      const durationEl = document.getElementById("duration");
+      
+      if (audio.duration) {
+        const progress = (audio.currentTime / audio.duration) * 100;
+        progressBar.style.width = `${progress}%`;
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+        durationEl.textContent = formatTime(audio.duration);
       }
     }
 
-    function displayProfile(data) {
-      const profileContainer = document.getElementById("profileContainer");
-      const card = document.getElementById("profileCard");
-      const avatarRing = document.getElementById("avatarRing");
+    // Seek audio when progress bar is clicked
+    function setupProgressBarSeek() {
+      const progressContainer = document.getElementById("progressContainer");
+      const audio = document.getElementById("backgroundAudio");
+      
+      progressContainer.addEventListener("click", (e) => {
+        if (!audio.duration) return;
+        
+        const rect = progressContainer.getBoundingClientRect();
+        const pos = (e.clientX - rect.left) / rect.width;
+        audio.currentTime = pos * audio.duration;
+      });
+    }
 
-      // Apply transparent mode if enabled
-      if (isTransparentMode) {
-        card.classList.add('transparent-mode');
-        card.classList.add('no-gradient');
-      }
-
-      // Apply gradient if enabled (only to card, not avatar ring)
-      if (data.gradient_enabled && data.primary_color && data.secondary_color && !isTransparentMode) {
-        card.style.background = `linear-gradient(to right, ${data.primary_color}, ${data.secondary_color})`;
+    // Toggle play/pause
+    function togglePlayPause() {
+      const audio = document.getElementById("backgroundAudio");
+      const playIcon = document.getElementById("playIcon");
+      
+      if (isPlaying) {
+        audio.pause();
+        playIcon.classList.replace("fa-pause", "fa-play");
       } else {
-        card.style.background = `rgba(20, 20, 20, 0.65)`;
+        audio.play().catch(e => console.log("Audio play failed:", e));
+        playIcon.classList.replace("fa-play", "fa-pause");
       }
+      
+      isPlaying = !isPlaying;
+    }
 
-      // Set solid color for avatar ring (no gradient)
-      avatarRing.style.background = `rgba(20, 20, 20, 0.65)`;
+    // Initialize audio player
+    function initAudioPlayer() {
+      const audio = document.getElementById("backgroundAudio");
+      const playBtn = document.getElementById("playBtn");
+      const volumeBtn = document.getElementById("volumeBtn");
+      const volumeSlider = document.getElementById("volumeSlider");
+      const closeBtn = document.getElementById("closeAudioPlayer");
+      
+      // Event listeners
+      playBtn.addEventListener("click", togglePlayPause);
+      volumeSlider.addEventListener("input", (e) => {
+        currentVolume = e.target.value;
+        audio.volume = currentVolume;
+        
+        // Update volume icon
+        if (currentVolume == 0) {
+          volumeBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+        } else if (currentVolume < 0.5) {
+          volumeBtn.innerHTML = '<i class="fas fa-volume-down"></i>';
+        } else {
+          volumeBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+        }
+      });
+      
+      volumeBtn.addEventListener("click", () => {
+        if (audio.volume > 0) {
+          volumeSlider.value = 0;
+          audio.volume = 0;
+          volumeBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+        } else {
+          volumeSlider.value = currentVolume || 0.5;
+          audio.volume = currentVolume || 0.5;
+          volumeBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+        }
+      });
+      
+      closeBtn.addEventListener("click", () => {
+        document.getElementById("audioPlayer").classList.remove("show");
+      });
+      
+      // Audio events
+      audio.addEventListener("play", () => {
+        isPlaying = true;
+        document.getElementById("playIcon").classList.replace("fa-play", "fa-pause");
+        
+        // Start progress updater
+        clearInterval(audioProgressInterval);
+        audioProgressInterval = setInterval(updateAudioProgress, 1000);
+      });
+      
+      audio.addEventListener("pause", () => {
+        isPlaying = false;
+        document.getElementById("playIcon").classList.replace("fa-pause", "fa-play");
+        clearInterval(audioProgressInterval);
+      });
+      
+      audio.addEventListener("ended", () => {
+        // Play next track if available
+        if (audioPlaylist.length > 1) {
+          currentAudioIndex = (currentAudioIndex + 1) % audioPlaylist.length;
+          playAudio(currentAudioIndex);
+        }
+      });
+      
+      audio.addEventListener("timeupdate", updateAudioProgress);
+      
+      // Set initial volume
+      audio.volume = currentVolume;
+    }
 
-      // Use Discord avatar if enabled
-      if (data.use_discord_avatar && data.discord_id) {
-        document.getElementById("avatar").src = `https://cdn.discordapp.com/avatars/${data.discord_id}/${data.discord_avatar}.png?size=512`;
-      } else {
-        document.getElementById("avatar").src = data.avatar_url || 'https://via.placeholder.com/150/111827/FFFFFF/?text=BR';
-      }
+    // Play specific audio track from playlist
+    function playAudio(index) {
+      if (!audioPlaylist.length || index < 0 || index >= audioPlaylist.length) return;
+      
+      const audio = document.getElementById("backgroundAudio");
+      const track = audioPlaylist[index];
+      currentAudioIndex = index;
+      
+      // Update UI
+      document.getElementById("audioTitle").textContent = track.title || "Unknown track";
+      document.getElementById("audioArtist").textContent = track.artist || "Unknown artist";
+      document.getElementById("audioCover").src = track.cover || "https://via.placeholder.com/64";
+      
+      // Load and play audio
+      audio.src = track.url;
+      audio.load();
+      audio.play().catch(e => console.log("Audio play failed:", e));
+      
+      // Show player
+      document.getElementById("audioPlayer").classList.add("show");
+    }
 
-      document.getElementById("username").textContent = '@' + data.username;
+    // Get username from URL
+    let username = window.location.pathname.replace(/^\/+|\/+$/g, '').trim();
+    if (username.startsWith('@')) {
+      username = username.substring(1);
+    }
+    username = decodeURIComponent(username);
 
-      if (data.bio) {
-        const bio = document.getElementById("bio");
-        bio.textContent = data.bio;
-        bio.classList.remove("hidden");
-      }
+    if (!username) {
+      window.location.href = '/';
+    } else {
+      async function loadProfile() {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('username', username.toLowerCase())
+          .single();
 
-      if (data.links) {
-        const linksContainer = document.getElementById("links");
-        linksContainer.innerHTML = '';
-        for (const url of Object.values(data.links)) {
-          linksContainer.appendChild(createLinkElement(url));
+        // Update loading screen username
+        document.getElementById("profileUsername").textContent = `@${username}`;
+
+        // Hide loading screen after a short delay for smooth transition
+        setTimeout(() => {
+          document.getElementById("loading").classList.add("hidden");
+        }, 1000);
+
+        if (error || !data) {
+          document.body.innerHTML = `
+            <div class="flex items-center justify-center min-h-screen">
+              <div class="text-center animate__animated animate__shakeX">
+                <div class="text-red-500 text-4xl mb-2">⚠️</div>
+                <h2 class="text-red-500 text-xl font-semibold">User not found</h2>
+                <p class="text-zinc-400 mt-2">The profile @${username} doesn't exist</p>
+                <a href="/" class="mt-4 inline-block bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
+                  Go Home
+                </a>
+              </div>
+            </div>`;
+          return;
+        }
+
+        // Set 3D and transparent mode from database
+        is3dEnabled = data.card_3d_enabled !== false;
+        isTransparentMode = data.card_transparent_mode === true;
+
+        // Set background video if exists
+        if (data.background_video_url) {
+          const bgVideo = document.getElementById("bgVideo");
+          bgVideo.src = data.background_video_url;
+          bgVideo.addEventListener('loadedmetadata', () => {
+            bgVideo.classList.add('show');
+            bgVideo.play().catch(e => console.log("Video play failed:", e));
+          });
+        } else if (data.background_url) {
+          // Fallback to background image
+          document.body.style.backgroundImage = `url('${data.background_url}')`;
+        }
+
+        // Setup audio player
+        if (data.audio_url) {
+          audioPlaylist = [{
+            url: data.audio_url,
+            title: data.audio_title || "Background audio",
+            artist: data.audio_artist || "",
+            cover: data.audio_cover_url || ""
+          }];
+          
+          // Initialize and show audio player
+          initAudioPlayer();
+          setupProgressBarSeek();
+          
+          // Auto-play if allowed
+          if (data.audio_auto_play) {
+            playAudio(0);
+          }
+        }
+
+        // Apply custom cursor if exists
+        if (data.cursor_url) {
+          document.body.style.cursor = `url('${data.cursor_url}'), auto`;
+        }
+
+        // Initialize 3D elements
+        card = document.getElementById("profileCard");
+        avatarRing = document.getElementById("avatarRing");
+        
+        // Add mouse move listener if 3D is enabled
+        if (is3dEnabled) {
+          document.getElementById("profileContainer").addEventListener("mousemove", handleMouseMove);
+          document.getElementById("profileContainer").addEventListener("mouseleave", resetCardPosition);
+        }
+
+        // If enter button is enabled, show overlay
+        if (data.show_enter_button) {
+          const overlay = document.getElementById("enterOverlay");
+          overlay.classList.remove("hidden");
+          document.getElementById("enterBtn").onclick = () => {
+            overlay.classList.add("animate__fadeOut");
+            setTimeout(() => {
+              overlay.classList.add("hidden");
+              displayProfile(data);
+            }, 500);
+          };
+        } else {
+          displayProfile(data);
         }
       }
 
-      profileContainer.classList.remove("hidden");
-    }
+      function displayProfile(data) {
+        const profileContainer = document.getElementById("profileContainer");
+        const card = document.getElementById("profileCard");
+        const avatarRing = document.getElementById("avatarRing");
 
-    function createLinkElement(url) {
-      const a = document.createElement('a');
-      a.href = url;
-      a.target = '_blank';
-      a.className = 'text-white text-3xl hover:scale-125 transition-transform';
-      a.innerHTML = getIconForUrl(url);
-      return a;
-    }
+        // Apply transparent mode if enabled
+        if (isTransparentMode) {
+          card.classList.add('transparent-mode');
+          card.classList.add('no-gradient');
+        }
 
-    function getIconForUrl(url) {
-      if (url.includes("twitter.com")) return `<i class="fab fa-twitter"></i>`;
-      if (url.includes("github.com")) return `<i class="fab fa-github"></i>`;
-      if (url.includes("instagram.com")) return `<i class="fab fa-instagram"></i>`;
-      if (url.includes("youtube.com")) return `<i class="fab fa-youtube"></i>`;
-      return `<i class="fas fa-link"></i>`;
-    }
+        // Apply gradient if enabled (only to card, not avatar ring)
+        if (data.gradient_enabled && data.primary_color && data.secondary_color && !isTransparentMode) {
+          card.style.background = `linear-gradient(to right, ${data.primary_color}, ${data.secondary_color})`;
+        } else {
+          card.style.background = `rgba(20, 20, 20, 0.65)`;
+        }
 
-    loadProfile();
-  }
-</script>
+        // Set solid color for avatar ring (no gradient)
+        avatarRing.style.background = `rgba(20, 20, 20, 0.65)`;
+
+        // Use Discord avatar if enabled
+        if (data.use_discord_avatar && data.discord_id) {
+          document.getElementById("avatar").src = `https://cdn.discordapp.com/avatars/${data.discord_id}/${data.discord_avatar}.png?size=512`;
+        } else {
+          document.getElementById("avatar").src = data.avatar_url || 'https://via.placeholder.com/150/111827/FFFFFF/?text=BR';
+        }
+
+        document.getElementById("username").textContent = '@' + data.username;
+
+        if (data.bio) {
+          const bio = document.getElementById("bio");
+          bio.textContent = data.bio;
+          bio.classList.remove("hidden");
+          bio.classList.add("fade-in");
+        }
+
+        if (data.links) {
+          const linksContainer = document.getElementById("links");
+          linksContainer.innerHTML = '';
+          for (const url of Object.values(data.links)) {
+            const linkEl = createLinkElement(url);
+            linkEl.classList.add("fade-in");
+            linksContainer.appendChild(linkEl);
+          }
+        }
+
+        // Show profile with animation
+        profileContainer.classList.remove("hidden");
+        profileContainer.classList.add("animate__animated", "animate__fadeIn");
+      }
+
+      function createLinkElement(url) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.target = '_blank';
+        a.className = 'social-link text-white text-3xl hover:text-red-500';
+        a.innerHTML = getIconForUrl(url);
+        return a;
+      }
+
+      function getIconForUrl(url) {
+        url = url.toLowerCase();
+        if (url.includes("twitter.com") || url.includes("x.com")) return `<i class="fab fa-twitter"></i>`;
+        if (url.includes("github.com")) return `<i class="fab fa-github"></i>`;
+        if (url.includes("instagram.com")) return `<i class="fab fa-instagram"></i>`;
+        if (url.includes("youtube.com")) return `<i class="fab fa-youtube"></i>`;
+        if (url.includes("discord.gg")) return `<i class="fab fa-discord"></i>`;
+        if (url.includes("twitch.tv")) return `<i class="fab fa-twitch"></i>`;
+        if (url.includes("tiktok.com")) return `<i class="fab fa-tiktok"></i>`;
+        if (url.includes("reddit.com")) return `<i class="fab fa-reddit"></i>`;
+        if (url.includes("linkedin.com")) return `<i class="fab fa-linkedin"></i>`;
+        if (url.includes("spotify.com")) return `<i class="fab fa-spotify"></i>`;
+        if (url.includes("soundcloud.com")) return `<i class="fab fa-soundcloud"></i>`;
+        return `<i class="fas fa-link"></i>`;
+      }
+
+      // Start loading the profile
+      loadProfile();
+    }
+  </script>
 </body>
 </html>
