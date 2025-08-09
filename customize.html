@@ -327,23 +327,37 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Background upload
-  document.getElementById("backgroundUpload").addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    try {
-      const filePath = `backgrounds/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
-      const publicUrl = await uploadFile("backgrounds", filePath, file);
-      
-      document.getElementById("backgroundPreview").src = publicUrl;
-      document.getElementById("backgroundPreview").style.display = "block";
-      document.getElementById("removeBackground").classList.remove("hidden");
-      
-      currentProfile.background_url = publicUrl;
-      showSaveNotification();
-    } catch (error) {
-      console.error("Error uploading background:", error);
-    }
-  });
+  // Background upload
+document.getElementById("backgroundUpload").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  try {
+    // Show loading state
+    const uploadLabel = document.querySelector('label[for="backgroundUpload"]');
+    uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin text-2xl mb-1"></i><p class="text-sm">Uploading...</p></div>';
+    
+    const filePath = `backgrounds/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
+    const publicUrl = await uploadFile("backgrounds", filePath, file);
+    
+    document.getElementById("backgroundPreview").src = publicUrl;
+    document.getElementById("backgroundPreview").style.display = "block";
+    document.getElementById("removeBackground").classList.remove("hidden");
+    
+    currentProfile.background_url = publicUrl;
+    showSaveNotification();
+  } catch (error) {
+    console.error("Error uploading background:", error);
+    // Show error state
+    const uploadLabel = document.querySelector('label[for="backgroundUpload"]');
+    uploadLabel.innerHTML = '<div class="text-center text-red-400"><i class="fas fa-exclamation-circle text-2xl mb-1"></i><p class="text-sm">Upload failed</p></div>';
+    
+    // Reset after 2 seconds
+    setTimeout(() => {
+      uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-image text-2xl text-zinc-400 mb-1"></i><p class="text-sm text-zinc-400">Click to upload background</p></div>';
+    }, 2000);
+  }
+});
 
   // Remove background
   document.getElementById("removeBackground").addEventListener("click", async () => {
