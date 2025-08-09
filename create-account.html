@@ -79,10 +79,11 @@
   </div>
 
   <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-    
-    const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+  
+  const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
 
+  async function init() {
     // Add loading animation while checking auth state
     document.body.innerHTML = `
       <div class="flex flex-col items-center justify-center min-h-screen">
@@ -120,10 +121,10 @@
         return;
       }
 
-      // Restore original content with animations
-      document.body.innerHTML = `<!-- Rest of your original HTML here -->`;
+      // Restore original content
+      document.body.innerHTML = document.querySelector('body').outerHTML;
       
-      // Form submission with animations
+      // Now setup the form event listeners
       const usernameForm = document.getElementById('usernameForm');
       const usernameInput = document.getElementById('username');
       const errorElement = document.getElementById('error');
@@ -203,6 +204,10 @@
       console.error('Initialization error:', error);
       window.location.href = "/";
     }
-  </script>
+  }
+
+  // Initialize the app
+  init();
+</script>
 </body>
 </html>
