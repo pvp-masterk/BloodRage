@@ -28,7 +28,7 @@
       border: 2px solid white;
     }
     
-    /* Glass Morphism Profile Card */
+    /* Glass Card Styles */
     .glass-card {
       backdrop-filter: blur(16px) saturate(180%);
       -webkit-backdrop-filter: blur(16px) saturate(180%);
@@ -42,26 +42,13 @@
       overflow: hidden;
     }
     
-    .glass-card::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: linear-gradient(
-        45deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.1) 50%,
-        transparent 100%
-      );
-      transform: rotate(45deg);
-      animation: shine 3s infinite;
+    .glass-card.transparent-mode {
+      background: rgba(0, 0, 0, 0.3) !important;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
     
-    @keyframes shine {
-      0% { transform: translateX(-100%) rotate(45deg); }
-      100% { transform: translateX(100%) rotate(45deg); }
+    .glass-card.no-gradient {
+      background: rgba(20, 20, 20, 0.65) !important;
     }
     
     .avatar-ring {
@@ -81,6 +68,52 @@
     @keyframes float {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-10px); }
+    }
+    
+    /* Toggle Switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #4b5563;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: #dc2626;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(26px);
     }
   </style>
 </head>
@@ -109,6 +142,28 @@
   <!-- Main Content -->
   <main class="flex-1 p-8 space-y-8">
     <h2 class="text-3xl font-bold text-red-500 mb-6">Customize Your Profile</h2>
+
+    <!-- Card Style Controls -->
+    <div class="bg-zinc-900 rounded-lg p-4 mb-6">
+      <h4 class="text-lg font-semibold mb-3 text-red-500">Card Style</h4>
+      <div class="flex space-x-6">
+        <label class="flex items-center space-x-2">
+          <span>3D Effect:</span>
+          <label class="switch">
+            <input type="checkbox" id="toggle3d" checked>
+            <span class="slider"></span>
+          </label>
+        </label>
+        
+        <label class="flex items-center space-x-2">
+          <span>Transparent Mode:</span>
+          <label class="switch">
+            <input type="checkbox" id="toggleTransparent">
+            <span class="slider"></span>
+          </label>
+        </label>
+      </div>
+    </div>
 
     <!-- 3D Glass Profile Card Preview -->
     <div id="profile-preview-container" class="flex justify-center mb-8">
@@ -202,6 +257,8 @@ let mouseX = 0;
 let mouseY = 0;
 let card = null;
 let avatarRing = null;
+let is3dEnabled = true;
+let isTransparentMode = false;
 
 function debounce(fn, delay) {
   let t;
@@ -212,22 +269,35 @@ function debounce(fn, delay) {
 }
 
 function handleMouseMove(e) {
-  if (!card || !avatarRing) return;
+  if (!is3dEnabled || !card || !avatarRing) return;
   
-  // Get mouse position relative to card
   const rect = card.getBoundingClientRect();
   mouseX = e.clientX - rect.left;
   mouseY = e.clientY - rect.top;
   
-  // Calculate rotation angles (limited to 15 degrees)
-  const rotateY = (mouseX / rect.width - 0.5) * 30; // -15 to 15 degrees
-  const rotateX = (0.5 - mouseY / rect.height) * 30; // -15 to 15 degrees
+  const rotateY = (mouseX / rect.width - 0.5) * 15;
+  const rotateX = (0.5 - mouseY / rect.height) * 15;
   
-  // Apply rotation to card
   card.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
-  
-  // Apply stronger rotation to avatar ring
   avatarRing.style.transform = `rotateY(${rotateY * 1.5}deg) rotateX(${rotateX * 1.5}deg)`;
+}
+
+function resetCardPosition() {
+  if (card) card.style.transform = "rotateY(0) rotateX(0)";
+  if (avatarRing) avatarRing.style.transform = "rotateY(0) rotateX(0)";
+}
+
+function updateCardStyle() {
+  const card = document.getElementById('profile-preview');
+  
+  if (isTransparentMode) {
+    card.classList.add('transparent-mode');
+    card.classList.add('no-gradient');
+  } else {
+    card.classList.remove('transparent-mode');
+    card.classList.remove('no-gradient');
+    updateProfilePreview(currentProfile);
+  }
 }
 
 async function uploadFile(bucket, path, file) {
@@ -279,6 +349,10 @@ async function saveChanges() {
       }
     }
     
+    // Add card style preferences
+    updates.card_3d_enabled = is3dEnabled;
+    updates.card_transparent_mode = isTransparentMode;
+    
     if (Object.keys(updates).length > 0) {
       // Show loading state
       const saveBtn = document.getElementById('saveBtn');
@@ -328,8 +402,15 @@ async function resetChanges() {
   document.getElementById("primaryHex").textContent = profile.primary_color || "#991b1b";
   document.getElementById("secondaryHex").textContent = profile.secondary_color || "#1e1b4b";
   
+  // Update card style toggles
+  is3dEnabled = profile.card_3d_enabled !== false;
+  isTransparentMode = profile.card_transparent_mode === true;
+  document.getElementById('toggle3d').checked = is3dEnabled;
+  document.getElementById('toggleTransparent').checked = isTransparentMode;
+  
   // Update preview
   updateProfilePreview(profile);
+  updateCardStyle();
   
   // Update current profile
   currentProfile = JSON.parse(JSON.stringify(profile));
@@ -351,7 +432,7 @@ function updateProfilePreview(profile) {
   const preview = document.getElementById("profile-preview");
   const avatarRing = document.getElementById("avatarRing");
   
-  if (profile.gradient_enabled && profile.primary_color && profile.secondary_color) {
+  if (profile.gradient_enabled && profile.primary_color && profile.secondary_color && !isTransparentMode) {
     preview.style.background = `linear-gradient(to right, ${profile.primary_color}, ${profile.secondary_color})`;
     avatarRing.style.background = `linear-gradient(to right, ${profile.primary_color}, ${profile.secondary_color})`;
   } else {
@@ -369,9 +450,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById("profile-preview-container").addEventListener("mousemove", handleMouseMove);
   
   // Reset rotation when mouse leaves
-  document.getElementById("profile-preview-container").addEventListener("mouseleave", () => {
-    card.style.transform = "rotateY(0) rotateX(0)";
-    avatarRing.style.transform = "rotateY(0) rotateX(0)";
+  document.getElementById("profile-preview-container").addEventListener("mouseleave", resetCardPosition);
+
+  // Toggle 3D effect
+  document.getElementById('toggle3d').addEventListener('change', function(e) {
+    is3dEnabled = e.target.checked;
+    if (!is3dEnabled) resetCardPosition();
+    showSaveNotification();
+  });
+
+  // Toggle transparent mode
+  document.getElementById('toggleTransparent').addEventListener('change', function(e) {
+    isTransparentMode = e.target.checked;
+    updateCardStyle();
+    showSaveNotification();
   });
 
   // Check authentication
@@ -383,6 +475,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
   if (!profile) return;
+
+  // Initialize card style preferences
+  is3dEnabled = profile.card_3d_enabled !== false;
+  isTransparentMode = profile.card_transparent_mode === true;
+  document.getElementById('toggle3d').checked = is3dEnabled;
+  document.getElementById('toggleTransparent').checked = isTransparentMode;
 
   // Store original profile
   originalProfile = JSON.parse(JSON.stringify(profile));
@@ -400,6 +498,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   // Update preview
   updateProfilePreview(profile);
+  updateCardStyle();
 
   // Load background if exists
   if (profile.background_url) {
