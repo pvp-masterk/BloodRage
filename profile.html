@@ -10,10 +10,21 @@
   <style>
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     .floating { animation: float 4s ease-in-out infinite; }
-    .glow-red { text-shadow: 0 0 8px rgba(239, 68, 68, 0.7); }
+    .enter-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 50;
+      flex-direction: column;
+    }
   </style>
 </head>
 <body class="bg-black text-white font-sans min-h-screen flex items-center justify-center">
+
+  <!-- Enter Button Overlay -->
+  <div id="enterOverlay" class="enter-overlay hidden">
+    <button id="enterBtn" class="px-6 py-3 bg-red-600 rounded-lg text-xl hover:bg-red-700">Click to Enter</button>
+  </div>
 
   <!-- Loading -->
   <div id="loading" class="flex flex-col items-center justify-center space-y-4 absolute inset-0 bg-black">
@@ -49,7 +60,7 @@
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s"
     );
 
-    // Extract username from /@username or /username
+    // Get username from /@username or /username
     let username = window.location.pathname.replace(/^\/+|\/+$/g, '').trim();
     if (username.startsWith('@')) {
       username = username.substring(1);
@@ -83,7 +94,17 @@
           return;
         }
 
-        displayProfile(data);
+        // If enter button is enabled, show overlay
+        if (data.show_enter_button) {
+          const overlay = document.getElementById("enterOverlay");
+          overlay.classList.remove("hidden");
+          document.getElementById("enterBtn").onclick = () => {
+            overlay.classList.add("hidden");
+            displayProfile(data);
+          };
+        } else {
+          displayProfile(data);
+        }
       }
 
       function displayProfile(data) {
@@ -91,8 +112,8 @@
         const container = document.getElementById("profileContainer");
         const avatarRing = document.getElementById("avatarRing");
 
-        // Apply gradient background if available
-        if (data.primary_color && data.secondary_color) {
+        // Apply gradient if enabled
+        if (data.gradient_enabled && data.primary_color && data.secondary_color) {
           container.style.background = `linear-gradient(to right, ${data.primary_color}, ${data.secondary_color})`;
           avatarRing.style.background = `linear-gradient(to right, ${data.primary_color}, ${data.secondary_color})`;
         } else {
@@ -100,8 +121,14 @@
           avatarRing.style.background = `linear-gradient(135deg, #ef4444, #991b1b)`;
         }
 
+        // Use Discord avatar if enabled
+        if (data.use_discord_avatar && data.discord_id) {
+          document.getElementById("avatar").src = `https://cdn.discordapp.com/avatars/${data.discord_id}/${data.discord_avatar}.png?size=512`;
+        } else {
+          document.getElementById("avatar").src = data.avatar_url || 'https://via.placeholder.com/150/111827/FFFFFF/?text=BR';
+        }
+
         document.getElementById("username").textContent = '@' + data.username;
-        document.getElementById("avatar").src = data.avatar_url || 'https://via.placeholder.com/150/111827/FFFFFF/?text=BR';
 
         if (data.bio) {
           const bio = document.getElementById("bio");
