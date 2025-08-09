@@ -206,56 +206,76 @@
     </div>
 
     <!-- Asset Uploader Section -->
-    <div class="mt-8 border-t border-zinc-800 pt-8">
-      <h3 class="text-2xl font-bold text-red-500 mb-6">Assets Uploader</h3>
-      
-      <!-- Background Image -->
-      <div class="bg-zinc-900 rounded-lg p-4 mb-6">
-        <h4 class="text-lg font-semibold mb-3">Background</h4>
-        <div class="flex flex-wrap gap-4">
-          <div class="flex-1 min-w-[200px] bg-zinc-800 rounded-lg p-4">
-            <h5 class="text-sm font-medium text-zinc-300 mb-2">Image</h5>
-            <div class="relative">
-              <!-- Preview Container -->
-              <div id="backgroundPreviewContainer" class="mb-2 hidden">
-                <div class="upload-preview">
-                  <img id="backgroundPreview" src="" class="w-full h-32 object-cover rounded-lg"/>
-                  <div id="removeBackground" class="remove-btn">
-                    <i class="fas fa-times text-xs"></i>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Upload Area -->
-              <label for="backgroundUpload" id="backgroundUploadLabel" class="block w-full h-32 bg-zinc-700/50 rounded-lg border-2 border-dashed border-zinc-600 flex items-center justify-center cursor-pointer hover:border-red-500 transition-colors">
-                <div class="text-center">
-                  <i class="fas fa-image text-2xl text-zinc-400 mb-1"></i>
-                  <p class="text-sm text-zinc-400">Click to upload background</p>
-                </div>
-              </label>
-              <input type="file" id="backgroundUpload" class="hidden" accept="image/*"/>
-            </div>
+    <!-- Replace the existing Assets Uploader section with this: -->
+<div class="mt-8 border-t border-zinc-800 pt-8">
+  <h3 class="text-2xl font-bold text-red-500 mb-6">Assets Uploader</h3>
+  
+  <!-- Background Section -->
+  <div class="bg-zinc-900 rounded-lg p-6 mb-6 border border-zinc-800">
+    <h4 class="text-lg font-semibold mb-4 text-red-400">Background</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- MP4 Upload -->
+      <div class="bg-zinc-800/50 rounded-lg p-4 border border-zinc-700">
+        <h5 class="text-sm font-medium text-zinc-300 mb-3">MP4</h5>
+        <label for="backgroundVideoUpload" class="block w-full h-32 bg-zinc-700/30 rounded-lg border-2 border-dashed border-zinc-600 flex items-center justify-center cursor-pointer hover:border-red-500 transition-colors">
+          <div class="text-center">
+            <i class="fas fa-video text-2xl text-zinc-400 mb-1"></i>
+            <p class="text-sm text-zinc-400">Click to upload background video</p>
           </div>
-        </div>
+        </label>
+        <input type="file" id="backgroundVideoUpload" class="hidden" accept="video/mp4"/>
       </div>
-      <!-- Add this to your HTML, perhaps in the Assets Uploader section -->
-<div class="bg-zinc-900 rounded-lg p-4 mb-6">
-  <h4 class="text-lg font-semibold mb-3">Avatar</h4>
-  <div class="flex items-center space-x-4">
-    <div class="upload-preview">
-      <img id="avatarPreview" src="" class="w-24 h-24 rounded-full object-cover"/>
+      
+      <!-- Audio Upload -->
+      <div class="bg-zinc-800/50 rounded-lg p-4 border border-zinc-700">
+        <h5 class="text-sm font-medium text-zinc-300 mb-3">Audio</h5>
+        <button id="audioManagerBtn" class="w-full h-32 bg-zinc-700/30 rounded-lg border-2 border-dashed border-zinc-600 flex items-center justify-center hover:border-red-500 transition-colors">
+          <div class="text-center">
+            <i class="fas fa-music text-2xl text-zinc-400 mb-1"></i>
+            <p class="text-sm text-zinc-400">Click to open audio manager</p>
+          </div>
+        </button>
+      </div>
     </div>
-    <label for="avatarUpload" class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg cursor-pointer">
-      <i class="fas fa-upload mr-2"></i>Upload Avatar
-    </label>
-    <input type="file" id="avatarUpload" class="hidden" accept="image/*"/>
+  </div>
+  
+  <!-- Profile Avatar Section -->
+  <div class="bg-zinc-900 rounded-lg p-6 mb-6 border border-zinc-800">
+    <h4 class="text-lg font-semibold mb-4 text-red-400">Profile Avatar</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- WEBP Upload -->
+      <div class="bg-zinc-800/50 rounded-lg p-4 border border-zinc-700">
+        <h5 class="text-sm font-medium text-zinc-300 mb-3">WEBP</h5>
+        <label for="avatarUpload" class="block w-full h-32 bg-zinc-700/30 rounded-lg border-2 border-dashed border-zinc-600 flex items-center justify-center cursor-pointer hover:border-red-500 transition-colors">
+          <div class="text-center">
+            <i class="fas fa-image text-2xl text-zinc-400 mb-1"></i>
+            <p class="text-sm text-zinc-400">Click to upload avatar</p>
+          </div>
+        </label>
+        <input type="file" id="avatarUpload" class="hidden" accept="image/webp,image/png,image/jpeg"/>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Custom Cursor Section -->
+  <div class="bg-zinc-900 rounded-lg p-6 mb-6 border border-zinc-800">
+    <h4 class="text-lg font-semibold mb-4 text-red-400">Custom Cursor</h4>
+    <div class="bg-zinc-800/50 rounded-lg p-4 border border-zinc-700">
+      <label for="cursorUpload" class="block w-full h-32 bg-zinc-700/30 rounded-lg border-2 border-dashed border-zinc-600 flex items-center justify-center cursor-pointer hover:border-red-500 transition-colors">
+        <div class="text-center">
+          <i class="fas fa-mouse-pointer text-2xl text-zinc-400 mb-1"></i>
+          <p class="text-sm text-zinc-400">Click to upload custom cursor</p>
+        </div>
+      </label>
+      <input type="file" id="cursorUpload" class="hidden" accept="image/png,image/x-icon"/>
+    </div>
   </div>
 </div>
-    </div>
   </main>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s");
@@ -264,6 +284,7 @@ const supabase = createClient("https://smcteblolwhfxcpngmvd.supabase.co", "eyJhb
 let hasChanges = false;
 let originalProfile = {};
 let currentProfile = {};
+let user = null;
 
 // 3D Rotation Variables
 let mouseX = 0;
@@ -353,12 +374,6 @@ function hideSaveNotification() {
 
 async function saveChanges() {
   try {
-    const saveBtn = document.getElementById('saveBtn');
-    if (!saveBtn) {
-      console.error('Save button not found');
-      return;
-    }
-
     const updates = {};
     
     // Check which fields have changed
@@ -374,6 +389,7 @@ async function saveChanges() {
     
     if (Object.keys(updates).length > 0) {
       // Show loading state
+      const saveBtn = document.getElementById('saveBtn');
       const originalText = saveBtn.innerHTML;
       saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
       saveBtn.disabled = true;
@@ -387,28 +403,23 @@ async function saveChanges() {
       
       // Show success message
       const notification = document.getElementById('saveNotification');
-      if (notification) {
-        notification.innerHTML = '<div class="flex items-center space-x-2 text-green-400"><i class="fas fa-check-circle"></i><span>Changes saved successfully!</span></div>';
-        setTimeout(() => {
-          notification.innerHTML = '<div class="flex items-center space-x-2"><span>You have unsaved changes!</span><button id="resetBtn" class="px-3 py-1 bg-zinc-700 hover:bg-zinc-600 rounded">Reset</button><button id="saveBtn" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded">Save Changes</button></div>';
-        }, 2000);
-      }
+      notification.innerHTML = '<div class="flex items-center space-x-2 text-green-400"><i class="fas fa-check-circle"></i><span>Changes saved successfully!</span></div>';
+      setTimeout(() => {
+        notification.classList.add('hidden');
+        notification.innerHTML = '<div class="flex items-center space-x-2"><span>You have unsaved changes!</span><button id="resetBtn" class="px-3 py-1 bg-zinc-700 hover:bg-zinc-600 rounded">Reset</button><button id="saveBtn" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded">Save Changes</button></div>';
+      }, 2000);
     }
   } catch (error) {
     console.error("Error saving changes:", error);
     const notification = document.getElementById('saveNotification');
-    if (notification) {
-      notification.innerHTML = '<div class="flex items-center space-x-2 text-red-400"><i class="fas fa-exclamation-circle"></i><span>Error saving changes!</span></div>';
-      setTimeout(() => {
-        notification.innerHTML = '<div class="flex items-center space-x-2"><span>You have unsaved changes!</span><button id="resetBtn" class="px-3 py-1 bg-zinc-700 hover:bg-zinc-600 rounded">Reset</button><button id="saveBtn" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded">Save Changes</button></div>';
-      }, 2000);
-    }
+    notification.innerHTML = '<div class="flex items-center space-x-2 text-red-400"><i class="fas fa-exclamation-circle"></i><span>Error saving changes!</span></div>';
+    setTimeout(() => {
+      notification.innerHTML = '<div class="flex items-center space-x-2"><span>You have unsaved changes!</span><button id="resetBtn" class="px-3 py-1 bg-zinc-700 hover:bg-zinc-600 rounded">Reset</button><button id="saveBtn" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded">Save Changes</button></div>';
+    }, 2000);
   } finally {
     const saveBtn = document.getElementById('saveBtn');
-    if (saveBtn) {
-      saveBtn.innerHTML = 'Save Changes';
-      saveBtn.disabled = false;
-    }
+    saveBtn.innerHTML = 'Save Changes';
+    saveBtn.disabled = false;
   }
 }
 
@@ -440,14 +451,30 @@ async function resetChanges() {
   originalProfile = JSON.parse(JSON.stringify(profile));
   hideSaveNotification();
   
-  // Reset background image
-  if (profile.background_url) {
-    document.getElementById("backgroundPreview").src = profile.background_url;
-    document.getElementById("backgroundPreviewContainer").classList.remove("hidden");
-    document.getElementById("backgroundUploadLabel").classList.add("hidden");
+  // Reset assets
+  resetAssetPreviews(profile);
+}
+
+function resetAssetPreviews(profile) {
+  // Background Video
+  if (profile.background_video_url) {
+    // You might want to add a preview for video if needed
   } else {
-    document.getElementById("backgroundPreviewContainer").classList.add("hidden");
-    document.getElementById("backgroundUploadLabel").classList.remove("hidden");
+    // Reset video upload
+  }
+
+  // Avatar
+  if (profile.avatar_url) {
+    document.getElementById("avatar").src = profile.avatar_url;
+  } else {
+    document.getElementById("avatar").src = "https://via.placeholder.com/100";
+  }
+
+  // Cursor
+  if (profile.cursor_url) {
+    // You might want to add a cursor preview if needed
+  } else {
+    // Reset cursor upload
   }
 }
 
@@ -460,8 +487,96 @@ function updateProfilePreview(profile) {
     avatarRing.style.background = `linear-gradient(to right, ${profile.primary_color}, ${profile.secondary_color})`;
   } else {
     preview.style.background = `rgba(20, 20, 20, 0.65)`;
-    avatarRing.style.background = `linear-gradient(135deg, #ef4444, #991b1b)`;
+    avatarRing.style.background = `rgba(20, 20, 20, 0.65)`;
   }
+}
+
+// New Asset Upload Handlers
+async function setupAssetUploads() {
+  // Background Video Upload
+  document.getElementById("backgroundVideoUpload").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    try {
+      const uploadLabel = document.getElementById("backgroundVideoUpload").nextElementSibling;
+      uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin text-2xl mb-1"></i><p class="text-sm">Uploading...</p></div>';
+      
+      const filePath = `backgrounds/${user.id}-${Date.now()}.mp4`;
+      const publicUrl = await uploadFile("backgrounds", filePath, file);
+      
+      currentProfile.background_video_url = publicUrl;
+      showSaveNotification();
+      
+      uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-video text-2xl text-zinc-400 mb-1"></i><p class="text-sm text-zinc-400">Video uploaded!</p></div>';
+    } catch (error) {
+      console.error("Error uploading background video:", error);
+      const uploadLabel = document.getElementById("backgroundVideoUpload").nextElementSibling;
+      uploadLabel.innerHTML = '<div class="text-center text-red-400"><i class="fas fa-exclamation-circle text-2xl mb-1"></i><p class="text-sm">Upload failed</p></div>';
+      setTimeout(() => {
+        uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-video text-2xl text-zinc-400 mb-1"></i><p class="text-sm text-zinc-400">Click to upload background video</p></div>';
+      }, 2000);
+    }
+  });
+
+  // Avatar Upload
+  document.getElementById("avatarUpload").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    try {
+      const uploadLabel = document.getElementById("avatarUpload").nextElementSibling;
+      uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin text-2xl mb-1"></i><p class="text-sm">Uploading...</p></div>';
+      
+      const filePath = `avatars/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
+      const publicUrl = await uploadFile("avatars", filePath, file);
+      
+      document.getElementById("avatar").src = publicUrl;
+      currentProfile.avatar_url = publicUrl;
+      showSaveNotification();
+      
+      uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-image text-2xl text-zinc-400 mb-1"></i><p class="text-sm text-zinc-400">Avatar uploaded!</p></div>';
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      const uploadLabel = document.getElementById("avatarUpload").nextElementSibling;
+      uploadLabel.innerHTML = '<div class="text-center text-red-400"><i class="fas fa-exclamation-circle text-2xl mb-1"></i><p class="text-sm">Upload failed</p></div>';
+      setTimeout(() => {
+        uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-image text-2xl text-zinc-400 mb-1"></i><p class="text-sm text-zinc-400">Click to upload avatar</p></div>';
+      }, 2000);
+    }
+  });
+
+  // Custom Cursor Upload
+  document.getElementById("cursorUpload").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    try {
+      const uploadLabel = document.getElementById("cursorUpload").nextElementSibling;
+      uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin text-2xl mb-1"></i><p class="text-sm">Uploading...</p></div>';
+      
+      const filePath = `cursors/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
+      const publicUrl = await uploadFile("cursors", filePath, file);
+      
+      currentProfile.cursor_url = publicUrl;
+      showSaveNotification();
+      
+      uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-mouse-pointer text-2xl text-zinc-400 mb-1"></i><p class="text-sm text-zinc-400">Cursor uploaded!</p></div>';
+    } catch (error) {
+      console.error("Error uploading cursor:", error);
+      const uploadLabel = document.getElementById("cursorUpload").nextElementSibling;
+      uploadLabel.innerHTML = '<div class="text-center text-red-400"><i class="fas fa-exclamation-circle text-2xl mb-1"></i><p class="text-sm">Upload failed</p></div>';
+      setTimeout(() => {
+        uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-mouse-pointer text-2xl text-zinc-400 mb-1"></i><p class="text-sm text-zinc-400">Click to upload custom cursor</p></div>';
+      }, 2000);
+    }
+  });
+
+  // Audio Manager Button
+  document.getElementById("audioManagerBtn").addEventListener("click", () => {
+    // Placeholder for audio manager functionality
+    alert("Audio manager functionality will be implemented here");
+  });
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -490,11 +605,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Check authentication
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
+  const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+  if (authError || !authUser) {
     window.location.href = '/';
     return;
   }
+  user = authUser;
 
   let { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
   if (!profile) return;
@@ -523,12 +639,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateProfilePreview(profile);
   updateCardStyle();
 
-  // Load background if exists
-  if (profile.background_url) {
-    document.getElementById("backgroundPreview").src = profile.background_url;
-    document.getElementById("backgroundPreviewContainer").classList.remove("hidden");
-    document.getElementById("backgroundUploadLabel").classList.add("hidden");
-  }
+  // Setup asset upload handlers
+  setupAssetUploads();
 
   // Set up event listeners for save/reset
   document.getElementById('saveBtn').addEventListener('click', saveChanges);
@@ -560,79 +672,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById("secondaryHex").textContent = e.target.value;
     updateProfilePreview(currentProfile);
     showSaveNotification();
-  });
-
-  // Background upload
-  document.getElementById("backgroundUpload").addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    try {
-      // Show loading state
-      const uploadLabel = document.getElementById("backgroundUploadLabel");
-      uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin text-2xl mb-1"></i><p class="text-sm">Uploading...</p></div>';
-      
-      const filePath = `backgrounds/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
-      const publicUrl = await uploadFile("backgrounds", filePath, file);
-      
-      // Update UI
-      document.getElementById("backgroundPreview").src = publicUrl;
-      document.getElementById("backgroundPreviewContainer").classList.remove("hidden");
-      uploadLabel.classList.add("hidden");
-      
-      // Reset upload label
-      uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-image text-2xl text-zinc-400 mb-1"></i><p class="text-sm text-zinc-400">Click to upload background</p></div>';
-      
-      // Update profile and show save button
-      currentProfile.background_url = publicUrl;
-      showSaveNotification();
-    } catch (error) {
-      console.error("Error uploading background:", error);
-      // Show error state
-      const uploadLabel = document.getElementById("backgroundUploadLabel");
-      uploadLabel.innerHTML = '<div class="text-center text-red-400"><i class="fas fa-exclamation-circle text-2xl mb-1"></i><p class="text-sm">Upload failed</p></div>';
-      
-      // Reset after 2 seconds
-      setTimeout(() => {
-        uploadLabel.innerHTML = '<div class="text-center"><i class="fas fa-image text-2xl text-zinc-400 mb-1"></i><p class="text-sm text-zinc-400">Click to upload background</p></div>';
-      }, 2000);
-    }
-  });
-
-  // Remove background
-  document.getElementById("removeBackground").addEventListener("click", async () => {
-    try {
-      if (currentProfile.background_url) {
-        const path = currentProfile.background_url.split('/').pop();
-        await deleteFile("backgrounds", path);
-      }
-      
-      // Update UI
-      document.getElementById("backgroundPreviewContainer").classList.add("hidden");
-      document.getElementById("backgroundUploadLabel").classList.remove("hidden");
-      
-      // Update profile and show save button
-      currentProfile.background_url = null;
-      showSaveNotification();
-    } catch (error) {
-      console.error("Error removing background:", error);
-    }
-  });
-
-  // Live avatar upload
-  document.getElementById("avatarUpload").addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    try {
-      const filePath = `avatars/${user.id}-${Date.now()}.${file.name.split('.').pop()}`;
-      const publicUrl = await uploadFile("avatars", filePath, file);
-      
-      document.getElementById("avatar").src = publicUrl;
-      currentProfile.avatar_url = publicUrl;
-      showSaveNotification();
-    } catch (error) {
-      console.error("Error uploading avatar:", error);
-    }
   });
 });
 </script>
