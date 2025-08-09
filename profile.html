@@ -48,26 +48,16 @@
 
     <!-- Profile Card -->
     <div id="profileCard" class="hidden transform transition-all duration-500 opacity-0 translate-y-10">
-      <div class="relative bg-gradient-dark rounded-xl p-8 w-full max-w-md shadow-2xl text-center border border-red-700/50 hover-glow transition-transform hover-scale">
-
-        <!-- Avatar -->
-        <div class="relative floating">
-          <img id="avatar" src="" alt="Avatar" class="w-28 h-28 rounded-full border-4 border-red-600 mx-auto shadow-lg mb-4 object-cover transition-transform hover:scale-110"/>
-        </div>
-
-        <!-- Username -->
-        <h1 id="username" class="text-3xl font-bold text-red-500 mb-2 glow-red">@username</h1>
-
-        <!-- Bio -->
-        <p id="bio" class="text-zinc-300 mt-2 mb-4 hidden animate__animated animate__fadeIn"></p>
-
-        <!-- Badges -->
-        <div id="badges" class="flex gap-2 justify-center mb-6 animate__animated animate__fadeInUp"></div>
-
-        <!-- Links -->
-        <div id="links" class="flex flex-wrap justify-center gap-4 mt-4 animate__animated animate__fadeInUp"></div>
-      </div>
+  <div class="profile-inner relative rounded-xl p-12 w-full max-w-2xl shadow-2xl text-center border border-red-700/50 hover-glow transition-transform hover-scale">
+    <div class="relative floating">
+      <img id="avatar" src="" alt="Avatar" class="w-40 h-40 rounded-full border-4 border-red-600 mx-auto shadow-lg mb-6 object-cover transition-transform hover:scale-110"/>
     </div>
+    <h1 id="username" class="text-5xl font-bold text-red-500 mb-4 glow-red">@username</h1>
+    <p id="bio" class="text-lg text-zinc-300 mt-2 mb-6 hidden animate__animated animate__fadeIn"></p>
+    <div id="badges" class="flex gap-2 justify-center mb-8 animate__animated animate__fadeInUp"></div>
+    <div id="links" class="flex flex-wrap justify-center gap-6 mt-4 animate__animated animate__fadeInUp"></div>
+  </div>
+</div>
   </main>
 
   <!-- Footer -->
@@ -134,31 +124,39 @@ if (!username) {
       }
 
       function displayProfile(data) {
-        const profileCard = document.getElementById("profileCard");
-        document.getElementById("username").textContent = '@' + data.username;
-        document.getElementById("avatar").src = data.avatar_url || 'https://via.placeholder.com/150/111827/FFFFFF/?text=BR';
+  const profileCard = document.getElementById("profileCard");
 
-        if (data.bio) {
-          const bio = document.getElementById("bio");
-          bio.textContent = data.bio;
-          bio.classList.remove("hidden");
-          bio.classList.add("animate__fadeIn");
-        }
+  // Apply gradient if user has custom colors
+  const cardInner = profileCard.querySelector(".profile-inner");
+  if (data.primary_color && data.secondary_color) {
+    cardInner.style.background = `linear-gradient(to right, ${data.primary_color}, ${data.secondary_color})`;
+  }
 
-        if (data.links) {
-          const linksContainer = document.getElementById("links");
-          linksContainer.innerHTML = '';
-          for (const [label, url] of Object.entries(data.links)) {
-            linksContainer.appendChild(createLinkElement(url));
-          }
-        }
+  document.getElementById("username").textContent = '@' + data.username;
+  document.getElementById("avatar").src = data.avatar_url || 'https://via.placeholder.com/150/111827/FFFFFF/?text=BR';
 
-        profileCard.classList.remove("hidden");
-        setTimeout(() => {
-          profileCard.classList.remove("opacity-0", "translate-y-10");
-          profileCard.classList.add("opacity-100", "translate-y-0");
-        }, 100);
-      }
+  if (data.bio) {
+    const bio = document.getElementById("bio");
+    bio.textContent = data.bio;
+    bio.classList.remove("hidden");
+    bio.classList.add("animate__fadeIn");
+  }
+
+  if (data.links) {
+    const linksContainer = document.getElementById("links");
+    linksContainer.innerHTML = '';
+    for (const [label, url] of Object.entries(data.links)) {
+      linksContainer.appendChild(createLinkElement(url));
+    }
+  }
+
+  profileCard.classList.remove("hidden");
+  setTimeout(() => {
+    profileCard.classList.remove("opacity-0", "translate-y-10");
+    profileCard.classList.add("opacity-100", "translate-y-0");
+  }, 100);
+}
+
 
       function createLinkElement(url) {
         const a = document.createElement('a');
