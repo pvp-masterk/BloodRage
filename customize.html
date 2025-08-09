@@ -744,10 +744,18 @@ function hideSaveNotification() {
 async function saveChanges() {
   try {
     const updates = {};
+    const validFields = [
+      'bio', 'gradient_enabled', 'primary_color', 'secondary_color',
+      'card_3d_enabled', 'card_transparent_mode', 'avatar_url',
+      'cursor_url', 'audio_url', 'audio_title', 'audio_artist',
+      'audio_volume_enabled', 'audio_cover_url', 'background_video_url',
+      'username' // Add any other valid fields here
+    ];
 
-    // Check which fields have changed
+    // Check which fields have changed and are valid
     for (const key in currentProfile) {
-      if (JSON.stringify(currentProfile[key]) !== JSON.stringify(originalProfile[key])) {
+      if (validFields.includes(key) && 
+          JSON.stringify(currentProfile[key]) !== JSON.stringify(originalProfile[key])) {
         updates[key] = currentProfile[key];
       }
     }
@@ -757,24 +765,28 @@ async function saveChanges() {
     updates.card_transparent_mode = isTransparentMode;
 
     if (Object.keys(updates).length > 0) {
-      // Get save button safely
       const saveBtn = document.getElementById('saveBtn');
       if (saveBtn) {
         saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
         saveBtn.disabled = true;
       }
 
-      const { error } = await supabase.from("profiles")
+      const { data, error } = await supabase.from("profiles")
         .update(updates)
-        .eq("id", currentProfile.id);
+        .eq("id", currentProfile.id)
+        .select();
 
       if (error) throw error;
 
-      // Update local copies
-      originalProfile = JSON.parse(JSON.stringify(currentProfile));
+      // Update local copies with the returned data
+      if (data && data.length > 0) {
+        originalProfile = { ...originalProfile, ...data[0] };
+        currentProfile = { ...currentProfile, ...data[0] };
+      }
+
       hideSaveNotification();
 
-      // Show success message (replace contents)
+      // Show success message
       const notification = document.getElementById('saveNotification');
       notification.innerHTML = `
         <div class="flex items-center space-x-2 text-green-400 animate__animated animate__bounceIn">
@@ -782,7 +794,6 @@ async function saveChanges() {
           <span>Changes saved successfully!</span>
         </div>`;
 
-      // After a timeout, restore the default notification UI and rebind listeners
       setTimeout(() => {
         notification.classList.add('hidden');
         notification.innerHTML = `
@@ -793,10 +804,8 @@ async function saveChanges() {
           </div>`;
 
         // Rebind listeners
-        const newSave = document.getElementById('saveBtn');
-        const newReset = document.getElementById('resetBtn');
-        if (newSave) newSave.addEventListener('click', saveChanges);
-        if (newReset) newReset.addEventListener('click', resetChanges);
+        document.getElementById('saveBtn')?.addEventListener('click', saveChanges);
+        document.getElementById('resetBtn')?.addEventListener('click', resetChanges);
       }, 2000);
     }
   } catch (error) {
@@ -805,7 +814,7 @@ async function saveChanges() {
     notification.innerHTML = `
       <div class="flex items-center space-x-2 text-red-400 animate__animated animate__shakeX">
         <i class="fas fa-exclamation-circle"></i>
-        <span>Error saving changes!</span>
+        <span>${error.message || 'Error saving changes!'}</span>
       </div>`;
     setTimeout(() => {
       notification.innerHTML = `
@@ -816,17 +825,14 @@ async function saveChanges() {
         </div>`;
 
       // Rebind listeners
-      const newSave = document.getElementById('saveBtn');
-      const newReset = document.getElementById('resetBtn');
-      if (newSave) newSave.addEventListener('click', saveChanges);
-      if (newReset) newReset.addEventListener('click', resetChanges);
+      document.getElementById('saveBtn')?.addEventListener('click', saveChanges);
+      document.getElementById('resetBtn')?.addEventListener('click', resetChanges);
     }, 2000);
   } finally {
-    // Restore save button if it exists
-    const saveBtnFinal = document.getElementById('saveBtn');
-    if (saveBtnFinal) {
-      saveBtnFinal.innerHTML = 'Save Changes';
-      saveBtnFinal.disabled = false;
+    const saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) {
+      saveBtn.innerHTML = 'Save Changes';
+      saveBtn.disabled = false;
     }
   }
 }
