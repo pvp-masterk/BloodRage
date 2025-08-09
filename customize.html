@@ -158,8 +158,24 @@ function debounce(fn, delay) {
 }
 
 async function uploadFile(bucket, path, file) {
-  const { data: uploadData, error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true });
+  // Get the current session
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (!session) {
+    throw new Error("Not authenticated");
+  }
+
+  // Upload the file with the proper authentication headers
+  const { data: uploadData, error } = await supabase.storage
+    .from(bucket)
+    .upload(path, file, {
+      upsert: true,
+      contentType: file.type,
+      cacheControl: '3600'
+    });
+
   if (error) throw error;
+  
   const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(path);
   return urlData.publicUrl;
 }
