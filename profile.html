@@ -183,196 +183,187 @@
 
   <!-- Script -->
   <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-    const supabase = createClient(
-      "https://smcteblolwhfxcpngmvd.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s"
-    );
+  const supabase = createClient(
+    "https://smcteblolwhfxcpngmvd.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtY3RlYmxvbHdoZnhjcG5nbXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Nzk1MTUsImV4cCI6MjA3MDA1NTUxNX0.PWlZFiVv2E0Jah7tYGOGrbqkPwhxPoLhe0anINp0z3s"
+  );
 
-    // 3D Effect Variables
-    let mouseX = 0;
-    let mouseY = 0;
-    let card = null;
-    let avatarRing = null;
-    let is3dEnabled = true;
-    let isTransparentMode = false;
+  // 3D Effect Variables
+  let mouseX = 0;
+  let mouseY = 0;
+  let card = null;
+  let avatarRing = null;
+  let is3dEnabled = true;
+  let isTransparentMode = false;
 
-    // Handle mouse movement for 3D effect
-    function handleMouseMove(e) {
-      if (!is3dEnabled || !card || !avatarRing) return;
+  // Handle mouse movement for 3D effect
+  function handleMouseMove(e) {
+    if (!is3dEnabled || !card || !avatarRing) return;
+    
+    const rect = card.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
+    
+    const rotateY = (mouseX / rect.width - 0.5) * 15;
+    const rotateX = (0.5 - mouseY / rect.height) * 15;
+    
+    card.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+    avatarRing.style.transform = `rotateY(${rotateY * 1.5}deg) rotateX(${rotateX * 1.5}deg)`;
+  }
+
+  // Reset card position
+  function resetCardPosition() {
+    if (card) card.style.transform = "rotateY(0) rotateX(0)";
+    if (avatarRing) avatarRing.style.transform = "rotateY(0) rotateX(0)";
+  }
+
+  // Get username from URL
+  let username = window.location.pathname.replace(/^\/+|\/+$/g, '').trim();
+  if (username.startsWith('@')) {
+    username = username.substring(1);
+  }
+  username = decodeURIComponent(username);
+
+  if (!username) {
+    window.location.href = '/';
+  } else {
+    async function loadProfile() {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('username', username.toLowerCase())
+        .single();
+
+      document.getElementById("loading").classList.add("hidden");
+
+      if (error || !data) {
+        document.body.innerHTML = `
+          <div class="flex items-center justify-center min-h-screen">
+            <div class="text-center animate__animated animate__shakeX">
+              <div class="text-red-500 text-4xl mb-2">⚠️</div>
+              <h2 class="text-red-500 text-xl font-semibold">User not found</h2>
+              <p class="text-zinc-400 mt-2">The profile @${username} doesn't exist</p>
+              <a href="/" class="mt-4 inline-block bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
+                Go Home
+              </a>
+            </div>
+          </div>`;
+        return;
+      }
+
+      // Set 3D and transparent mode from database
+      is3dEnabled = data.card_3d_enabled !== false;
+      isTransparentMode = data.card_transparent_mode === true;
+
+      // Set background image if exists
+      if (data.background_url) {
+        document.body.style.backgroundImage = `url('${data.background_url}')`;
+      }
+
+      // Play background audio if exists
+      if (data.audio_url) {
+        const audio = document.getElementById("backgroundAudio");
+        audio.src = data.audio_url;
+        audio.volume = 0.3;
+        audio.play().catch(e => console.log("Audio play failed:", e));
+      }
+
+      // Apply custom cursor if exists
+      if (data.cursor_url) {
+        document.body.style.cursor = `url('${data.cursor_url}'), auto`;
+      }
+
+      // Initialize 3D elements
+      card = document.getElementById("profileCard");
+      avatarRing = document.getElementById("avatarRing");
       
-      const rect = card.getBoundingClientRect();
-      mouseX = e.clientX - rect.left;
-      mouseY = e.clientY - rect.top;
-      
-      const rotateY = (mouseX / rect.width - 0.5) * 15;
-      const rotateX = (0.5 - mouseY / rect.height) * 15;
-      
-      card.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
-      avatarRing.style.transform = `rotateY(${rotateY * 1.5}deg) rotateX(${rotateX * 1.5}deg)`;
+      // Add mouse move listener if 3D is enabled
+      if (is3dEnabled) {
+        document.getElementById("profileContainer").addEventListener("mousemove", handleMouseMove);
+        document.getElementById("profileContainer").addEventListener("mouseleave", resetCardPosition);
+      }
+
+      // If enter button is enabled, show overlay
+      if (data.show_enter_button) {
+        const overlay = document.getElementById("enterOverlay");
+        overlay.classList.remove("hidden");
+        document.getElementById("enterBtn").onclick = () => {
+          overlay.classList.add("hidden");
+          displayProfile(data);
+        };
+      } else {
+        displayProfile(data);
+      }
     }
 
-    // Reset card position
-    function resetCardPosition() {
-      if (card) card.style.transform = "rotateY(0) rotateX(0)";
-      if (avatarRing) avatarRing.style.transform = "rotateY(0) rotateX(0)";
-    }
+    function displayProfile(data) {
+      const profileContainer = document.getElementById("profileContainer");
+      const card = document.getElementById("profileCard");
+      const avatarRing = document.getElementById("avatarRing");
 
-    // Toggle 3D effect
-    document.getElementById('toggle3d').addEventListener('change', function(e) {
-      is3dEnabled = e.target.checked;
-      if (!is3dEnabled) resetCardPosition();
-    });
-
-    // Toggle transparent mode
-    document.getElementById('toggleTransparent').addEventListener('change', function(e) {
-      isTransparentMode = e.target.checked;
-      const card = document.getElementById('profileCard');
-      
+      // Apply transparent mode if enabled
       if (isTransparentMode) {
         card.classList.add('transparent-mode');
         card.classList.add('no-gradient');
+      }
+
+      // Apply gradient if enabled (only to card, not avatar ring)
+      if (data.gradient_enabled && data.primary_color && data.secondary_color && !isTransparentMode) {
+        card.style.background = `linear-gradient(to right, ${data.primary_color}, ${data.secondary_color})`;
       } else {
-        card.classList.remove('transparent-mode');
-        card.classList.remove('no-gradient');
+        card.style.background = `rgba(20, 20, 20, 0.65)`;
       }
-    });
 
-    // Get username from URL
-    let username = window.location.pathname.replace(/^\/+|\/+$/g, '').trim();
-    if (username.startsWith('@')) {
-      username = username.substring(1);
+      // Set solid color for avatar ring (no gradient)
+      avatarRing.style.background = `rgba(20, 20, 20, 0.65)`;
+
+      // Use Discord avatar if enabled
+      if (data.use_discord_avatar && data.discord_id) {
+        document.getElementById("avatar").src = `https://cdn.discordapp.com/avatars/${data.discord_id}/${data.discord_avatar}.png?size=512`;
+      } else {
+        document.getElementById("avatar").src = data.avatar_url || 'https://via.placeholder.com/150/111827/FFFFFF/?text=BR';
+      }
+
+      document.getElementById("username").textContent = '@' + data.username;
+
+      if (data.bio) {
+        const bio = document.getElementById("bio");
+        bio.textContent = data.bio;
+        bio.classList.remove("hidden");
+      }
+
+      if (data.links) {
+        const linksContainer = document.getElementById("links");
+        linksContainer.innerHTML = '';
+        for (const url of Object.values(data.links)) {
+          linksContainer.appendChild(createLinkElement(url));
+        }
+      }
+
+      profileContainer.classList.remove("hidden");
     }
-    username = decodeURIComponent(username);
 
-    if (!username) {
-      window.location.href = '/';
-    } else {
-      async function loadProfile() {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('username', username.toLowerCase())
-          .single();
-
-        document.getElementById("loading").classList.add("hidden");
-
-        if (error || !data) {
-          document.body.innerHTML = `
-            <div class="flex items-center justify-center min-h-screen">
-              <div class="text-center animate__animated animate__shakeX">
-                <div class="text-red-500 text-4xl mb-2">⚠️</div>
-                <h2 class="text-red-500 text-xl font-semibold">User not found</h2>
-                <p class="text-zinc-400 mt-2">The profile @${username} doesn't exist</p>
-                <a href="/" class="mt-4 inline-block bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
-                  Go Home
-                </a>
-              </div>
-            </div>`;
-          return;
-        }
-
-        // Set background image if exists
-        if (data.background_url) {
-          document.body.style.backgroundImage = `url('${data.background_url}')`;
-        }
-
-        // Play background audio if exists
-        if (data.audio_url) {
-          const audio = document.getElementById("backgroundAudio");
-          audio.src = data.audio_url;
-          audio.volume = 0.3;
-          audio.play().catch(e => console.log("Audio play failed:", e));
-        }
-
-        // Apply custom cursor if exists
-        if (data.cursor_url) {
-          document.body.style.cursor = `url('${data.cursor_url}'), auto`;
-        }
-
-        // Initialize 3D elements
-        card = document.getElementById("profileCard");
-        avatarRing = document.getElementById("avatarRing");
-        
-        // Add mouse move listener
-        document.getElementById("profileContainer").addEventListener("mousemove", handleMouseMove);
-        
-        // Reset rotation when mouse leaves
-        document.getElementById("profileContainer").addEventListener("mouseleave", resetCardPosition);
-
-        // If enter button is enabled, show overlay
-        if (data.show_enter_button) {
-          const overlay = document.getElementById("enterOverlay");
-          overlay.classList.remove("hidden");
-          document.getElementById("enterBtn").onclick = () => {
-            overlay.classList.add("hidden");
-            displayProfile(data);
-          };
-        } else {
-          displayProfile(data);
-        }
-      }
-
-      function displayProfile(data) {
-        const profileContainer = document.getElementById("profileContainer");
-        const card = document.getElementById("profileCard");
-        const avatarRing = document.getElementById("avatarRing");
-
-        // Apply gradient if enabled
-        if (data.gradient_enabled && data.primary_color && data.secondary_color) {
-          card.style.background = `linear-gradient(to right, ${data.primary_color}, ${data.secondary_color})`;
-          avatarRing.style.background = `linear-gradient(to right, ${data.primary_color}, ${data.secondary_color})`;
-        } else {
-          card.style.background = `rgba(20, 20, 20, 0.65)`;
-          avatarRing.style.background = `linear-gradient(135deg, #ef4444, #991b1b)`;
-        }
-
-        // Use Discord avatar if enabled
-        if (data.use_discord_avatar && data.discord_id) {
-          document.getElementById("avatar").src = `https://cdn.discordapp.com/avatars/${data.discord_id}/${data.discord_avatar}.png?size=512`;
-        } else {
-          document.getElementById("avatar").src = data.avatar_url || 'https://via.placeholder.com/150/111827/FFFFFF/?text=BR';
-        }
-
-        document.getElementById("username").textContent = '@' + data.username;
-
-        if (data.bio) {
-          const bio = document.getElementById("bio");
-          bio.textContent = data.bio;
-          bio.classList.remove("hidden");
-        }
-
-        if (data.links) {
-          const linksContainer = document.getElementById("links");
-          linksContainer.innerHTML = '';
-          for (const url of Object.values(data.links)) {
-            linksContainer.appendChild(createLinkElement(url));
-          }
-        }
-
-        profileContainer.classList.remove("hidden");
-      }
-
-      function createLinkElement(url) {
-        const a = document.createElement('a');
-        a.href = url;
-        a.target = '_blank';
-        a.className = 'text-white text-3xl hover:scale-125 transition-transform';
-        a.innerHTML = getIconForUrl(url);
-        return a;
-      }
-
-      function getIconForUrl(url) {
-        if (url.includes("twitter.com")) return `<i class="fab fa-twitter"></i>`;
-        if (url.includes("github.com")) return `<i class="fab fa-github"></i>`;
-        if (url.includes("instagram.com")) return `<i class="fab fa-instagram"></i>`;
-        if (url.includes("youtube.com")) return `<i class="fab fa-youtube"></i>`;
-        return `<i class="fas fa-link"></i>`;
-      }
-
-      loadProfile();
+    function createLinkElement(url) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.className = 'text-white text-3xl hover:scale-125 transition-transform';
+      a.innerHTML = getIconForUrl(url);
+      return a;
     }
-  </script>
+
+    function getIconForUrl(url) {
+      if (url.includes("twitter.com")) return `<i class="fab fa-twitter"></i>`;
+      if (url.includes("github.com")) return `<i class="fab fa-github"></i>`;
+      if (url.includes("instagram.com")) return `<i class="fab fa-instagram"></i>`;
+      if (url.includes("youtube.com")) return `<i class="fab fa-youtube"></i>`;
+      return `<i class="fas fa-link"></i>`;
+    }
+
+    loadProfile();
+  }
+</script>
 </body>
 </html>
